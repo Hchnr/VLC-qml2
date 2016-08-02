@@ -205,6 +205,9 @@ static int Create( vlc_object_t *p_this )
     const audio_format_t *infmt = &p_filter->fmt_in.audio;
     const audio_format_t *outfmt = &p_filter->fmt_out.audio;
 
+    if (p_filter->fmt_in.audio.channel_type != PHYSICAL_CHANNELS)
+        return VLC_EGENERIC;
+
     if( infmt->i_format != outfmt->i_format
      || infmt->i_rate != outfmt->i_rate
      || infmt->i_format != VLC_CODEC_FL32 )

@@ -273,6 +273,9 @@ static int OpenFilter( vlc_object_t *p_this )
     filter_t *p_filter = (filter_t *)p_this;
     void (*do_work)(filter_t *, block_t *, block_t *) = NULL;
 
+    if (p_filter->fmt_in.audio.channel_type != PHYSICAL_CHANNELS)
+        return VLC_EGENERIC;
+
     if( p_filter->fmt_in.audio.i_format != VLC_CODEC_FL32 ||
         p_filter->fmt_in.audio.i_format != p_filter->fmt_out.audio.i_format ||
         p_filter->fmt_in.audio.i_rate != p_filter->fmt_out.audio.i_rate ||
