@@ -31,6 +31,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <float.h>
 
 #include <vlc_common.h>
 #include <vlc_picture_pool.h>
@@ -451,7 +452,7 @@ vout_display_opengl_t *vout_display_opengl_New(video_format_t *fmt,
         return NULL;
     }
 
-    vgl->f_fov = -1.f; /* In order to init vgl->f_zoom_min */
+    vgl->f_zoom_unscaled = FLT_MAX; /* != f_zoom_unscaled in order to init vgl->f_fov */
 
     const char *extensions = (const char *)glGetString(GL_EXTENSIONS);
 #if !USE_OPENGL_ES
@@ -815,20 +816,21 @@ int vout_display_opengl_SetViewpoint(vout_display_opengl_t *vgl,
                                      const vlc_viewpoint_t *p_vp)
 {
 #define RAD(d) ((float) ((d) * M_PI / 180.f))
-    float f_fov = RAD(p_vp->fov);
-    if (f_fov > (float) M_PI -0.001f || f_fov < 0.001f)
-        return VLC_EBADVAR;
     if (p_vp->zoom > 1.f || p_vp->zoom < -1.f)
         return VLC_EBADVAR;
     vgl->f_teta = RAD(p_vp->yaw) - (float) M_PI_2;
     vgl->f_phi  = RAD(p_vp->pitch);
     vgl->f_roll = RAD(p_vp->roll);
 
-    if (fabsf(f_fov - vgl->f_fov) >= 0.001f)
+    if (fabsf(p_vp->zoom - vgl->f_zoom_unscaled) >= FLT_EPSILON)
     {
-        vgl->f_fov  = f_fov;
+        #define FOVY_MIN 60
+        #define FOVY_MAX 120
+        printf("test\n");
+        vgl->f_fov  = RAD((FOVY_MIN - FOVY_MAX) / 2.f * (p_vp->zoom + 1.f) + FOVY_MAX);
         CalculateZoomMin(vgl);
     }
+    printf("fov: %f %f %f\n", vgl->f_fov, p_vp->zoom, vgl->f_zoom_unscaled);
 
     vgl->f_zoom_unscaled = p_vp->zoom;
     UpdateZoom(vgl);
