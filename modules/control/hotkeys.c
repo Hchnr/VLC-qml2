@@ -121,8 +121,8 @@ static int MovedEvent( vlc_object_t *p_this, char const *psz_var,
         int i_vertical   = newval.coords.y - p_sys->vrnav.y;
 
         vlc_viewpoint_t viewpoint = {
-            .yaw   = RAD(-i_horizontal * 2.5f),
-            .pitch = RAD(-i_vertical   * 2.5f),
+            .yaw   = RAD(-i_horizontal * 4.0f),
+            .pitch = RAD(-i_vertical   * 4.0f),
         };
 
         input_UpdateViewpoint( p_sys->p_input, &viewpoint, false );
@@ -1118,13 +1118,13 @@ static int PutAction( intf_thread_t *p_intf, input_thread_t *p_input,
         case ACTIONID_VIEWPOINT_ZOOM_IN:
             if( p_vout )
                 input_UpdateViewpoint( p_input,
-                                       &(vlc_viewpoint_t) { .zoom = 0.01f },
+                                       &(vlc_viewpoint_t) { .zoom = 0.02f },
                                        false );
             break;
         case ACTIONID_VIEWPOINT_ZOOM_OUT:
             if( p_vout )
                 input_UpdateViewpoint( p_input,
-                                       &(vlc_viewpoint_t) { .zoom = -0.01f },
+                                       &(vlc_viewpoint_t) { .zoom = -0.02f },
                                        false );
             break;
 
