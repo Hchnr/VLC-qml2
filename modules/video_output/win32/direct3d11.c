@@ -35,6 +35,7 @@
 #include <vlc_vout_display.h>
 
 #include <assert.h>
+#include <math.h>
 
 #define COBJMACROS
 #define INITGUID
@@ -124,6 +125,16 @@ typedef struct {
     FLOAT padding[3];
 } PS_CONSTANT_BUFFER;
 
+typedef struct {
+    FLOAT RotX[16];
+    FLOAT RotY[16];
+    FLOAT RotZ[16];
+    FLOAT View[16];
+    FLOAT Projection[16];
+} VS_CONSTANT_BUFFER;
+
+#define SPHERE_RADIUS 1.f
+
 #define RECTWidth(r)   (int)((r).right - (r).left)
 #define RECTHeight(r)  (int)((r).bottom - (r).top)
 
@@ -152,7 +163,8 @@ static void Direct3D11DeleteRegions(int, picture_t **);
 static int Direct3D11MapSubpicture(vout_display_t *, int *, picture_t ***, subpicture_t *);
 
 static int AllocQuad(vout_display_t *, const video_format_t *, d3d_quad_t *,
-                     d3d_quad_cfg_t *, ID3D11PixelShader *, bool b_visible);
+                     d3d_quad_cfg_t *, ID3D11PixelShader *, bool b_visible,
+                     video_projection_mode_t);
 static void ReleaseQuad(d3d_quad_t *);
 static void UpdatePicQuadPosition(vout_display_t *);
 static void UpdateQuadOpacity(vout_display_t *, const d3d_quad_t *, float);
@@ -184,8 +196,41 @@ static const char* globVertexShaderFlat = "\
   \
   VS_OUTPUT VS( VS_INPUT In )\
   {\
+    return In;\
+  }\
+";
+
+static const char* globVertexShaderProjection = "\
+  cbuffer VS_CONSTANT_BUFFER : register(b0)\
+  {\
+     float4x4 RotX;\
+     float4x4 RotY;\
+     float4x4 RotZ;\
+     float4x4 View;\
+     float4x4 Projection;\
+  };\
+  struct VS_INPUT\
+  {\
+    float4 Position   : POSITION;\
+    float2 Texture    : TEXCOORD0;\
+  };\
+  \
+  struct VS_OUTPUT\
+  {\
+    float4 Position   : SV_POSITION;\
+    float2 Texture    : TEXCOORD0;\
+  };\
+  \
+  VS_OUTPUT VS( VS_INPUT In )\
+  {\
     VS_OUTPUT Output;\
-    Output.Position = In.Position;\
+    float4 pos = In.Position;\
+    pos = mul(RotY, pos);\
+    pos = mul(RotX, pos);\
+    pos = mul(RotZ, pos);\
+    pos = mul(View, pos);\
+    pos = mul(Projection, pos);\
+    Output.Position = pos;\
     Output.Texture = In.Texture;\
     return Output;\
   }\
@@ -803,6 +848,120 @@ static HRESULT UpdateBackBuffer(vout_display_t *vd)
     return S_OK;
 }
 
+/* rotation around the Z axis */
+static void getZRotMatrix(float theta, FLOAT matrix[static 16])
+{
+    float st, ct;
+
+    sincosf(theta, &st, &ct);
+
+    const FLOAT m[] = {
+    /*  x    y    z    w */
+        ct,  -st, 0.f, 0.f,
+        st,  ct,  0.f, 0.f,
+        0.f, 0.f, 1.f, 0.f,
+        0.f, 0.f, 0.f, 1.f
+    };
+
+    memcpy(matrix, m, sizeof(m));
+}
+
+/* rotation around the Y axis */
+static void getYRotMatrix(float theta, FLOAT matrix[static 16])
+{
+    float st, ct;
+
+    sincosf(theta, &st, &ct);
+
+    const FLOAT m[] = {
+    /*  x    y    z    w */
+        ct,  0.f, -st, 0.f,
+        0.f, 1.f, 0.f, 0.f,
+        st,  0.f, ct,  0.f,
+        0.f, 0.f, 0.f, 1.f
+    };
+
+    memcpy(matrix, m, sizeof(m));
+}
+
+/* rotation around the X axis */
+static void getXRotMatrix(float phi, FLOAT matrix[static 16])
+{
+    float sp, cp;
+
+    sincosf(phi, &sp, &cp);
+
+    const FLOAT m[] = {
+    /*  x    y    z    w */
+        1.f, 0.f, 0.f, 0.f,
+        0.f, cp,  sp,  0.f,
+        0.f, -sp, cp,  0.f,
+        0.f, 0.f, 0.f, 1.f
+    };
+
+    memcpy(matrix, m, sizeof(m));
+}
+
+static void getZoomMatrix(float zoom, FLOAT matrix[static 16]) {
+
+    const FLOAT m[] = {
+        /* x   y     z     w */
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, zoom, 1.0f
+    };
+
+    memcpy(matrix, m, sizeof(m));
+}
+
+/* perspective matrix see https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml */
+static void getProjectionMatrix(float sar, float fovy, FLOAT matrix[static 16]) {
+
+    float zFar  = 1000;
+    float zNear = 0.01;
+
+    float f = 1.f / tanf(fovy / 2.f);
+
+    const FLOAT m[] = {
+        f / sar, 0.f,                   0.f,                0.f,
+        0.f,     f,                     0.f,                0.f,
+        0.f,     0.f,    -(zNear + zFar) / (zNear - zFar),  1.f,
+        0.f,     0.f, (2 * zNear * zFar) / (zNear - zFar),  0.f};
+
+     memcpy(matrix, m, sizeof(m));
+}
+
+static void SetQuadViewpoint(vout_display_t *vd, d3d_quad_t *quad, const vlc_viewpoint_t *p_vp, video_projection_mode_t projection)
+{
+    vout_display_sys_t *sys = vd->sys;
+    HRESULT hr;
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    hr = ID3D11DeviceContext_Map(sys->d3dcontext, (ID3D11Resource *)quad->pVertexShaderConstants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    if (SUCCEEDED(hr)) {
+        VS_CONSTANT_BUFFER *dst_data = mappedResource.pData;
+        static_assert((sizeof(*dst_data)%16)==0,"Constant buffers require 16-byte alignment");
+
+#define RAD(d) ((float) ((d) * M_PI / 180.f))
+        if (projection == PROJECTION_MODE_RECTANGULAR)
+        {
+            quad->d3dvertexShader = sys->flatVSShader;
+        }
+        else
+        {
+            quad->d3dvertexShader = sys->projectionVSShader;
+            getXRotMatrix(-RAD(p_vp->pitch), dst_data->RotX);
+            getYRotMatrix(-RAD(p_vp->yaw),   dst_data->RotY);
+            getZRotMatrix(-RAD(p_vp->roll),  dst_data->RotZ);
+            getZoomMatrix(SPHERE_RADIUS * p_vp->zoom, dst_data->View);
+            float sar = (float) vd->cfg->display.width / vd->cfg->display.height;
+            getProjectionMatrix(sar, RAD(p_vp->fov), dst_data->Projection);
+        }
+#undef RAD
+    }
+    ID3D11DeviceContext_Unmap(sys->d3dcontext, (ID3D11Resource *)quad->pVertexShaderConstants, 0);
+}
+
 static void CropStagingFormat(vout_display_t *vd, video_format_t *backup_fmt)
 {
     if ( vd->sys->stagingQuad.pTexture == NULL )
@@ -828,6 +987,14 @@ static int Control(vout_display_t *vd, int query, va_list args)
     video_format_t core_source;
     CropStagingFormat( vd, &core_source );
     int res = CommonControl( vd, query, args );
+
+    if (query == VOUT_DISPLAY_CHANGE_VIEWPOINT)
+    {
+        const vout_display_cfg_t *cfg = va_arg(args, const vout_display_cfg_t*);
+        SetQuadViewpoint( vd, &vd->sys->picQuad, &cfg->viewpoint, vd->fmt.projection_mode );
+        res = VLC_SUCCESS;
+    }
+
     UncropStagingFormat( vd, &core_source );
     return res;
 }
@@ -949,6 +1116,7 @@ static void DisplayD3DPicture(vout_display_sys_t *sys, d3d_quad_t *quad)
     /* vertex shader */
     ID3D11DeviceContext_IASetVertexBuffers(sys->d3dcontext, 0, 1, &quad->pVertexBuffer, &stride, &offset);
     ID3D11DeviceContext_IASetIndexBuffer(sys->d3dcontext, quad->pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    ID3D11DeviceContext_VSSetConstantBuffers(sys->d3dcontext, 0, 1, &quad->pVertexShaderConstants);
 
     ID3D11DeviceContext_VSSetShader(sys->d3dcontext, quad->d3dvertexShader, NULL, 0);
 
@@ -1364,7 +1532,7 @@ static int Direct3D11Open(vout_display_t *vd, video_format_t *fmt)
     if ( fmt->i_height != fmt->i_visible_height || fmt->i_width != fmt->i_visible_width )
     {
         msg_Dbg( vd, "use a staging texture to crop to visible size" );
-        AllocQuad( vd, fmt, &sys->stagingQuad, &sys->picQuadConfig, NULL, false );
+        AllocQuad( vd, fmt, &sys->stagingQuad, &sys->picQuadConfig, NULL, false, PROJECTION_MODE_RECTANGULAR );
     }
 
     video_format_t core_source;
@@ -1555,6 +1723,24 @@ static int Direct3D11CreateResources(vout_display_t *vd, video_format_t *fmt)
     ID3D11DeviceContext_IASetInputLayout(sys->d3dcontext, pVertexLayout);
     ID3D11InputLayout_Release(pVertexLayout);
     
+    hr = D3DCompile(globVertexShaderProjection, strlen(globVertexShaderProjection),
+                    NULL, NULL, NULL, "VS", "vs_4_0_level_9_1", 0, 0, &pVSBlob, NULL);
+
+    if( FAILED(hr)) {
+      msg_Err(vd, "The projection Vertex Shader is invalid. (hr=0x%lX)", hr);
+      return VLC_EGENERIC;
+    }
+
+    hr = ID3D11Device_CreateVertexShader(sys->d3ddevice, (void *)ID3D10Blob_GetBufferPointer(pVSBlob),
+                                        ID3D10Blob_GetBufferSize(pVSBlob), NULL, &sys->projectionVSShader);
+
+    if(FAILED(hr)) {
+      ID3D11Device_Release(pVSBlob);
+      msg_Err(vd, "Failed to create the projection vertex shader. (hr=0x%lX)", hr);
+      return VLC_EGENERIC;
+    }
+    ID3D10Blob_Release(pVSBlob);
+
     ID3D11DeviceContext_IASetPrimitiveTopology(sys->d3dcontext, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     ID3DBlob* pPSBlob = NULL;
@@ -1602,7 +1788,7 @@ static int Direct3D11CreateResources(vout_display_t *vd, video_format_t *fmt)
         }
     }
 
-    if (AllocQuad( vd, fmt, &sys->picQuad, &sys->picQuadConfig, pPicQuadShader, true) != VLC_SUCCESS) {
+    if (AllocQuad( vd, fmt, &sys->picQuad, &sys->picQuadConfig, pPicQuadShader, true, vd->fmt.projection_mode) != VLC_SUCCESS) {
         ID3D11PixelShader_Release(pPicQuadShader);
         msg_Err(vd, "Could not Create the main quad picture. (hr=0x%lX)", hr);
         return VLC_EGENERIC;
@@ -1700,39 +1886,29 @@ static void Direct3D11DestroyPool(vout_display_t *vd)
     sys->pool = NULL;
 }
 
+#define SPHERE_SLICES 128
+
 static int AllocQuad(vout_display_t *vd, const video_format_t *fmt, d3d_quad_t *quad,
-                     d3d_quad_cfg_t *cfg, ID3D11PixelShader *d3dpixelShader, bool b_visible)
+                     d3d_quad_cfg_t *cfg, ID3D11PixelShader *d3dpixelShader, bool b_visible,
+                     video_projection_mode_t projection)
 {
     vout_display_sys_t *sys = vd->sys;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     HRESULT hr;
-    quad->vertexCount = 4;
-    quad->indexCount = 2 * 3;
-
-    D3D11_BUFFER_DESC bd;
-    memset(&bd, 0, sizeof(bd));
-    bd.Usage = D3D11_USAGE_DYNAMIC;
-    bd.ByteWidth = sizeof(d3d_vertex_t) * quad->vertexCount;
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-    hr = ID3D11Device_CreateBuffer(sys->d3ddevice, &bd, NULL, &quad->pVertexBuffer);
-    if(FAILED(hr)) {
-      msg_Err(vd, "Failed to create vertex buffer. (hr=%lX)", hr);
-      goto error;
-    }
+    const unsigned nbLatBands = SPHERE_SLICES;
+    const unsigned nbLonBands = SPHERE_SLICES;
 
     /* pixel shader constant buffer */
     PS_CONSTANT_BUFFER defaultConstants = {
       .Opacity = 1,
     };
-    static_assert((sizeof(defaultConstants)%16)==0,"Constant buffers require 16-byte alignment");
     D3D11_BUFFER_DESC constantDesc = {
         .Usage = D3D11_USAGE_DYNAMIC,
-        .ByteWidth = sizeof(defaultConstants),
+        .ByteWidth = sizeof(PS_CONSTANT_BUFFER),
         .BindFlags = D3D11_BIND_CONSTANT_BUFFER,
         .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
     };
+    static_assert((sizeof(PS_CONSTANT_BUFFER)%16)==0,"Constant buffers require 16-byte alignment");
     D3D11_SUBRESOURCE_DATA constantInit = { .pSysMem = &defaultConstants };
     hr = ID3D11Device_CreateBuffer(sys->d3ddevice, &constantDesc, &constantInit, &quad->pPixelShaderConstants);
     if(FAILED(hr)) {
@@ -1740,21 +1916,15 @@ static int AllocQuad(vout_display_t *vd, const video_format_t *fmt, d3d_quad_t *
         goto error;
     }
 
-    /* create the index of the vertices */
-    D3D11_BUFFER_DESC quadDesc = {
-        .Usage = D3D11_USAGE_DYNAMIC,
-        .ByteWidth = sizeof(WORD) * quad->indexCount,
-        .BindFlags = D3D11_BIND_INDEX_BUFFER,
-        .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
-    };
-
-    quad->d3dvertexShader = sys->flatVSShader;
-
-    hr = ID3D11Device_CreateBuffer(sys->d3ddevice, &quadDesc, NULL, &quad->pIndexBuffer);
+    /* vertex shader constant buffer */
+    constantDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
+    static_assert((sizeof(VS_CONSTANT_BUFFER)%16)==0,"Constant buffers require 16-byte alignment");
+    hr = ID3D11Device_CreateBuffer(sys->d3ddevice, &constantDesc, NULL, &quad->pVertexShaderConstants);
     if(FAILED(hr)) {
-        msg_Err(vd, "Could not create the quad indices. (hr=0x%lX)", hr);
+        msg_Err(vd, "Could not create the vertex shader constant buffer. (hr=0x%lX)", hr);
         goto error;
     }
+    SetQuadViewpoint( vd, quad,&vd->cfg->viewpoint, projection );
 
     D3D11_TEXTURE2D_DESC texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
@@ -1831,47 +2001,118 @@ static int AllocQuad(vout_display_t *vd, const video_format_t *fmt, d3d_quad_t *
         quad->d3dpixelShader = d3dpixelShader;
         ID3D11PixelShader_AddRef(quad->d3dpixelShader);
 
-        float right = 1.0f;
-        float left = -1.0f;
-        float top = 1.0f;
-        float bottom = -1.0f;
+        if (projection == PROJECTION_MODE_RECTANGULAR)
+        {
+            quad->vertexCount = 4;
+            quad->indexCount = 2 * 3;
+        }
+        else if (projection == PROJECTION_MODE_EQUIRECTANGULAR)
+        {
+            quad->vertexCount = (SPHERE_SLICES+1) * (SPHERE_SLICES+1);
+            quad->indexCount = nbLatBands * nbLonBands * 2 * 3;
+        }
+        else
+            goto error;
 
+        D3D11_BUFFER_DESC bd;
+        memset(&bd, 0, sizeof(bd));
+        bd.Usage = D3D11_USAGE_DYNAMIC;
+        bd.ByteWidth = sizeof(d3d_vertex_t) * quad->vertexCount;
+        bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        hr = ID3D11Device_CreateBuffer(sys->d3ddevice, &bd, NULL, &quad->pVertexBuffer);
+        if(FAILED(hr)) {
+          msg_Err(vd, "Failed to create vertex buffer. (hr=%lX)", hr);
+          goto error;
+        }
+
+        /* create the vertices */
         hr = ID3D11DeviceContext_Map(sys->d3dcontext, (ID3D11Resource *)quad->pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
         if (SUCCEEDED(hr)) {
             d3d_vertex_t *dst_data = mappedResource.pData;
 
-            // bottom left
-            dst_data[0].position.x = left;
-            dst_data[0].position.y = bottom;
-            dst_data[0].position.z = 0.0f;
-            dst_data[0].texture.x = 0.0f;
-            dst_data[0].texture.y = 1.0f;
+            if ( projection == PROJECTION_MODE_RECTANGULAR ) {
+                float right = 1.0f;
+                float left = -1.0f;
+                float top = 1.0f;
+                float bottom = -1.0f;
 
-            // bottom right
-            dst_data[1].position.x = right;
-            dst_data[1].position.y = bottom;
-            dst_data[1].position.z = 0.0f;
-            dst_data[1].texture.x = 1.0f;
-            dst_data[1].texture.y = 1.0f;
+                // bottom left
+                dst_data[0].position.x = left;
+                dst_data[0].position.y = bottom;
+                dst_data[0].position.z = 0.0f;
+                dst_data[0].texture.x = 0.0f;
+                dst_data[0].texture.y = 1.0f;
 
-            // top right
-            dst_data[2].position.x = right;
-            dst_data[2].position.y = top;
-            dst_data[2].position.z = 0.0f;
-            dst_data[2].texture.x = 1.0f;
-            dst_data[2].texture.y = 0.0f;
+                // bottom right
+                dst_data[1].position.x = right;
+                dst_data[1].position.y = bottom;
+                dst_data[1].position.z = 0.0f;
+                dst_data[1].texture.x = 1.0f;
+                dst_data[1].texture.y = 1.0f;
 
-            // top left
-            dst_data[3].position.x = left;
-            dst_data[3].position.y = top;
-            dst_data[3].position.z = 0.0f;
-            dst_data[3].texture.x = 0.0f;
-            dst_data[3].texture.y = 0.0f;
+                // top right
+                dst_data[2].position.x = right;
+                dst_data[2].position.y = top;
+                dst_data[2].position.z = 0.0f;
+                dst_data[2].texture.x = 1.0f;
+                dst_data[2].texture.y = 0.0f;
+
+                // top left
+                dst_data[3].position.x = left;
+                dst_data[3].position.y = top;
+                dst_data[3].position.z = 0.0f;
+                dst_data[3].texture.x = 0.0f;
+                dst_data[3].texture.y = 0.0f;
+            } else if (projection == PROJECTION_MODE_EQUIRECTANGULAR) {
+                const float radius = SPHERE_RADIUS;
+
+                for (unsigned lat = 0; lat <= nbLatBands; lat++) {
+                    float theta = lat * (float) M_PI / nbLatBands;
+                    float sinTheta, cosTheta;
+
+                    sincosf(theta, &sinTheta, &cosTheta);
+
+                    for (unsigned lon = 0; lon <= nbLonBands; lon++) {
+                        float phi = lon * 2 * (float) M_PI / nbLonBands;
+                        float sinPhi, cosPhi;
+
+                        sincosf(phi, &sinPhi, &cosPhi);
+
+                        float x = cosPhi * sinTheta;
+                        float y = cosTheta;
+                        float z = sinPhi * sinTheta;
+
+                        unsigned off1 = lat * (nbLonBands + 1) + lon;
+                        dst_data[off1].position.x = radius * x;
+                        dst_data[off1].position.y = radius * y;
+                        dst_data[off1].position.z = radius * z;
+
+                        dst_data[off1].texture.x = lon / (float) nbLonBands; // 0(left) to 1(right)
+                        dst_data[off1].texture.y = lat / (float) nbLatBands; // 0(top) to 1 (bottom)
+                    }
+                }
+            }
 
             ID3D11DeviceContext_Unmap(sys->d3dcontext, (ID3D11Resource *)quad->pVertexBuffer, 0);
         }
         else {
-            msg_Err(vd, "Failed to lock the subpicture vertex buffer (hr=0x%lX)", hr);
+            msg_Err(vd, "Failed to lock the vertex buffer (hr=0x%lX)", hr);
+        }
+
+        /* create the index of the vertices */
+        D3D11_BUFFER_DESC quadDesc = {
+            .Usage = D3D11_USAGE_DYNAMIC,
+            .ByteWidth = sizeof(WORD) * quad->indexCount,
+            .BindFlags = D3D11_BIND_INDEX_BUFFER,
+            .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
+        };
+
+        hr = ID3D11Device_CreateBuffer(sys->d3ddevice, &quadDesc, NULL, &quad->pIndexBuffer);
+        if(FAILED(hr)) {
+            msg_Err(vd, "Could not create the quad indices. (hr=0x%lX)", hr);
+            goto error;
         }
 
         /* create the vertex indices */
@@ -1879,13 +2120,32 @@ static int AllocQuad(vout_display_t *vd, const video_format_t *fmt, d3d_quad_t *
         if (SUCCEEDED(hr)) {
             WORD *dst_data = mappedResource.pData;
 
-            dst_data[0] = 3;
-            dst_data[1] = 1;
-            dst_data[2] = 0;
+            if ( projection == PROJECTION_MODE_RECTANGULAR ) {
+                dst_data[0] = 3;
+                dst_data[1] = 1;
+                dst_data[2] = 0;
 
-            dst_data[3] = 2;
-            dst_data[4] = 1;
-            dst_data[5] = 3;
+                dst_data[3] = 2;
+                dst_data[4] = 1;
+                dst_data[5] = 3;
+            } else if (projection == PROJECTION_MODE_EQUIRECTANGULAR) {
+                for (unsigned lat = 0; lat < nbLatBands; lat++) {
+                    for (unsigned lon = 0; lon < nbLonBands; lon++) {
+                        unsigned first = (lat * (nbLonBands + 1)) + lon;
+                        unsigned second = first + nbLonBands + 1;
+
+                        unsigned off = (lat * nbLatBands + lon) * 3 * 2;
+
+                        dst_data[off] = first;
+                        dst_data[off + 1] = second;
+                        dst_data[off + 2] = first + 1;
+
+                        dst_data[off + 3] = second;
+                        dst_data[off + 4] = second + 1;
+                        dst_data[off + 5] = first + 1;
+                    }
+                }
+            }
 
             ID3D11DeviceContext_Unmap(sys->d3dcontext, (ID3D11Resource *)quad->pIndexBuffer, 0);
         }
@@ -1918,6 +2178,11 @@ static void ReleaseQuad(d3d_quad_t *quad)
     {
         ID3D11Buffer_Release(quad->pIndexBuffer);
         quad->pIndexBuffer = NULL;
+    }
+    if (quad->pVertexShaderConstants)
+    {
+        ID3D11Buffer_Release(quad->pVertexShaderConstants);
+        quad->pVertexShaderConstants = NULL;
     }
     if (quad->pTexture)
     {
@@ -1957,6 +2222,11 @@ static void Direct3D11DestroyResources(vout_display_t *vd)
     {
         ID3D11VertexShader_Release(sys->flatVSShader);
         sys->flatVSShader = NULL;
+    }
+    if (sys->projectionVSShader)
+    {
+        ID3D11VertexShader_Release(sys->projectionVSShader);
+        sys->projectionVSShader = NULL;
     }
     if (sys->d3drenderTargetView)
     {
@@ -2086,7 +2356,7 @@ static int Direct3D11MapSubpicture(vout_display_t *vd, int *subpicture_region_co
                 .textureFormat      = sys->d3dregion_format,
                 .resourceFormatYRGB = sys->d3dregion_format,
             };
-            err = AllocQuad(vd, &r->fmt, d3dquad, &rgbaCfg, sys->pSPUPixelShader, false);
+            err = AllocQuad(vd, &r->fmt, d3dquad, &rgbaCfg, sys->pSPUPixelShader, false, PROJECTION_MODE_RECTANGULAR);
             if (err != VLC_SUCCESS) {
                 msg_Err(vd, "Failed to create %dx%d texture for OSD",
                         r->fmt.i_visible_width, r->fmt.i_visible_height);
