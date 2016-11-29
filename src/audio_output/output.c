@@ -171,6 +171,15 @@ static int FilterCallback (vlc_object_t *obj, const char *var,
     return VLC_SUCCESS;
 }
 
+static int ViewpointCallback (vlc_object_t *obj, const char *var,
+                              vlc_value_t prev, vlc_value_t cur, void *data)
+{
+    if( cur.p_address != NULL )
+        aout_ChangeViewpoint((audio_output_t *)obj, cur.p_address );
+    (void) var; (void) data; (void) prev;
+    return VLC_SUCCESS;
+}
+
 #undef aout_New
 /**
  * Creates an audio output object and initializes an output module.
@@ -189,6 +198,7 @@ audio_output_t *aout_New (vlc_object_t *parent)
     vlc_mutex_init (&owner->lock);
     vlc_mutex_init (&owner->req.lock);
     vlc_mutex_init (&owner->dev.lock);
+    vlc_mutex_init (&owner->vp.lock);
     owner->req.device = (char *)unset_str;
     owner->req.volume = -1.f;
     owner->req.mute = -1;
@@ -290,6 +300,8 @@ audio_output_t *aout_New (vlc_object_t *parent)
     text.psz_string = _("Audio filters");
     var_Change (aout, "audio-filter", VLC_VAR_SETTEXT, &text, NULL);
 
+    var_Create (aout, "viewpoint", VLC_VAR_ADDRESS  | VLC_VAR_DOINHERIT);
+    var_AddCallback (aout, "viewpoint", ViewpointCallback, NULL);
 
     var_Create (aout, "audio-visual", VLC_VAR_STRING | VLC_VAR_DOINHERIT);
     text.psz_string = _("Audio visualizations");
@@ -333,6 +345,7 @@ void aout_Destroy (audio_output_t *aout)
     aout->device_select = NULL;
     aout_OutputUnlock (aout);
 
+    var_DelCallback (aout, "viewpoint", ViewpointCallback, NULL);
     var_DelCallback (aout, "audio-filter", FilterCallback, NULL);
     var_DelCallback (aout, "device", var_CopyDevice, aout->obj.parent);
     var_DelCallback (aout, "mute", var_Copy, aout->obj.parent);
@@ -358,6 +371,7 @@ static void aout_Destructor (vlc_object_t *obj)
     }
 
     assert (owner->req.device == unset_str);
+    vlc_mutex_destroy (&owner->vp.lock);
     vlc_mutex_destroy (&owner->req.lock);
     vlc_mutex_destroy (&owner->lock);
 }

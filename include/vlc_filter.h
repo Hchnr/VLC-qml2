@@ -116,6 +116,8 @@ struct filter_t
      */
     void (*pf_flush)( filter_t * );
 
+    void (*pf_change_viewpoint)( filter_t *, const vlc_viewpoint_t * );
+
     union
     {
         /** Filter mouse state (video filter).
@@ -167,6 +169,13 @@ static inline void filter_Flush( filter_t *p_filter )
 {
     if( p_filter->pf_flush != NULL )
         p_filter->pf_flush( p_filter );
+}
+
+static inline void filter_ChangeViewpoint( filter_t *p_filter,
+                                           const vlc_viewpoint_t *vp)
+{
+    if( p_filter->pf_change_viewpoint != NULL )
+        p_filter->pf_change_viewpoint( p_filter, vp );
 }
 
 /**
