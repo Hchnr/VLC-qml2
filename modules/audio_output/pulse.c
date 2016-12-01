@@ -757,6 +757,14 @@ static int Start(audio_output_t *aout, audio_sample_format_t *restrict fmt)
             break;
     }
 
+    /* Force Ambisonics to binaural conversion */
+    if (fmt->channel_type == AMBISONICS_CHANNELS)
+    {
+        fmt->channel_type = PHYSICAL_CHANNELS;
+        fmt->i_physical_channels = AOUT_CHANS_STEREO;
+        fmt->i_channels = 2;
+    }
+
     ss.rate = fmt->i_rate;
     ss.channels = fmt->i_channels;
     if (!pa_sample_spec_valid(&ss)) {

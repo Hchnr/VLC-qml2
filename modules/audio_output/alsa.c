@@ -460,6 +460,14 @@ static int Start (audio_output_t *aout, audio_sample_format_t *restrict fmt)
         goto error;
     }
 
+    /* Force Ambisonics to binaural conversion */
+    if (fmt->channel_type == AMBISONICS_CHANNELS)
+    {
+        fmt->channel_type = PHYSICAL_CHANNELS;
+        fmt->i_physical_channels = AOUT_CHANS_STEREO;
+        fmt->i_channels = 2;
+    }
+
     /* Set channels count */
     unsigned channels;
     if (!spdif)
