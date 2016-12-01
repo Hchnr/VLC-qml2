@@ -65,6 +65,16 @@ typedef struct
     float      pf_gain[AUDIO_REPLAY_GAIN_MAX];
 } audio_replay_gain_t;
 
+
+/**
+ * audio channel type
+ */
+typedef enum audio_channel_type_t
+{
+    PHYSICAL_CHANNELS = 0,
+    AMBISONICS_CHANNELS,
+} audio_channel_type_t;
+
 /**
  * audio format description
  */
@@ -80,6 +90,9 @@ struct audio_format_t
     /* Describes from which original channels, before downmixing, the
      * buffer is derived. */
     uint32_t     i_original_channels;
+
+    /* Channel type */
+    audio_channel_type_t channel_type;
 
     /* Optional - for A/52, SPDIF and DTS types : */
     /* Bytes used by one compressed frame, depends on bitrate. */
