@@ -160,7 +160,8 @@ static int aout_FiltersPipelineCreate(vlc_object_t *obj, filter_t **filters,
     assert (AOUT_FMT_LINEAR(&input));
 
     /* Remix channels */
-    if (infmt->i_physical_channels != outfmt->i_physical_channels
+    if (infmt->channel_type != outfmt->channel_type
+     || infmt->i_physical_channels != outfmt->i_physical_channels
      || infmt->i_original_channels != outfmt->i_original_channels)
     {   /* Remixing currently requires FL32... TODO: S16N */
         if (input.i_format != VLC_CODEC_FL32)
@@ -185,6 +186,7 @@ static int aout_FiltersPipelineCreate(vlc_object_t *obj, filter_t **filters,
         audio_sample_format_t output;
         output.i_format = input.i_format;
         output.i_rate = input.i_rate;
+        output.channel_type = outfmt->channel_type;
         output.i_physical_channels = outfmt->i_physical_channels;
         output.i_original_channels = outfmt->i_original_channels;
         aout_FormatPrepare (&output);
