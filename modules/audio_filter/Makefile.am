@@ -58,6 +58,11 @@ libsimple_channel_mixer_plugin_la_SOURCES = \
 	audio_filter/channel_mixer/simple.c
 libsimple_channel_mixer_plugin_la_CFLAGS =
 libsimple_channel_mixer_plugin_la_LIBADD =
+libambisonics_binaural_channel_mixer_plugin_la_SOURCES = \
+	audio_filter/channel_mixer/ambisonics_binaural.cpp
+libambisonics_binaural_channel_mixer_plugin_la_LIBADD = $(AMBISONIC_LIBS)
+libambisonics_binaural_hoa_channel_mixer_plugin_la_SOURCES = \
+	audio_filter/channel_mixer/ambisonics_binaural_hoa.cpp
 
 if HAVE_NEON
 EXTRA_LTLIBRARIES += libsimple_channel_mixer_plugin_arm_neon.la
@@ -73,7 +78,8 @@ audio_filter_LTLIBRARIES += \
 	libmono_plugin.la \
 	libremap_plugin.la \
 	libsimple_channel_mixer_plugin.la \
-	libtrivial_channel_mixer_plugin.la
+	libtrivial_channel_mixer_plugin.la \
+        libambisonics_binaural_channel_mixer_plugin.la
 
 # Converters
 libaudio_format_plugin_la_SOURCES = audio_filter/converter/format.c
