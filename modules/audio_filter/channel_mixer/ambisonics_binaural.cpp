@@ -69,6 +69,7 @@ struct filter_sys_t
     {}
 
     CAmbisonicBinauralizer binauralDecoder;
+    CAmbisonicDecoder speakerDecoder;
     CAmbisonicProcessor processor;
 
     std::vector<float> inputSamples;
@@ -141,7 +142,10 @@ static block_t *Mix( filter_t *p_filter, block_t *p_buf )
         p_sys->processor.Process(&inData, inData.GetSampleCount());
 
         // Compute
-        p_sys->binauralDecoder.Process(&inData, p_sys->outBuf);
+        if (outfmt->i_physical_channels == AOUT_CHANS_STEREO)
+            p_sys->binauralDecoder.Process(&inData, p_sys->outBuf);
+        else if ((outfmt->i_physical_channels & AOUT_CHANS_4_0) == AOUT_CHANS_4_0)
+            p_sys->speakerDecoder.Process(&inData, inData.GetSampleCount(), p_sys->outBuf);
 
         // Interleave the results.
         for (unsigned i = 0; i < p_sys->i_outputNb; ++i)
@@ -189,7 +193,8 @@ static int Open(vlc_object_t *p_this)
 
     if (infmt->channel_type != AMBISONICS_CHANNELS
         || outfmt->channel_type == AMBISONICS_CHANNELS
-        || outfmt->i_physical_channels != AOUT_CHANS_STEREO)
+        || (outfmt->i_physical_channels != AOUT_CHANS_STEREO
+            && (outfmt->i_physical_channels & AOUT_CHANS_4_0) != AOUT_CHANS_4_0))
         return VLC_EGENERIC;
 
     infmt->i_format = VLC_CODEC_FL32;
@@ -225,15 +230,66 @@ static int Open(vlc_object_t *p_this)
 
     unsigned i_tailLength = 0;
 
-    if (!p_sys->binauralDecoder.Create(p_sys->i_order, true,
-            p_sys->i_rate, AMB_BLOCK_TIME_LEN, false, i_tailLength))
+    if (outfmt->i_physical_channels == AOUT_CHANS_STEREO)
     {
-        msg_Err(p_filter, "Error creating the binaural decoder.");
-        freeBuffers(p_sys);
-        delete p_sys;
-        return VLC_EGENERIC;
+        if (!p_sys->binauralDecoder.Create(p_sys->i_order, true,
+                p_sys->i_rate, AMB_BLOCK_TIME_LEN, false, i_tailLength))
+        {
+            msg_Err(p_filter, "Error creating the binaural decoder.");
+            freeBuffers(p_sys);
+            delete p_sys;
+            return VLC_EGENERIC;
+        }
+        p_sys->binauralDecoder.Reset();
     }
-    p_sys->binauralDecoder.Reset();
+    /* For speaker rendering, we want at least 4.0 */
+    else if ((outfmt->i_physical_channels & AOUT_CHANS_4_0) == AOUT_CHANS_4_0)
+    {
+        unsigned i_nbChannels = aout_FormatNbChannels(&p_filter->fmt_out.audio);
+        if (!p_sys->speakerDecoder.Create(p_sys->i_order, true,
+                                          kAmblib_CustomSpeakerSetUp, i_nbChannels))
+        {
+            msg_Err(p_filter, "Error creating the 5.1 decoder.");
+            freeBuffers(p_sys);
+            delete p_sys;
+            return VLC_EGENERIC;
+        }
+
+        /* Speaker setup, inspired from:
+         * https://www.dolby.com/us/en/guide/surround-sound-speaker-setup/7-1-setup.html
+         * The position must follow the order of pi_vlc_chan_order_wg4 */
+        unsigned s = 0;
+
+        p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(-30), 0.f, 1.f});
+        p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(30), 0.f, 1.f});
+
+        if ((outfmt->i_physical_channels & AOUT_CHANS_MIDDLE) == AOUT_CHANS_MIDDLE)
+        {
+            /* Middle */
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(-110), 0.f, 1.f});
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(110), 0.f, 1.f});
+            /* Rear */
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(-145), 0.f, 1.f});
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(145), 0.f, 1.f});
+        }
+        else
+        {
+            /* Rear */
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(-110), 0.f, 1.f});
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(110), 0.f, 1.f});
+        }
+
+        if ((outfmt->i_physical_channels & AOUT_CHAN_CENTER) == AOUT_CHAN_CENTER)
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(0), 0.f, 1.f});
+
+        if ((outfmt->i_physical_channels & AOUT_CHAN_LFE) == AOUT_CHAN_LFE)
+            p_sys->speakerDecoder.SetPosition(s++, {DegreesToRadians(0), 0.f, 0.5f});
+
+        /* Check we have setup the right number of speaker. */
+        assert(s == i_nbChannels);
+
+        p_sys->speakerDecoder.Refresh();
+    }
 
     if (!p_sys->processor.Create(p_sys->i_order, true, 0))
     {
