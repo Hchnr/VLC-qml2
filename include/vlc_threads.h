@@ -157,7 +157,7 @@ static inline int vlc_poll (struct pollfd *fds, unsigned nfds, int timeout)
 }
 # define poll(u,n,t) vlc_poll(u, n, t)
 
-#elif defined (__ANDROID__)      /* pthreads subset without pthread_cancel() */
+#elif defined (__ANDROID__) || defined(__native_client__)      /* pthreads subset without pthread_cancel() */
 # include <unistd.h>
 # include <pthread.h>
 # include <poll.h>
