@@ -112,6 +112,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/mediacenter/mlalbumtrack.hpp \
 	gui/qt/components/mediacenter/mlitem.cpp \
 	gui/qt/components/mediacenter/mlitem.hpp \
+	gui/qt/components/mediacenter/mlmovie.cpp \
+	gui/qt/components/mediacenter/mlmovie.hpp \
 	gui/qt/components/mediacenter/mlserie.cpp \
 	gui/qt/components/mediacenter/mlserie.hpp \
 	gui/qt/components/mediacenter/mlgenre.cpp \
