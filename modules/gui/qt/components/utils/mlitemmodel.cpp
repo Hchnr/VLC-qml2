@@ -26,6 +26,7 @@
 #include "components/mediacenter/mlitem.hpp"
 #include "components/mediacenter/mlalbum.hpp"
 #include "components/mediacenter/mlartist.hpp"
+#include "components/mediacenter/mlgenre.hpp"
 #include "components/mediacenter/mlalbumtrack.hpp"
 
 
@@ -190,6 +191,56 @@ QVariant MLItemModel::data(const QModelIndex &index, int role) const
             return QVariant();
     }
 
+        // Genres
+    case GET_GENRE_ID:
+    {
+        std::shared_ptr<MLGenre> ml_genre = std::dynamic_pointer_cast<MLGenre>(ml_item);
+        if (ml_genre != NULL)
+            return QVariant::fromValue( ml_genre->getId() );
+        else
+            return QVariant();
+    }
+    case GET_GENRE_NAME:
+    {
+        std::shared_ptr<MLGenre> ml_genre = std::dynamic_pointer_cast<MLGenre>(ml_item);
+        if (ml_genre != NULL)
+            return QVariant::fromValue( ml_genre->getName() );
+        else
+            return QVariant();
+    }
+    case GET_GENRE_NB_TRACKS:
+    {
+        std::shared_ptr<MLGenre> ml_genre = std::dynamic_pointer_cast<MLGenre>(ml_item);
+        if (ml_genre != NULL)
+            return QVariant::fromValue( ml_genre->getNbTracks() );
+        else
+            return QVariant();
+    }
+    case GET_GENRE_ARTISTS:
+    {
+        std::shared_ptr<MLGenre> ml_genre = std::dynamic_pointer_cast<MLGenre>(ml_item);
+        if (ml_genre != NULL)
+            return QVariant::fromValue<MLItemModel*>( ml_genre->getArtists() );
+        else
+            return QVariant();
+    }
+    case GET_GENRE_TRACKS:
+    {
+        std::shared_ptr<MLGenre> ml_genre = std::dynamic_pointer_cast<MLGenre>(ml_item);
+        if (ml_genre != NULL)
+            return QVariant::fromValue<MLItemModel*>( ml_genre->getTracks() );
+        else
+            return QVariant();
+    }
+    case GET_GENRE_ALBUMS:
+    {
+        std::shared_ptr<MLGenre> ml_genre = std::dynamic_pointer_cast<MLGenre>(ml_item);
+        if (ml_genre != NULL)
+            return QVariant::fromValue<MLItemModel*>( ml_genre->getAlbums() );
+        else
+            return QVariant();
+    }
+
     // Tracks
     case GET_TRACK_TITLE :
     {
@@ -253,6 +304,14 @@ QHash<int, QByteArray> MLItemModel::roleNames() const
     roles[GET_ARTIST_ALBUMS] = "artist_albums";
     roles[GET_ARTIST_COVER] = "artist_cover";
     roles[GET_ARTIST_NB_ALBUMS] = "artist_nb_albums";
+
+    // Genres
+    roles[GET_GENRE_ID] = "genre_id";
+    roles[GET_GENRE_NAME] = "genre_name";
+    roles[GET_GENRE_NB_TRACKS] = "genre_nb_tracks";
+    roles[GET_GENRE_ARTISTS] = "genre_artists";
+    roles[GET_GENRE_TRACKS] = "genre_tracks";
+    roles[GET_GENRE_ALBUMS] = "genre_albums";
 
     // Tracks
     roles[GET_TRACK_TITLE] = "track_title";
