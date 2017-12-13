@@ -112,6 +112,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/mediacenter/mlalbumtrack.hpp \
 	gui/qt/components/mediacenter/mlitem.cpp \
 	gui/qt/components/mediacenter/mlitem.hpp \
+	gui/qt/components/mediacenter/mlgenre.cpp \
+	gui/qt/components/mediacenter/mlgenre.hpp \
 	gui/qt/components/mediacenter/mlartist.cpp \
 	gui/qt/components/mediacenter/mlartist.hpp \
 	gui/qt/components/playlist/views.cpp \
@@ -228,6 +230,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/components/mediacenter/mlalbum.moc.cpp \
 	gui/qt/components/mediacenter/mlalbumtrack.moc.cpp \
 	gui/qt/components/mediacenter/mlartist.moc.cpp \
+	gui/qt/components/mediacenter/mlgenre.moc.cpp \
 	gui/qt/components/mediacenter/mlitem.moc.cpp \
 	gui/qt/components/playlist/views.moc.cpp \
 	gui/qt/components/playlist/vlc_model.moc.cpp \
