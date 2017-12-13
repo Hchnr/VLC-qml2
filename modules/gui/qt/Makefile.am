@@ -106,6 +106,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/epg/EPGWidget.cpp \
 	gui/qt/components/epg/EPGWidget.hpp \
 	gui/qt/components/mediacenter/excallback.hpp \
+	gui/qt/components/mediacenter/mlalbum.cpp \
+	gui/qt/components/mediacenter/mlalbum.hpp \
 	gui/qt/components/mediacenter/mlalbumtrack.cpp \
 	gui/qt/components/mediacenter/mlalbumtrack.hpp \
 	gui/qt/components/mediacenter/mlitem.cpp \
@@ -221,6 +223,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/components/epg/EPGRuler.moc.cpp \
 	gui/qt/components/epg/EPGView.moc.cpp \
 	gui/qt/components/epg/EPGWidget.moc.cpp \
+	gui/qt/components/mediacenter/mlalbum.moc.cpp \
 	gui/qt/components/mediacenter/mlalbumtrack.moc.cpp \
 	gui/qt/components/mediacenter/mlitem.moc.cpp \
 	gui/qt/components/playlist/views.moc.cpp \
