@@ -128,6 +128,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/sout/sout_widgets.cpp \
 	gui/qt/components/sout/sout_widgets.hpp \
 	gui/qt/components/sout/profiles.hpp \
+	gui/qt/components/utils/mlitemmodel.hpp \
+	gui/qt/components/utils/mlitemmodel.cpp \
 	gui/qt/util/animators.cpp gui/qt/util/animators.hpp \
 	gui/qt/util/input_slider.cpp gui/qt/util/input_slider.hpp \
 	gui/qt/util/timetooltip.cpp gui/qt/util/timetooltip.hpp \
@@ -226,6 +228,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/components/playlist/selector.moc.cpp \
 	gui/qt/components/sout/profile_selector.moc.cpp \
 	gui/qt/components/sout/sout_widgets.moc.cpp \
+	gui/qt/components/utils/mlitemmodel.moc.cpp \
 	gui/qt/util/animators.moc.cpp \
 	gui/qt/util/input_slider.moc.cpp \
 	gui/qt/util/timetooltip.moc.cpp \
