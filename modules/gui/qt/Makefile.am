@@ -129,6 +129,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/playlist/standardpanel.hpp \
 	gui/qt/components/playlist/playlist.cpp \
 	gui/qt/components/playlist/playlist.hpp \
+	gui/qt/components/playlist/plitem.cpp \
+	gui/qt/components/playlist/plitem.hpp \
 	gui/qt/components/playlist/selector.cpp \
 	gui/qt/components/playlist/selector.hpp \
 	gui/qt/components/playlist/sorting.h \
