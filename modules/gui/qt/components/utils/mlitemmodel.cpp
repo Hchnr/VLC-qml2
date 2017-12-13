@@ -24,6 +24,7 @@
 #include "mlitemmodel.hpp"
 
 #include "components/mediacenter/mlitem.hpp"
+#include "components/mediacenter/mlalbumtrack.hpp"
 
 
 MLItemModel::MLItemModel(const QList<std::shared_ptr<MLItem>> item, QObject *parent):
@@ -55,6 +56,40 @@ QVariant MLItemModel::data(const QModelIndex &index, int role) const
     std::shared_ptr<MLItem> ml_item = getItem(index);
     switch (role)
     {
+    // Tracks
+    case GET_TRACK_TITLE :
+    {
+        std::shared_ptr<MLAlbumTrack> ml_track = std::dynamic_pointer_cast<MLAlbumTrack>(ml_item);
+        if (ml_track != nullptr)
+            return QVariant::fromValue( ml_track->getTitle() );
+        else
+            return QVariant();
+    }
+    case GET_TRACK_COVER :
+    {
+        std::shared_ptr<MLAlbumTrack> ml_track = std::dynamic_pointer_cast<MLAlbumTrack>(ml_item);
+        if (ml_track != nullptr)
+            return QVariant::fromValue( ml_track->getCover() );
+        else
+            return QVariant();
+    }
+    case GET_TRACK_NUMBER :
+    {
+        std::shared_ptr<MLAlbumTrack> ml_track = std::dynamic_pointer_cast<MLAlbumTrack>(ml_item);
+        if (ml_track != nullptr)
+            return QVariant::fromValue( ml_track->getTrackNumber() );
+        else
+            return QVariant();
+    }
+    case GET_TRACK_DURATION :
+    {
+        std::shared_ptr<MLAlbumTrack> ml_track = std::dynamic_pointer_cast<MLAlbumTrack>(ml_item);
+        if (ml_track != nullptr)
+            return QVariant::fromValue( ml_track->getDuration() );
+        else
+            return QVariant();
+    }
+
     default :
         return QVariant();
     }
@@ -64,6 +99,12 @@ QVariant MLItemModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> MLItemModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
+
+    // Tracks
+    roles[GET_TRACK_TITLE] = "track_title";
+    roles[GET_TRACK_COVER] = "track_cover";
+    roles[GET_TRACK_NUMBER] = "track_number";
+    roles[GET_TRACK_DURATION] = "track_duration";
 
     return roles;
 }
