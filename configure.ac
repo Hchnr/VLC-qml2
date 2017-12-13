@@ -1863,6 +1863,11 @@ dnl
 PKG_ENABLE_MODULES_VLC([DSM], [dsm], [libdsm >= 0.2.0], [libdsm SMB/CIFS access/sd module], [auto])
 
 dnl
+dnl medialibrary access support
+dnl
+PKG_ENABLE_MODULES_VLC([MEDIALIBRARY], [medialibrary], [medialibrary], (support medialibrary), [auto])
+
+dnl
 dnl sftp access support
 dnl
 PKG_ENABLE_MODULES_VLC([SFTP], [sftp], [libssh2], (support SFTP file transfer via libssh2), [auto])
