@@ -132,6 +132,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/playlist/standardpanel.hpp \
 	gui/qt/components/playlist/playlist.cpp \
 	gui/qt/components/playlist/playlist.hpp \
+	gui/qt/components/playlist/plmodel.cpp \
+	gui/qt/components/playlist/plmodel.hpp \
 	gui/qt/components/playlist/plitem.cpp \
 	gui/qt/components/playlist/plitem.hpp \
 	gui/qt/components/playlist/selector.cpp \
@@ -242,6 +244,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/components/playlist/vlc_model.moc.cpp \
 	gui/qt/components/playlist/mediacenter_model.moc.cpp \
 	gui/qt/components/playlist/playlist.moc.cpp \
+	gui/qt/components/playlist/plmodel.moc.cpp \
 	gui/qt/components/playlist/standardpanel.moc.cpp \
 	gui/qt/components/playlist/selector.moc.cpp \
 	gui/qt/components/sout/profile_selector.moc.cpp \
