@@ -24,6 +24,7 @@
 #include "mlitemmodel.hpp"
 
 #include "components/mediacenter/mlitem.hpp"
+#include "components/mediacenter/mlalbum.hpp"
 #include "components/mediacenter/mlalbumtrack.hpp"
 
 
@@ -56,6 +57,88 @@ QVariant MLItemModel::data(const QModelIndex &index, int role) const
     std::shared_ptr<MLItem> ml_item = getItem(index);
     switch (role)
     {
+    // Albums
+    case GET_ALBUM_ID :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getId() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_TITLE :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getTitle() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_RELEASE_YEAR :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getReleaseYear() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_SHORT_SUMMARY :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getShortSummary() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_COVER :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getCover() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_TRACKS :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue<MLItemModel*>( ml_album->getTracks() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_MAIN_ARTIST :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getArtist() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_ARTISTS :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getArtists() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_NB_TRACKS :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getNbTracks() );
+        else
+            return QVariant();
+    }
+    case GET_ALBUM_DURATION :
+    {
+        std::shared_ptr<MLAlbum> ml_album = std::dynamic_pointer_cast<MLAlbum>(ml_item);
+        if (ml_album != NULL)
+            return QVariant::fromValue( ml_album->getDuration() );
+        else
+            return QVariant();
+    }
+
     // Tracks
     case GET_TRACK_TITLE :
     {
@@ -99,6 +182,18 @@ QVariant MLItemModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> MLItemModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
+
+    // Albums
+    roles[GET_ALBUM_ID] = "album_id";
+    roles[GET_ALBUM_TITLE] = "album_title";
+    roles[GET_ALBUM_RELEASE_YEAR] = "album_release_year";
+    roles[GET_ALBUM_SHORT_SUMMARY] = "album_shortsummary";
+    roles[GET_ALBUM_COVER] = "album_cover";
+    roles[GET_ALBUM_TRACKS] = "album_tracks";
+    roles[GET_ALBUM_MAIN_ARTIST] = "album_main_artist";
+    roles[GET_ALBUM_ARTISTS] = "album_artists";
+    roles[GET_ALBUM_NB_TRACKS] = "album_nb_tracks";
+    roles[GET_ALBUM_DURATION] = "album_duration";
 
     // Tracks
     roles[GET_TRACK_TITLE] = "track_title";
