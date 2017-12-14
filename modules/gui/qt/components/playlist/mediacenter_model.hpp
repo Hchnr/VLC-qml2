@@ -1,11 +1,12 @@
 /*****************************************************************************
- * playlist_model.hpp : Model for a playlist tree
+ * mediacenter_model.hpp : Model for the mediacenter
  ****************************************************************************
  * Copyright (C) 2006-2011 the VideoLAN team
  * $Id$
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jakob Leben <jleben@videolan.org>
+ *          Maël Kervella <dev@maelkervella.eu>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +33,7 @@
 #include <vlc_input.h>
 #include <vlc_playlist.h>
 #include "vlc_model.hpp"
-#include "playlist_item.hpp"
+#include "mediacenter_item.hpp"
 
 #include <QObject>
 #include <QEvent>
@@ -43,27 +44,28 @@
 #include <QModelIndex>
 #include <QAction>
 
-class PLItem;
+class MCItem;
 class PlMimeData;
 
-class PLModel : public VLCModel
+class MCModel : public VLCModel
 {
     Q_OBJECT
 
+
 public:
-    PLModel( playlist_t *, intf_thread_t *,
+    MCModel( playlist_t *, intf_thread_t *,
              playlist_item_t *, QObject *parent = 0 );
-    virtual ~PLModel();
+    virtual ~MCModel();
 
     /* Qt main PLModel */
-    static PLModel* getPLModel( intf_thread_t *p_intf )
+    static MCModel* getMCModel( intf_thread_t *p_intf )
     {
         if(!p_intf->p_sys->pl_model )
         {
             playlist_Lock( THEPL );
             playlist_item_t *p_root = THEPL->p_playing;
             playlist_Unlock( THEPL );
-            p_intf->p_sys->pl_model = new PLModel( THEPL, p_intf, p_root, NULL );
+            p_intf->p_sys->pl_model = new MCModel( THEPL, p_intf, p_root, NULL );
         }
 
         return p_intf->p_sys->pl_model;
@@ -111,39 +113,39 @@ protected:
     /* VLCModel subclassing */
     virtual bool isParent( const QModelIndex &index, const QModelIndex &current) const Q_DECL_OVERRIDE;
     virtual bool isLeaf( const QModelIndex &index ) const Q_DECL_OVERRIDE;
-    virtual PLItem *getItem( const QModelIndex & index ) const Q_DECL_OVERRIDE;
+    virtual MCItem *getItem( const QModelIndex & index ) const Q_DECL_OVERRIDE;
 
 private:
     /* General */
-    PLItem *rootItem;
+    MCItem *rootItem;
 
     playlist_t *p_playlist;
 
     /* Custom model private methods */
     /* Lookups */
-    QModelIndex index( PLItem *, const int c ) const;
+    QModelIndex index( MCItem *, const int c ) const;
 
     /* Shallow actions (do not affect core playlist) */
-    void updateTreeItem( PLItem * );
-    void removeItem ( PLItem * );
-    void recurseDelete( QList<AbstractPLItem*> children, QModelIndexList *fullList );
-    void takeItem( PLItem * ); //will not delete item
-    void insertChildren( PLItem *node, QList<PLItem*>& items, int i_pos );
+    void updateTreeItem( MCItem * );
+    void removeItem ( MCItem * );
+    void recurseDelete( QList<MCItem*> children, QModelIndexList *fullList );
+    void takeItem( MCItem * ); //will not delete item
+    void insertChildren( MCItem *node, QList<MCItem*>& items, int i_pos );
     /* ...of which  the following will not update the views */
-    void updateChildren( PLItem * );
-    void updateChildren( playlist_item_t *, PLItem * );
+    void updateChildren( MCItem * );
+    void updateChildren( playlist_item_t *, MCItem * );
 
     /* Deep actions (affect core playlist) */
-    void dropAppendCopy( const PlMimeData * data, PLItem *target, int pos );
-    void dropMove( const PlMimeData * data, PLItem *target, int new_pos );
+    void dropAppendCopy( const PlMimeData * data, MCItem *target, int pos );
+    void dropMove( const PlMimeData * data, MCItem *target, int new_pos );
 
     /* */
     void sort( QModelIndex caller, QModelIndex rootIndex, const int column, Qt::SortOrder order );
 
     /* Lookups */
-    PLItem *findByPLId( PLItem *, int i_plitemid ) const;
-    PLItem *findByInput( PLItem *, const input_item_t * ) const;
-    PLItem *findByInputLocked( PLItem *, const input_item_t * ) const;
+    MCItem *findByPLId( MCItem *, int i_plitemid ) const;
+    MCItem *findByInput( MCItem *, const input_item_t * ) const;
+    MCItem *findByInputLocked( MCItem *, const input_item_t * ) const;
     enum pl_nodetype
     {
         ROOTTYPE_CURRENT_PLAYING,
@@ -161,7 +163,7 @@ private slots:
     void processItemRemoval( int i_pl_itemid );
     void processItemAppend( int i_pl_itemid, int i_pl_itemidparent );
     void activateItem( playlist_item_t *p_item );
-    virtual void activateItem( const QModelIndex &index ) Q_DECL_OVERRIDE;
+    virtual void activateItem( const QModelIndex &index) Q_DECL_OVERRIDE;
 };
 
 class PlMimeData : public QMimeData

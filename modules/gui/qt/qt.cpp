@@ -58,7 +58,7 @@ extern "C" char **environ;
 #include "dialogs/help.hpp"     /* Launch Update */
 #include "recents.hpp"          /* Recents Item destruction */
 #include "util/qvlcapp.hpp"     /* QVLCApplication definition */
-#include "components/playlist/playlist_model.hpp" /* for ~PLModel() */
+#include "components/playlist/mediacenter_model.hpp" /* for ~PLModel() */
 
 #include <vlc_plugin.h>
 #include <vlc_vout_window.h>

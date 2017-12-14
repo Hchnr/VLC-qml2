@@ -45,7 +45,7 @@
 #include "actions_manager.hpp"                    /* Actions Management: play+volume */
 #include "extensions_manager.hpp"                 /* Extensions menu */
 #include "util/qmenuview.hpp"                     /* Simple Playlist menu */
-#include "components/playlist/playlist_model.hpp" /* PLModel getter */
+#include "components/playlist/mediacenter_model.hpp" /* PLModel getter */
 #include "components/playlist/standardpanel.hpp"  /* PLView getter */
 #include "components/extended_panels.hpp"
 
@@ -1121,7 +1121,7 @@ QMenu* VLCMenuBar::PopupMenu( intf_thread_t *p_intf, bool show )
     /* */
     QMenuView *plMenu = new QMenuView( menu, 25 );
     plMenu->setTitle( qtr("Playlist") );
-    PLModel *model = PLModel::getPLModel( p_intf );
+    MCModel *model = MCModel::getMCModel( p_intf );
     plMenu->setModel( model );
     CONNECT( plMenu, activated(const QModelIndex&),
              model, activateItem(const QModelIndex&));

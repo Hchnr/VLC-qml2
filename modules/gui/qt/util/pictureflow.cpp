@@ -40,7 +40,7 @@
 #include <QVector>
 #include <QWidget>
 #include <QHash>
-#include "../components/playlist/playlist_model.hpp" /* getArtPixmap etc */
+#include "../components/playlist/mediacenter_model.hpp" /* getArtPixmap etc */
 #include "../components/playlist/sorting.h"          /* Columns List */
 #include "input_manager.hpp"
 

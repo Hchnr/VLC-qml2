@@ -29,7 +29,7 @@
 #include "components/playlist/standardpanel.hpp"
 
 #include "components/playlist/vlc_model.hpp"      /* VLCModel */
-#include "components/playlist/playlist_model.hpp" /* PLModel */
+#include "components/playlist/mediacenter_model.hpp" /* PLModel */
 #include "components/playlist/views.hpp"          /* 3 views */
 #include "components/playlist/selector.hpp"       /* PLSelector */
 #include "util/animators.hpp"                     /* PixmapAnimator */
