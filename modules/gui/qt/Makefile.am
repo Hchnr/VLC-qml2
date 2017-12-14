@@ -121,10 +121,10 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/playlist/views.hpp \
 	gui/qt/components/playlist/vlc_model.cpp \
 	gui/qt/components/playlist/vlc_model.hpp \
-	gui/qt/components/playlist/playlist_model.cpp \
-	gui/qt/components/playlist/playlist_model.hpp \
-	gui/qt/components/playlist/playlist_item.cpp \
-	gui/qt/components/playlist/playlist_item.hpp \
+	gui/qt/components/playlist/mediacenter_model.cpp \
+	gui/qt/components/playlist/mediacenter_model.hpp \
+	gui/qt/components/playlist/mediacenter_item.cpp \
+	gui/qt/components/playlist/mediacenter_item.hpp \
 	gui/qt/components/playlist/standardpanel.cpp \
 	gui/qt/components/playlist/standardpanel.hpp \
 	gui/qt/components/playlist/playlist.cpp \
@@ -234,7 +234,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/components/mediacenter/mlitem.moc.cpp \
 	gui/qt/components/playlist/views.moc.cpp \
 	gui/qt/components/playlist/vlc_model.moc.cpp \
-	gui/qt/components/playlist/playlist_model.moc.cpp \
+	gui/qt/components/playlist/mediacenter_model.moc.cpp \
 	gui/qt/components/playlist/playlist.moc.cpp \
 	gui/qt/components/playlist/standardpanel.moc.cpp \
 	gui/qt/components/playlist/selector.moc.cpp \

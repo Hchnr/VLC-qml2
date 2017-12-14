@@ -70,7 +70,7 @@ struct intf_sys_t
     class QVLCApp *p_app;          /* Main Qt Application */
     class MainInterface *p_mi;     /* Main Interface, NULL if DialogProvider Mode */
     class QSettings *mainSettings; /* Qt State settings not messing main VLC ones */
-    class PLModel *pl_model;
+    class MCModel *pl_model;
 
     QUrl filepath;        /* Last path used in dialogs */
 

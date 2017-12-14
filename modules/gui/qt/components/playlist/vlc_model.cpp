@@ -151,42 +151,42 @@ int VLCModel::metaToColumn( int _meta )
 
 int VLCModel::itemId( const QModelIndex &index ) const
 {
-    AbstractPLItem *item = getItem( index );
+    MCItem *item = getItem( index );
     if ( !item ) return -1;
     return item->id();
 }
 
-AbstractPLItem *VLCModel::getItem( const QModelIndex &index ) const
+MCItem *VLCModel::getItem( const QModelIndex &index ) const
 {
     if( index.isValid() )
-        return static_cast<AbstractPLItem*>( index.internalPointer() );
+        return static_cast<MCItem*>( index.internalPointer() );
     else return NULL;
 }
 
 QString VLCModel::getURI( const QModelIndex &index ) const
 {
-    AbstractPLItem *item = getItem( index );
+    MCItem *item = getItem( index );
     if ( !item ) return QString();
     return item->getURI();
 }
 
 input_item_t * VLCModel::getInputItem( const QModelIndex &index ) const
 {
-    AbstractPLItem *item = getItem( index );
+    MCItem *item = getItem( index );
     if ( !item ) return NULL;
     return item->inputItem();
 }
 
 QString VLCModel::getTitle( const QModelIndex &index ) const
 {
-    AbstractPLItem *item = getItem( index );
+    MCItem *item = getItem( index );
     if ( !item ) return QString();
     return item->getTitle();
 }
 
 bool VLCModel::isCurrent( const QModelIndex &index ) const
 {
-    AbstractPLItem *item = getItem( index );
+    MCItem *item = getItem( index );
     if ( !item ) return false;
     return item->inputItem() == THEMIM->currentInputItem();
 }

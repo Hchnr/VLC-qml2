@@ -29,7 +29,7 @@
 #include "components/playlist/playlist.hpp"
 #include "components/playlist/standardpanel.hpp"  /* MainView */
 #include "components/playlist/selector.hpp"       /* PLSelector */
-#include "components/playlist/playlist_model.hpp" /* PLModel */
+#include "components/playlist/mediacenter_model.hpp" /* PLModel */
 #include "components/interface_widgets.hpp"       /* CoverArtLabel */
 
 #include "util/searchlineedit.hpp"
@@ -92,7 +92,7 @@ PlaylistWidget::PlaylistWidget( intf_thread_t *_p_i, QWidget *_par )
 
     setMinimumWidth( 400 );
 
-    PLModel *model = PLModel::getPLModel( p_intf );
+    MCModel *model = MCModel::getMCModel( p_intf );
 
     mainView = new StandardPLPanel( this, p_intf, p_root, selector, model );
 

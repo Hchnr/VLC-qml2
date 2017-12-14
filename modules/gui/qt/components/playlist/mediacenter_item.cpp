@@ -1,11 +1,12 @@
 /*****************************************************************************
- * playlist_item.cpp : Manage playlist item
+ * mediacenter_item.cpp : Manage mediacenter item
  ****************************************************************************
  * Copyright © 2006-2011 the VideoLAN team
  * $Id$
  *
  * Authors: Clément Stenac <zorglub@videolan.org>
  *          Jean-Baptiste Kempf <jb@videolan.org>
+ *          Maël Kervella <dev@maelkervella.eu>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,20 +30,20 @@
 #include <assert.h>
 
 #include "qt.hpp"
-#include "playlist_item.hpp"
+#include "mediacenter_item.hpp"
 #include <vlc_input_item.h>
 
 /*************************************************************************
  * Playlist item implementation
  *************************************************************************/
 
-void AbstractPLItem::clearChildren()
+void MCItem::clearChildren()
 {
     qDeleteAll( children );
     children.clear();
 }
 
-void AbstractPLItem::removeChild( AbstractPLItem *item )
+void MCItem::removeChild( MCItem *item )
 {
     children.removeOne( item );
     delete item;
@@ -55,9 +56,9 @@ void AbstractPLItem::removeChild( AbstractPLItem *item )
    PLItem have a parent, and id and a input Id
 */
 
-void PLItem::init( playlist_item_t *_playlist_item, PLItem *parent )
+void MCItem::init( playlist_item_t *_playlist_item, MCItem *p_parent )
 {
-    parentItem = parent;          /* Can be NULL, but only for the rootItem */
+    parentItem = p_parent;          /* Can be NULL, but only for the rootItem */
     i_playlist_id = _playlist_item->i_id;           /* Playlist item specific id */
     p_input = _playlist_item->p_input;
     i_flags = _playlist_item->i_flags;
@@ -68,49 +69,49 @@ void PLItem::init( playlist_item_t *_playlist_item, PLItem *parent )
    Constructors
    Call the above function init
    */
-PLItem::PLItem( playlist_item_t *p_item, PLItem *parent )
+MCItem::MCItem( playlist_item_t *p_item, MCItem *p_parent )
 {
-    init( p_item, parent );
+    init( p_item, p_parent );
 }
 
-PLItem::PLItem( playlist_item_t * p_item )
+MCItem::MCItem( playlist_item_t * p_item )
 {
     init( p_item, NULL );
 }
 
-PLItem::~PLItem()
+MCItem::~MCItem()
 {
     input_item_Release( p_input );
     qDeleteAll( children );
     children.clear();
 }
 
-int PLItem::id() const
+int MCItem::id() const
 {
     return i_playlist_id;
 }
 
-void PLItem::takeChildAt( int index )
+void MCItem::takeChildAt( int index )
 {
-    AbstractPLItem *child = children[index];
+    MCItem *child = children[index];
     child->parentItem = NULL;
     children.removeAt( index );
 }
 
 /* This function is used to get one's parent's row number in the model */
-int PLItem::row()
+int MCItem::row()
 {
     if( parentItem )
         return parentItem->indexOf( this );
     return 0;
 }
 
-bool PLItem::operator< ( AbstractPLItem& other )
+bool MCItem::operator< ( MCItem& other )
 {
-    AbstractPLItem *item1 = this;
+    MCItem *item1 = this;
     while( item1->parentItem )
     {
-        AbstractPLItem *item2 = &other;
+        MCItem *item2 = &other;
         while( item2->parentItem )
         {
             if( item1 == item2->parentItem ) return true;
@@ -125,7 +126,7 @@ bool PLItem::operator< ( AbstractPLItem& other )
     return false;
 }
 
-QString PLItem::getURI() const
+QString MCItem::getURI() const
 {
     QString uri;
     vlc_mutex_lock( &p_input->lock );
@@ -134,7 +135,7 @@ QString PLItem::getURI() const
     return uri;
 }
 
-QString PLItem::getTitle() const
+QString MCItem::getTitle() const
 {
     QString title;
     char *fb_name = input_item_GetTitle( p_input );
@@ -148,7 +149,7 @@ QString PLItem::getTitle() const
     return title;
 }
 
-bool PLItem::readOnly() const
+bool MCItem::readOnly() const
 {
     return i_flags & PLAYLIST_RO_FLAG;
 }
