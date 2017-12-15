@@ -472,6 +472,7 @@ libqt_plugin_la_RES = \
 	gui/qt/pixmaps/valid.svg \
 	gui/qt/pixmaps/search_clear.svg \
 	gui/qt/pixmaps/lock.svg \
+	gui/qt/qml/utils/ToolTipArea.qml \
 	gui/qt/qml/utils/MLItem.qml
 EXTRA_DIST += gui/qt/vlc.qrc $(libqt_plugin_la_RES)
 

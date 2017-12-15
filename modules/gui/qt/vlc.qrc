@@ -157,5 +157,6 @@
     </qresource>
     <qresource prefix="/utils">
         <file alias="MLItem.qml">qml/utils/MLItem.qml</file>
+        <file alias="ToolTipArea.qml">qml/utils/ToolTipArea.qml</file>
     </qresource>
 </RCC>
