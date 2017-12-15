@@ -474,6 +474,7 @@ libqt_plugin_la_RES = \
 	gui/qt/pixmaps/lock.svg \
 	gui/qt/qml/mediacenter/MusicAlbumsDisplay.qml \
 	gui/qt/qml/mediacenter/MusicAlbumsGridExpandDelegate.qml \
+	gui/qt/qml/mediacenter/MusicArtistsDisplay.qml \
 	gui/qt/qml/utils/ToolTipArea.qml \
 	gui/qt/qml/utils/GridItem.qml \
 	gui/qt/qml/utils/ListItem.qml \

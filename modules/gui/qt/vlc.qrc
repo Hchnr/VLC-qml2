@@ -158,6 +158,7 @@
     <qresource prefix="/mediacenter">
         <file alias="MusicAlbumsDisplay.qml">qml/mediacenter/MusicAlbumsDisplay.qml</file>
         <file alias="MusicAlbumsGridExpandDelegate.qml">qml/mediacenter/MusicAlbumsGridExpandDelegate.qml</file>
+        <file alias="MusicArtistsDisplay.qml">qml/mediacenter/MusicArtistsDisplay.qml</file>
     </qresource>
     <qresource prefix="/utils">
         <file alias="ArtistCover.qml">qml/utils/ArtistCover.qml</file>
