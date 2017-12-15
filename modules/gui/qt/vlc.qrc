@@ -156,7 +156,9 @@
         <file alias="addon_yellow.svg">pixmaps/addons/addon_yellow.svg</file>
     </qresource>
     <qresource prefix="/playlist">
+        <file alias="PlaylistGrouped.qml">qml/playlist/PlaylistGrouped.qml</file>
         <file alias="PLItem.qml">qml/playlist/PLItem.qml</file>
+        <file alias="PlaylistListView.qml">qml/playlist/PlaylistListView.qml</file>
     </qresource>
     <qresource prefix="/mediacenter">
         <file alias="MCDisplay.qml">qml/mediacenter/MCDisplay.qml</file>
