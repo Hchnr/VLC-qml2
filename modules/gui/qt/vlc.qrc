@@ -156,6 +156,7 @@
         <file alias="addon_yellow.svg">pixmaps/addons/addon_yellow.svg</file>
     </qresource>
     <qresource prefix="/mediacenter">
+        <file alias="MCDisplay.qml">qml/mediacenter/MCDisplay.qml</file>
         <file alias="Presentation.qml">qml/mediacenter/Presentation.qml</file>
         <file alias="MusicAlbumsDisplay.qml">qml/mediacenter/MusicAlbumsDisplay.qml</file>
         <file alias="MusicAlbumsGridExpandDelegate.qml">qml/mediacenter/MusicAlbumsGridExpandDelegate.qml</file>
