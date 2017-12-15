@@ -159,6 +159,7 @@
         <file alias="ArtistCover.qml">qml/utils/ArtistCover.qml</file>
         <file alias="TracksDisplay.qml">qml/utils/TracksDisplay.qml</file>
         <file alias="GenreCover.qml">qml/utils/GenreCover.qml</file>
+        <file alias="GridItem.qml">qml/utils/GridItem.qml</file>
         <file alias="MLItem.qml">qml/utils/MLItem.qml</file>
         <file alias="ToolTipArea.qml">qml/utils/ToolTipArea.qml</file>
     </qresource>
