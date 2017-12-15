@@ -164,6 +164,9 @@
         <file alias="MusicGenresDisplay.qml">qml/mediacenter/MusicGenresDisplay.qml</file>
         <file alias="MusicTracksDisplay.qml">qml/mediacenter/MusicTracksDisplay.qml</file>
     </qresource>
+    <qresource prefix="/qml">
+        <file alias="BannerSources.qml">qml/BannerSources.qml</file>
+    </qresource>
     <qresource prefix="/utils">
         <file alias="ArtistCover.qml">qml/utils/ArtistCover.qml</file>
         <file alias="ExpandGridView.qml">qml/utils/ExpandGridView.qml</file>
