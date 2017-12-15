@@ -481,6 +481,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/mediacenter/MusicArtistsDisplay.qml \
 	gui/qt/qml/mediacenter/MusicGenresDisplay.qml \
 	gui/qt/qml/mediacenter/MusicTracksDisplay.qml \
+	gui/qt/qml/mediacenter/Presentation.qml \
 	gui/qt/qml/utils/ToolTipArea.qml \
 	gui/qt/qml/utils/GridItem.qml \
 	gui/qt/qml/utils/ListItem.qml \
