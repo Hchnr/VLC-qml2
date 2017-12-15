@@ -166,6 +166,7 @@
     </qresource>
     <qresource prefix="/qml">
         <file alias="BannerSources.qml">qml/BannerSources.qml</file>
+        <file alias="SubBannerSources.qml">qml/SubBannerSources.qml</file>
     </qresource>
     <qresource prefix="/utils">
         <file alias="ArtistCover.qml">qml/utils/ArtistCover.qml</file>
