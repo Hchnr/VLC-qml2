@@ -156,6 +156,7 @@
         <file alias="addon_yellow.svg">pixmaps/addons/addon_yellow.svg</file>
     </qresource>
     <qresource prefix="/utils">
+        <file alias="ArtistCover.qml">qml/utils/ArtistCover.qml</file>
         <file alias="TracksDisplay.qml">qml/utils/TracksDisplay.qml</file>
         <file alias="MLItem.qml">qml/utils/MLItem.qml</file>
         <file alias="ToolTipArea.qml">qml/utils/ToolTipArea.qml</file>
