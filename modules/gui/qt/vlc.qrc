@@ -166,5 +166,6 @@
         <file alias="ListItem.qml">qml/utils/ListItem.qml</file>
         <file alias="MLItem.qml">qml/utils/MLItem.qml</file>
         <file alias="ToolTipArea.qml">qml/utils/ToolTipArea.qml</file>
+        <file alias="ListExpandItem.qml">qml/utils/ListExpandItem.qml</file>
     </qresource>
 </RCC>
