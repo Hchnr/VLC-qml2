@@ -172,6 +172,7 @@
     </qresource>
     <qresource prefix="/qml">
         <file alias="BannerSources.qml">qml/BannerSources.qml</file>
+        <file alias="MainInterface.qml">qml/MainInterface.qml</file>
         <file alias="SubBannerSources.qml">qml/SubBannerSources.qml</file>
     </qresource>
     <qresource prefix="/utils">

@@ -472,6 +472,7 @@ libqt_plugin_la_RES = \
 	gui/qt/pixmaps/valid.svg \
 	gui/qt/pixmaps/search_clear.svg \
 	gui/qt/pixmaps/lock.svg \
+	gui/qt/qml/MainInterface.qml \
 	gui/qt/qml/SubBannerSources.qml \
 	gui/qt/qml/BannerSources.qml \
 	gui/qt/qml/mediacenter/MCDisplay.qml \
