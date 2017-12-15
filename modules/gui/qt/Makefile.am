@@ -474,6 +474,7 @@ libqt_plugin_la_RES = \
 	gui/qt/pixmaps/lock.svg \
 	gui/qt/qml/utils/ToolTipArea.qml \
 	gui/qt/qml/utils/GridItem.qml \
+	gui/qt/qml/utils/ListItem.qml \
 	gui/qt/qml/utils/MLItem.qml \
 	gui/qt/qml/utils/ArtistCover.qml \
 	gui/qt/qml/utils/GenreCover.qml \
