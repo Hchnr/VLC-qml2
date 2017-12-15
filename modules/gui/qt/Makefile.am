@@ -491,7 +491,9 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/utils/ExpandGridView.qml \
 	gui/qt/qml/utils/ExpandGridViewRow.qml \
 	gui/qt/qml/utils/TracksDisplay.qml \
-	gui/qt/qml/playlist/PLItem.qml
+	gui/qt/qml/playlist/PLItem.qml \
+	gui/qt/qml/playlist/PlaylistGrouped.qml \
+	gui/qt/qml/playlist/PlaylistListView.qml
 EXTRA_DIST += gui/qt/vlc.qrc $(libqt_plugin_la_RES)
 
 nodist_libqt_plugin_la_SOURCES += gui/qt/resources.cpp
