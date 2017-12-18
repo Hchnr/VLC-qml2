@@ -106,6 +106,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/epg/EPGWidget.cpp \
 	gui/qt/components/epg/EPGWidget.hpp \
 	gui/qt/components/mediacenter/excallback.hpp \
+	gui/qt/components/mediacenter/vlcstyle.cpp \
+	gui/qt/components/mediacenter/vlcstyle.hpp \
 	gui/qt/components/mediacenter/mcmedialib.cpp \
 	gui/qt/components/mediacenter/mcmedialib.hpp \
 	gui/qt/components/mediacenter/mlalbum.cpp \
