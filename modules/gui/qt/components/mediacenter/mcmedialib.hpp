@@ -29,9 +29,11 @@
 #include <QHash>
 #include <QByteArray>
 #include <QList>
+#include <QQuickWidget>
 #include <QQuickItem>
 #include <QMetaObject>
 #include <QMetaMethod>
+#include <QQmlEngine>
 
 #include <memory>
 

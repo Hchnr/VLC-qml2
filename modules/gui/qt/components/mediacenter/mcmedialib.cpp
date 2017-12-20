@@ -117,6 +117,9 @@ QVariant MCMediaLib::getCategory()
 QVariant MCMediaLib::getObjects()
 {
     MLItemModel* obj =  new MLItemModel(m_currentObj);
+    // Trick needed else the ownership is passed to QML and obj might be destroyed
+    // cf. http://doc.qt.io/qt-5/qtqml-cppintegration-data.html#data-ownership
+    QQmlEngine::setObjectOwnership(obj, QQmlEngine::CppOwnership);
     return QVariant::fromValue<MLItemModel*>( obj );
 }
 
