@@ -31,16 +31,27 @@
 #include "qt.hpp"
 #include "components/playlist/playlist.hpp"
 #include "components/playlist/vlc_model.hpp"
+#include "components/interface_widgets.hpp"
+#include "components/mediacenter/vlcstyle.hpp"
 
-#include <QWidget>
+#include <qt5/QtWidgets/QWidget>
+#include <qt5/QtWidgets/QFrame>
+#include <qt5/QtWidgets/QHBoxLayout>
+#include <qt5/QtQml/QQmlPropertyMap>
 #include <QModelIndexList>
+#include <QQmlContext>
+#include <QtQuickWidgets/QQuickWidget>
+
 
 #include <vlc_playlist.h> /* playlist_item_t */
+
+#include <typeinfo>
 
 class QSignalMapper;
 class QWheelEvent;
 class QStackedLayout;
 class QModelIndex;
+
 
 class QAbstractItemView;
 class QTreeView;
@@ -61,44 +72,25 @@ public:
                      playlist_item_t *, PLSelector *, VLCModel * );
     virtual ~StandardPLPanel();
 
-    enum { ICON_VIEW = 0,
-           TREE_VIEW ,
-           LIST_VIEW,
-           PICTUREFLOW_VIEW,
-           VIEW_COUNT };
-
-    int currentViewIndex() const;
-
-    static QMenu *viewSelectionMenu(StandardPLPanel *obj);
-
 protected:
     VLCModel *model;
     void wheelEvent( QWheelEvent *e ) Q_DECL_OVERRIDE;
-    bool popup( const QPoint &point );
 
 private:
     intf_thread_t *p_intf;
 
     PLSelector  *p_selector;
 
-    QTreeView         *treeView;
-    PlIconView        *iconView;
-    PlListView        *listView;
-    PicFlowView       *picFlowView;
+    QQuickWidget  *mainView;
 
-    QAbstractItemView *currentView;
-
-    QStackedLayout    *viewStack;
+    QHBoxLayout    *mainLayout;
 
     QSignalMapper *selectColumnsSigMapper;
 
     int lastActivatedPLItemId;
     int currentRootIndexPLId;
 
-    void createTreeView();
-    void createIconView();
-    void createListView();
-    void createCoverView();
+    void createMainView();
     void updateZoom( int i_zoom );
     virtual bool eventFilter ( QObject * watched, QEvent * event ) Q_DECL_OVERRIDE;
 
@@ -108,41 +100,22 @@ private:
 public slots:
     void setRootItem( playlist_item_t *, bool );
     void browseInto( const QModelIndex& );
-    void showView( int );
-    void setWaiting( bool ); /* spinner */
+    void showMainView();
 
 private slots:
-    void deleteSelection();
     void handleExpansion( const QModelIndex& );
-    void activate( const QModelIndex & );
 
     void browseInto();
     void browseInto( int );
 
-    void gotoPlayingItem();
 
-    void search( const QString& searchText );
     void searchDelayed( const QString& searchText );
 
-    void popupPlView( const QPoint & );
-    void popupSelectColumn( QPoint );
-    void popupAction( QAction * );
     void increaseZoom() { updateZoom( 1 ); };
     void decreaseZoom() { updateZoom( -1 ); };
-    void toggleColumnShown( int );
-
-    void cycleViews();
-    void updateViewport(); /* spinner */
 
 signals:
     void viewChanged( const QModelIndex& );
 };
-
-
-static const QString viewNames[ StandardPLPanel::VIEW_COUNT ]
-                                = { qtr( "Icons" ),
-                                    qtr( "Detailed List" ),
-                                    qtr( "List" ),
-                                    qtr( "PictureFlow") };
 
 #endif
