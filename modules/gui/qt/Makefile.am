@@ -244,6 +244,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/components/playlist/views.moc.cpp \
 	gui/qt/components/playlist/vlc_model.moc.cpp \
 	gui/qt/components/playlist/mediacenter_model.moc.cpp \
+	gui/qt/components/playlist/mediacenter_item.moc.cpp \
 	gui/qt/components/playlist/playlist.moc.cpp \
 	gui/qt/components/playlist/plmodel.moc.cpp \
 	gui/qt/components/playlist/standardpanel.moc.cpp \

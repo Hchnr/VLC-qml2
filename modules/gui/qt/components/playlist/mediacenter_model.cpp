@@ -135,13 +135,13 @@ QMimeData *MCModel::mimeData( const QModelIndexList &indexes ) const
         if( item )
         {
             MCItem *testee = getItem( index );
-            while( testee->parent() )
+            while( testee->plitem_parent() )
             {
-                if( testee->parent() == item ||
-                    testee->parent() == item->parent() ) break;
-                testee = testee->parent();
+                if( testee->plitem_parent() == item ||
+                    testee->plitem_parent() == item->plitem_parent() ) break;
+                testee = testee->plitem_parent();
             }
-            if( testee->parent() == item ) continue;
+            if( testee->plitem_parent() == item ) continue;
             item = getItem( index );
         }
         else
@@ -237,11 +237,11 @@ void MCModel::dropMove( const PlMimeData * plMimeData, MCItem *target, int row )
                     free( pp_items );
                     return;
                 }
-                climber = climber->parent();
+                climber = climber->plitem_parent();
             }
 
-            if( item->parent() == target &&
-                target->children.indexOf( item ) < new_pos )
+            if( item->plitem_parent() == target &&
+                target->plitem_children.indexOf( item ) < new_pos )
                 model_pos--;
 
             model_items.append( item );
@@ -471,7 +471,7 @@ bool MCModel::isTree() const
 QModelIndex MCModel::index( MCItem *item, int column ) const
 {
     if( !item ) return QModelIndex();
-    MCItem *parent = item->parent();
+    MCItem *parent = item->plitem_parent();
     if( parent )
         return createIndex( parent->lastIndexOf( item ),
                             column, item );
@@ -497,9 +497,9 @@ QModelIndex MCModel::parent( const QModelIndex &index ) const
         return QModelIndex();
     }
 
-    MCItem *parentItem = static_cast<MCItem*>(childItem->parent());
+    MCItem *parentItem = static_cast<MCItem*>(childItem->plitem_parent());
     if( !parentItem || parentItem == rootItem ) return QModelIndex();
-    if( !parentItem->parent() )
+    if( !parentItem->plitem_parent() )
     {
         msg_Err( p_playlist, "No parent found, trying row 0. Please report this" );
         return createIndex( 0, 0, parentItem );
@@ -530,7 +530,7 @@ MCItem *MCModel::findByPLId( MCItem *root, int i_id ) const
 
     QStack<RemainingChildren> stack;
     if( root->childCount() )
-        stack.push( {root->children.cbegin(), root->children.cend()} );
+        stack.push( {root->plitem_children.cbegin(), root->plitem_children.cend()} );
 
     while ( !stack.isEmpty() )
     {
@@ -545,7 +545,7 @@ MCItem *MCModel::findByPLId( MCItem *root, int i_id ) const
             stack.pop();
 
         if( item->childCount() )
-            stack.push( {item->children.cbegin(), item->children.cend()} );
+            stack.push( {item->plitem_children.cbegin(), item->plitem_children.cend()} );
     }
     return NULL;
 }
@@ -581,7 +581,7 @@ MCModel::pl_nodetype MCModel::getPLRootType() const
 
     /* can't rely on rootitem as it depends on view / rebuild() */
     MCItem *plitem = rootItem;
-    while( plitem->parent() )plitem = plitem->parent();
+    while( plitem->plitem_parent() )plitem = plitem->plitem_parent();
 
     if( plitem->id() == p_playlist->p_playing->i_id )
         return ROOTTYPE_CURRENT_PLAYING;
@@ -637,7 +637,7 @@ void MCModel::processItemAppend( int i_pl_itemid, int i_pl_itemidparent )
     if( !nodeParentItem ) return;
 
     /* Search for an already matching children */
-    foreach( MCItem *existing, nodeParentItem->children )
+    foreach( MCItem *existing, nodeParentItem->plitem_children )
         if( existing->id() == i_pl_itemid ) return;
 
     /* Find the child */
@@ -691,7 +691,7 @@ void MCModel::rebuild( playlist_item_t *p_root )
 void MCModel::takeItem( MCItem *item )
 {
     assert( item );
-    MCItem *parent = static_cast<MCItem*>(item->parent());
+    MCItem *parent = static_cast<MCItem*>(item->plitem_parent());
     assert( parent );
     int i_index = parent->indexOf( item );
 
@@ -708,7 +708,7 @@ void MCModel::insertChildren( MCItem *node, QList<MCItem*>& items, int i_pos )
     beginInsertRows( index( node, 0 ), i_pos, i_pos + count - 1 );
     for( int i = 0; i < count; i++ )
     {
-        node->children.insert( i_pos + i, items[i] );
+        node->plitem_children.insert( i_pos + i, items[i] );
         items[i]->parentItem = node;
     }
     endInsertRows();
@@ -718,10 +718,10 @@ void MCModel::removeItem( MCItem *item )
 {
     if( !item ) return;
 
-    if( item->parent() ) {
-        int i = item->parent()->indexOf( item );
-        beginRemoveRows( index( static_cast<MCItem*>(item->parent()), 0), i, i );
-        item->parent()->children.removeAt(i);
+    if( item->plitem_parent() ) {
+        int i = item->plitem_parent()->indexOf( item );
+        beginRemoveRows( index( static_cast<MCItem*>(item->plitem_parent()), 0), i, i );
+        item->plitem_parent()->plitem_children.removeAt(i);
         delete item;
         endRemoveRows();
     }
@@ -780,7 +780,7 @@ void MCModel::doDelete( QModelIndexList selected )
 
         MCItem *item = getItem( index );
         if( item->childCount() )
-            recurseDelete( item->children, &selected );
+            recurseDelete( item->plitem_children, &selected );
 
         PL_LOCK;
         playlist_item_t *p_root = playlist_ItemGetById( p_playlist,
@@ -800,7 +800,7 @@ void MCModel::recurseDelete( QList<MCItem*> children, QModelIndexList *fullList 
     {
         MCItem *item = static_cast<MCItem *>(children[i]);
         if( item->childCount() )
-            recurseDelete( item->children, fullList );
+            recurseDelete( item->plitem_children, fullList );
         fullList->removeAll( index( item, 0 ) );
     }
 }
