@@ -59,7 +59,6 @@ class PlIconView;
 class PlListView;
 class PicFlowView;
 
-class PLSelector;
 class PlaylistWidget;
 class PixmapAnimator;
 
@@ -69,7 +68,7 @@ class StandardPLPanel: public QWidget
 
 public:
     StandardPLPanel( PlaylistWidget *, intf_thread_t *,
-                     playlist_item_t *, PLSelector *, VLCModel * );
+                     playlist_item_t *, VLCModel * );
     virtual ~StandardPLPanel();
 
 protected:
@@ -78,8 +77,6 @@ protected:
 
 private:
     intf_thread_t *p_intf;
-
-    PLSelector  *p_selector;
 
     QQuickWidget  *mainView;
 
@@ -107,9 +104,6 @@ private slots:
 
     void browseInto();
     void browseInto( int );
-
-
-    void searchDelayed( const QString& searchText );
 
     void increaseZoom() { updateZoom( 1 ); };
     void decreaseZoom() { updateZoom( -1 ); };

@@ -30,7 +30,6 @@
 
 #include "components/playlist/mediacenter_model.hpp" /* PLModel */
 #include "components/playlist/views.hpp"          /* 3 views */
-#include "components/playlist/selector.hpp"       /* PLSelector */
 #include "util/animators.hpp"                     /* PixmapAnimator */
 #include "menus.hpp"                              /* Popup */
 #include "input_manager.hpp"                      /* THEMIM */
@@ -85,12 +84,10 @@ inline QModelIndex popupIndex( QAbstractItemView *view );
 StandardPLPanel::StandardPLPanel( PlaylistWidget *_parent,
                                   intf_thread_t *_p_intf,
                                   playlist_item_t *p_root,
-                                  PLSelector *_p_selector,
                                   VLCModel *_p_model )
                 : QWidget( _parent ),
                   model( _p_model ),
-                  p_intf( _p_intf ),
-                  p_selector( _p_selector )
+                  p_intf( _p_intf )
 {
     mainLayout = new QHBoxLayout( this );
     mainLayout->setSpacing( 0 ); mainLayout->setMargin( 0 );
@@ -153,21 +150,6 @@ inline QModelIndex popupIndex( QAbstractItemView *view )
         return list.first();
 }
 
-void StandardPLPanel::searchDelayed( const QString& searchText )
-{
-    int type;
-    QString name;
-    bool can_search;
-    p_selector->getCurrentItemInfos( &type, &can_search, &name );
-
-    if( type == SD_TYPE && can_search )
-    {
-        if( !name.isEmpty() && !searchText.isEmpty() )
-            playlist_ServicesDiscoveryControl( THEPL, qtu( name ), SD_CMD_SEARCH,
-                                              qtu( searchText ) );
-    }
-}
-
 /* Set the root of the new Playlist */
 /* This activated by the selector selection */
 void StandardPLPanel::setRootItem( playlist_item_t *p_item, bool b )
@@ -214,42 +196,6 @@ void StandardPLPanel::wheelEvent( QWheelEvent *e )
 
 bool StandardPLPanel::eventFilter ( QObject *obj, QEvent * event )
 {
-    if ( event->type() == QEvent::Paint )
-    {/* Warn! Don't filter events from anything else than views ! */
-        if ( model->rowCount() == 0 && p_selector->getCurrentItemCategory() == PL_ITEM_TYPE )
-        {
-            QWidget *viewport = qobject_cast<QWidget *>( obj );
-            QStylePainter painter( viewport );
-
-            QPixmap dropzone = ImageHelper::loadSvgToPixmap(":/dropzone.svg", DROPZONE_SIZE, DROPZONE_SIZE);
-            QRect rect = viewport->geometry();
-#if HAS_QT56
-            qreal scale = dropzone.devicePixelRatio();
-            QSize size = rect.size()  / 2 - dropzone.size() / (2 * scale);
-#else
-            QSize size = rect.size()  / 2 - dropzone.size() / 2;
-#endif
-            rect.adjust( 0, size.height(), 0 , 0 );
-            painter.drawItemPixmap( rect, Qt::AlignHCenter, dropzone );
-            /* now select the zone just below the drop zone and let Qt center
-               the text by itself */
-#if HAS_QT56
-            rect.adjust( 0, dropzone.height() / scale + 10, 0, 0 );
-#else
-            rect.adjust( 0, dropzone.height() + 10, 0, 0 );
-#endif
-            rect.setRight( viewport->geometry().width() );
-            rect.setLeft( 0 );
-            painter.drawItemText( rect,
-                                  Qt::AlignHCenter,
-                                  palette(),
-                                  true,
-                                  qtr("Playlist is currently empty.\n"
-                                      "Drop a file here or select a "
-                                      "media source from the left."),
-                                  QPalette::Text );
-        }
-    }
     return false;
 }
 
