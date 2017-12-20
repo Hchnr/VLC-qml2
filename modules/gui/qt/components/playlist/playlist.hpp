@@ -34,11 +34,15 @@
 
 //#include <vlc_playlist.h>
 
+#include <qt5/QtWidgets/QStackedWidget>
+
 #include <QSplitter>
 
 #include <QPushButton>
 #include <QSplitterHandle>
 #include <QMouseEvent>
+
+#include <QQuickView>
 
 class StandardPLPanel;
 class LocationBar;
@@ -57,13 +61,9 @@ public:
     void forceHide();
     void forceShow();
     void setSearchFieldFocus();
-    QStackedWidget *artContainer;
     StandardPLPanel      *mainView;
 
 private:
-    QSplitter            *leftSplitter;
-    QSplitter            *split;
-
     PLSelector           *selector;
 
     LocationBar          *locationBar;
