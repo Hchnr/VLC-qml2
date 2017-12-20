@@ -109,6 +109,11 @@ public:
     virtual bool action( QAction *action, const QModelIndexList &indexes ) Q_DECL_OVERRIDE;
     virtual bool isSupportedAction( actions action, const QModelIndex & ) const Q_DECL_OVERRIDE;
 
+    Q_INVOKABLE virtual void activateItem(const QModelIndex &index ) Q_DECL_OVERRIDE;
+    void activateItem( MCItem *item );
+    void activateItem( playlist_item_t *p_item ) ;
+    void exploreDir( MCItem *item );
+
 protected:
     /* VLCModel subclassing */
     virtual bool isParent( const QModelIndex &index, const QModelIndex &current) const Q_DECL_OVERRIDE;
@@ -162,8 +167,6 @@ private slots:
     void processInputItemUpdate();
     void processItemRemoval( int i_pl_itemid );
     void processItemAppend( int i_pl_itemid, int i_pl_itemidparent );
-    void activateItem( playlist_item_t *p_item );
-    virtual void activateItem( const QModelIndex &index) Q_DECL_OVERRIDE;
 };
 
 class PlMimeData : public QMimeData
