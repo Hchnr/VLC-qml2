@@ -42,6 +42,7 @@
 #include "components/playlist/playlist.hpp"     // plWidget
 #include "dialogs/firstrun.hpp"                 // First Run
 #include "dialogs/playlist.hpp"                 // PlaylistDialog
+#include "components/playlist/standardpanel.hpp"
 
 #include "menus.hpp"                            // Menu creation
 #include "recents.hpp"                          // RecentItems when DnD
@@ -158,13 +159,6 @@ MainInterface::MainInterface( intf_thread_t *_p_intf ) : QVLCMW( _p_intf )
      *  UI and Widgets design
      **************************/
     setVLCWindowsTitle();
-
-    /************
-     * Menu Bar *
-     ************/
-    VLCMenuBar::createMenuBar( this, p_intf );
-    CONNECT( THEMIM->getIM(), voutListChanged( vout_thread_t **, int ),
-             THEDP, destroyPopupMenu() );
 
     createMainWidget( settings );
 
@@ -660,7 +654,6 @@ inline void MainInterface::showTab( QWidget *widget, bool video_closing )
         /* Playlist -> Video */
         if( playlistWidget == stackCentralOldWidget && widget == videoWidget )
         {
-            playlistWidget->artContainer->removeWidget( videoWidget );
             videoWidget->show(); videoWidget->raise();
             stackCentralW->addWidget( videoWidget );
         }
@@ -670,7 +663,6 @@ inline void MainInterface::showTab( QWidget *widget, bool video_closing )
         {
             /* In rare case when video is started before the interface */
             if( playlistWidget != NULL )
-                playlistWidget->artContainer->removeWidget( videoWidget );
             videoWidget->show(); videoWidget->raise();
             stackCentralW->addWidget( videoWidget );
             stackCentralW->setCurrentWidget( videoWidget );
@@ -694,8 +686,6 @@ inline void MainInterface::showTab( QWidget *widget, bool video_closing )
     if( !video_closing && videoWidget && THEMIM->getIM()->hasVideo() &&
         videoWidget == stackCentralOldWidget && widget == playlistWidget )
     {
-        playlistWidget->artContainer->addWidget( videoWidget );
-        playlistWidget->artContainer->setCurrentWidget( videoWidget );
     }
 }
 
@@ -786,10 +776,8 @@ void MainInterface::releaseVideoSlot( void )
 
     if( stackCentralW->currentWidget() == videoWidget )
         restoreStackOldWidget( true );
-    else if( playlistWidget &&
-             playlistWidget->artContainer->currentWidget() == videoWidget )
+    else if( playlistWidget )
     {
-        playlistWidget->artContainer->setCurrentIndex( 0 );
         stackCentralW->addWidget( videoWidget );
     }
 
@@ -851,7 +839,7 @@ void MainInterface::setVideoSize( unsigned int w, unsigned int h )
 
 void MainInterface::videoSizeChanged( int w, int h )
 {
-    if( !playlistWidget || playlistWidget->artContainer->currentWidget() != videoWidget )
+    if( !playlistWidget )
         resizeStack( w, h );
 }
 
