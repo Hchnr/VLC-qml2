@@ -28,9 +28,11 @@
 
 MCMediaLib::MCMediaLib(
         intf_thread_t *_intf,
+        QQuickWidget *_qml_item,
         std::shared_ptr<PLModel> _pl_model,
         QObject *_parent
     ) : m_intf( _intf ),
+        m_qmlItem( _qml_item ),
         m_currentCat ( CAT_MUSIC_ALBUM ),
         m_oldCat ( CAT_MUSIC_ALBUM ),
         m_currentSort( medialibrary::SortingCriteria::Default ),
@@ -105,6 +107,8 @@ void MCMediaLib::backPresentation() {
     default:
         break;
     }
+    invokeQML("reloadPresentation()");
+    invokeQML("changedCategory()");
 }
 
 // Which category should be displayed
@@ -133,6 +137,7 @@ QVariant MCMediaLib::isGridView()
 void MCMediaLib::toogleView()
 {
     m_gridView = !m_gridView;
+    invokeQML("changedView()");
 }
 
 // Is the night mode activated
@@ -145,6 +150,7 @@ QVariant MCMediaLib::isNightMode()
 void MCMediaLib::toogleNightMode()
 {
     m_isNightMode = !m_isNightMode;
+    invokeQML("changedNightMode()");
 }
 
 // A specific item has been selected -> update the list of obejcts and the presentation
@@ -177,6 +183,8 @@ void MCMediaLib::select( const int &item_id )
         }
     }
 
+    invokeQML("reloadPresentation()");
+    invokeQML("changedCategory()");
 }
 
 // A specific item has been asked to be added to the playlist
@@ -273,6 +281,8 @@ void MCMediaLib::selectSource( const QString &name )
         m_currentCat = CAT_MUSIC_ALBUM;
         retrieveAlbums();
         if (m_currentMainObj) m_currentMainObj = nullptr;
+        invokeQML("reloadPresentation()");
+        invokeQML("changedCategory()");
     }
     else if (name == "music-albums" && m_currentCat != CAT_MUSIC_ALBUM)
     {
@@ -280,6 +290,8 @@ void MCMediaLib::selectSource( const QString &name )
         m_currentCat = CAT_MUSIC_ALBUM;
         retrieveAlbums();
         if (m_currentMainObj) m_currentMainObj = nullptr;
+        invokeQML("reloadPresentation()");
+        invokeQML("changedCategory()");
     }
     else if (name == "music-artists" && m_currentCat != CAT_MUSIC_ARTIST)
     {
@@ -287,6 +299,8 @@ void MCMediaLib::selectSource( const QString &name )
         m_currentCat = CAT_MUSIC_ARTIST;
         retrieveArtists();
         if (m_currentMainObj) m_currentMainObj = nullptr;
+        invokeQML("reloadPresentation()");
+        invokeQML("changedCategory()");
     }
     else if (name == "music-genre" && m_currentCat != CAT_MUSIC_GENRE)
     {
@@ -294,6 +308,8 @@ void MCMediaLib::selectSource( const QString &name )
         m_currentCat = CAT_MUSIC_GENRE;
         retrieveGenres();
         if (m_currentMainObj) m_currentMainObj = nullptr;
+        invokeQML("reloadPresentation()");
+        invokeQML("changedCategory()");
     }
     else if (name == "music-tracks" && m_currentCat != CAT_MUSIC_TRACKS)
     {
@@ -301,6 +317,8 @@ void MCMediaLib::selectSource( const QString &name )
         m_currentCat = CAT_MUSIC_TRACKS;
         retrieveTracks();
         if (m_currentMainObj) m_currentMainObj = nullptr;
+        invokeQML("reloadPresentation()");
+        invokeQML("changedCategory()");
     }
     else if (name == "video" && m_currentCat != CAT_VIDEO)
     {
@@ -308,6 +326,8 @@ void MCMediaLib::selectSource( const QString &name )
         m_currentCat = CAT_VIDEO;
         retrieveMovies();
         if (m_currentMainObj) m_currentMainObj = nullptr;
+        invokeQML("reloadPresentation()");
+        invokeQML("changedCategory()");
     }
     else if (name == "network" && m_currentCat != CAT_NETWORK)
     {
@@ -315,6 +335,8 @@ void MCMediaLib::selectSource( const QString &name )
         m_currentCat = CAT_NETWORK;
         retrieveSeries();
         if (m_currentMainObj) m_currentMainObj = nullptr;
+        invokeQML("reloadPresentation()");
+        invokeQML("changedCategory()");
     }
 }
 
@@ -377,6 +399,7 @@ void MCMediaLib::sort( const QString &criteria )
     {
         sortCurrent();
     }
+    invokeQML("reloadData()");
 }
 
 // Recalculate the list of root objects that should be displayed according to the current category and sort
@@ -466,3 +489,10 @@ void MCMediaLib::retrieveSeries()
  */
 }
 
+// Invoke a given QML function (used to notify the view part of a change)
+void MCMediaLib::invokeQML( const char* func ) {
+    QQuickItem *root = m_qmlItem->rootObject();
+    int methodIndex = root->metaObject()->indexOfMethod(func);
+    QMetaMethod method = root->metaObject()->method(methodIndex);
+    method.invoke(root);
+}
