@@ -28,7 +28,6 @@
 
 #include "components/playlist/playlist.hpp"
 #include "components/playlist/standardpanel.hpp"  /* MainView */
-#include "components/playlist/selector.hpp"       /* PLSelector */
 #include "components/playlist/mediacenter_model.hpp" /* PLModel */
 #include "components/interface_widgets.hpp"       /* CoverArtLabel */
 
@@ -54,13 +53,6 @@ PlaylistWidget::PlaylistWidget( intf_thread_t *_p_i, QWidget *_par )
     layout->setMargin( 0 ); layout->setSpacing( 0 );
 
     /*******************
-     * Left            *
-     *******************/
-    /* Source Selector */
-    selector = new PLSelector( this, p_intf );
-
-
-    /*******************
      * Right           *
      *******************/
     /* Initialisation of the playlist */
@@ -73,7 +65,7 @@ PlaylistWidget::PlaylistWidget( intf_thread_t *_p_i, QWidget *_par )
 
     MCModel *model = MCModel::getMCModel( p_intf );
 
-    mainView = new StandardPLPanel( this, p_intf, p_root, selector, model );
+    mainView = new StandardPLPanel( this, p_intf, p_root, model );
 
     QHBoxLayout *topbarLayout = new QHBoxLayout();
     topbarLayout->setSpacing( 10 );
@@ -93,12 +85,8 @@ PlaylistWidget::~PlaylistWidget()
 }
 
 void PlaylistWidget::dropEvent( QDropEvent *event )
-{
-    if( selector->getCurrentItemCategory() != IS_PL ) return;
+{ }
 
-    if( p_intf->p_sys->p_mi )
-        p_intf->p_sys->p_mi->dropEventPlay( event, false );
-}
 void PlaylistWidget::dragEnterEvent( QDragEnterEvent *event )
 {
     event->acceptProposedAction();
