@@ -43,26 +43,26 @@ class MCItem
 
 public:
     virtual ~MCItem();
-    bool hasSameParent( MCItem *other ) { return parent() == other->parent(); }
+    bool hasSameParent( MCItem *other ) { return plitem_parent() == other->plitem_parent(); }
     bool operator< ( MCItem& );
 
 protected:
     int id() const;
-    int childCount() const { return children.count(); }
-    int indexOf( MCItem *item ) const { return children.indexOf( item ); }
-    int lastIndexOf( MCItem *item ) const { return children.lastIndexOf( item ); }
-    MCItem *parent() { return parentItem; }
+    int childCount() const { return plitem_children.count(); }
+    int indexOf( MCItem *item ) const { return plitem_children.indexOf( item ); }
+    int lastIndexOf( MCItem *item ) const { return plitem_children.lastIndexOf( item ); }
+    MCItem *plitem_parent() { return parentItem; }
     input_item_t *inputItem() { return p_input; }
-    void insertChild( MCItem *item, int pos = -1 ) { children.insert( pos, item ); }
-    void appendChild( MCItem *item ) { insertChild( item, children.count() ); }
-    MCItem *child( int id ) const { return children.value( id ); }
+    void insertChild( MCItem *item, int pos = -1 ) { plitem_children.insert( pos, item ); }
+    void appendChild( MCItem *item ) { insertChild( item, plitem_children.count() ); }
+    MCItem *child( int id ) const { return plitem_children.value( id ); }
     void removeChild( MCItem *item );
     void clearChildren();
     QString getURI() const;
     QString getTitle() const;
     bool readOnly() const;
 
-    QList<MCItem *> children;
+    QList<MCItem *> plitem_children;
     MCItem *parentItem;
 
 private:
