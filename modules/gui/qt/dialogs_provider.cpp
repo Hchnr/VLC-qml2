@@ -49,6 +49,7 @@
 #include "dialogs/convert.hpp"
 #include "dialogs/open.hpp"
 #include "dialogs/openurl.hpp"
+#include "dialogs/about.hpp"
 #include "dialogs/help.hpp"
 #include "dialogs/gototime.hpp"
 #include "dialogs/podcast_configuration.hpp"
@@ -114,7 +115,7 @@ DialogsProvider::~DialogsProvider()
     delete miscPopupMenu;
 }
 
-QStringList DialogsProvider::getOpenURL( QWidget *parent,
+QStringList DialogsProvider::getOpenURL( intf_thread_t* p_intf, QWidget *parent,
                                          const QString &caption,
                                          const QUrl &dir,
                                          const QString &filter,
@@ -294,7 +295,7 @@ void DialogsProvider::vlmDialog()
 
 void DialogsProvider::helpDialog()
 {
-    HelpDialog::getInstance( p_intf )->toggleVisible();
+    HelpDialog::getInstance( p_intf )->show();
 }
 
 #ifdef UPDATE_CHECK
@@ -306,7 +307,7 @@ void DialogsProvider::updateDialog()
 
 void DialogsProvider::aboutDialog()
 {
-    AboutDialog::getInstance( p_intf )->toggleVisible();
+    AboutDialog::getInstance( p_intf )->show();
 }
 
 void DialogsProvider::mediaInfoDialog()
@@ -405,8 +406,9 @@ void DialogsProvider::openFileGenericDialog( intf_dialog_args_t *p_arg )
     }
     else /* non-save mode */
     {
-        QStringList urls = getOpenURL( NULL, qfu( p_arg->psz_title ),
-                                       p_intf->p_sys->filepath, extensions );
+        QStringList urls = getOpenURL( p_intf, NULL,
+                qfu( p_arg->psz_title ), p_intf->p_sys->filepath,
+                extensions );
         p_arg->i_results = urls.count();
         p_arg->psz_results = (char **)vlc_alloc( p_arg->i_results, sizeof( char * ) );
         i = 0;
@@ -504,7 +506,7 @@ QStringList DialogsProvider::showSimpleOpen( const QString& help,
     fileTypes.replace( ";*", " *");
     fileTypes.chop(2); //remove trailling ";;"
 
-    QStringList urls = getOpenURL( NULL,
+    QStringList urls = getOpenURL( p_intf, NULL,
         help.isEmpty() ? qtr(I_OP_SEL_FILES ) : help,
         path.isEmpty() ? p_intf->p_sys->filepath : path,
         fileTypes );

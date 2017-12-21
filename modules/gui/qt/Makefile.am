@@ -65,6 +65,7 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/dialogs/sout.cpp gui/qt/dialogs/sout.hpp \
 	gui/qt/dialogs/convert.cpp gui/qt/dialogs/convert.hpp \
 	gui/qt/dialogs/help.cpp gui/qt/dialogs/help.hpp \
+	gui/qt/dialogs/about.cpp gui/qt/dialogs/about.hpp \
 	gui/qt/dialogs/gototime.cpp gui/qt/dialogs/gototime.hpp \
 	gui/qt/dialogs/toolbar.cpp gui/qt/dialogs/toolbar.hpp \
 	gui/qt/dialogs/open.cpp gui/qt/dialogs/open.hpp \
@@ -211,6 +212,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/dialogs/sout.moc.cpp \
 	gui/qt/dialogs/convert.moc.cpp \
 	gui/qt/dialogs/help.moc.cpp \
+	gui/qt/dialogs/about.moc.cpp \
 	gui/qt/dialogs/gototime.moc.cpp \
 	gui/qt/dialogs/toolbar.moc.cpp \
 	gui/qt/dialogs/open.moc.cpp \
@@ -475,6 +477,8 @@ libqt_plugin_la_RES = \
 	gui/qt/pixmaps/valid.svg \
 	gui/qt/pixmaps/search_clear.svg \
 	gui/qt/pixmaps/lock.svg \
+	gui/qt/qml/help.qml \
+	gui/qt/qml/about.qml \
 	gui/qt/qml/MainInterface.qml \
 	gui/qt/qml/SubBannerSources.qml \
 	gui/qt/qml/BannerSources.qml \

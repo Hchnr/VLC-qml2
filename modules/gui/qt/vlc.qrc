@@ -171,7 +171,9 @@
         <file alias="MusicTracksDisplay.qml">qml/mediacenter/MusicTracksDisplay.qml</file>
     </qresource>
     <qresource prefix="/qml">
+        <file alias="about.qml">qml/about.qml</file>
         <file alias="BannerSources.qml">qml/BannerSources.qml</file>
+        <file alias="help.qml">qml/help.qml</file>
         <file alias="MainInterface.qml">qml/MainInterface.qml</file>
         <file alias="SubBannerSources.qml">qml/SubBannerSources.qml</file>
     </qresource>
