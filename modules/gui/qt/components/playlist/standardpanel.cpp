@@ -123,6 +123,7 @@ StandardPLPanel::StandardPLPanel( PlaylistWidget *_parent,
 
     /* Create a Container for the Art Label
        in order to have a beautiful resizing for the selector above it */
+    videoOverlay = new VideoOverlay(this);
 }
 
 StandardPLPanel::~StandardPLPanel()

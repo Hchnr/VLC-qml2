@@ -654,6 +654,7 @@ inline void MainInterface::showTab( QWidget *widget, bool video_closing )
         /* Playlist -> Video */
         if( playlistWidget == stackCentralOldWidget && widget == videoWidget )
         {
+            playlistWidget->mainView->getVideoOverlay()->setVideo( videoWidget );
             videoWidget->show(); videoWidget->raise();
             stackCentralW->addWidget( videoWidget );
         }
@@ -663,6 +664,7 @@ inline void MainInterface::showTab( QWidget *widget, bool video_closing )
         {
             /* In rare case when video is started before the interface */
             if( playlistWidget != NULL )
+                playlistWidget->mainView->getVideoOverlay()->setVideo( videoWidget );
             videoWidget->show(); videoWidget->raise();
             stackCentralW->addWidget( videoWidget );
             stackCentralW->setCurrentWidget( videoWidget );
@@ -686,6 +688,7 @@ inline void MainInterface::showTab( QWidget *widget, bool video_closing )
     if( !video_closing && videoWidget && THEMIM->getIM()->hasVideo() &&
         videoWidget == stackCentralOldWidget && widget == playlistWidget )
     {
+        playlistWidget->mainView->getVideoOverlay()->setVideo( videoWidget );
     }
 }
 
@@ -776,7 +779,8 @@ void MainInterface::releaseVideoSlot( void )
 
     if( stackCentralW->currentWidget() == videoWidget )
         restoreStackOldWidget( true );
-    else if( playlistWidget )
+    else if( playlistWidget &&
+               playlistWidget->mainView->getVideoOverlay()->getVideo() == videoWidget )
     {
         stackCentralW->addWidget( videoWidget );
     }
@@ -839,7 +843,7 @@ void MainInterface::setVideoSize( unsigned int w, unsigned int h )
 
 void MainInterface::videoSizeChanged( int w, int h )
 {
-    if( !playlistWidget )
+    if( !playlistWidget || playlistWidget->mainView->getVideoOverlay()->getVideo() != videoWidget )
         resizeStack( w, h );
 }
 
@@ -1653,11 +1657,19 @@ void MainInterface::closeEvent( QCloseEvent *e )
 
 bool MainInterface::eventFilter( QObject *obj, QEvent *event )
 {
-    if ( event->type() == MainInterface::ToolbarsNeedRebuild ) {
+    if ( event->type() == MainInterface::ToolbarsNeedRebuild )
+    {
         event->accept();
         recreateToolbars();
         return true;
-    } else {
+    }
+    else if ( event->type() == QEvent::Resize )
+    {
+        PlaylistDialog::getInstance(p_intf)->exportPlaylistWidget()->mainView->getVideoOverlay()->updatePosition();
+        return true;
+    }
+    else
+    {
         return QObject::eventFilter( obj, event );
     }
 }
