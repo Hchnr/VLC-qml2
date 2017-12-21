@@ -49,6 +49,7 @@
 #include "dialogs/convert.hpp"
 #include "dialogs/open.hpp"
 #include "dialogs/openurl.hpp"
+#include "dialogs/about.hpp"
 #include "dialogs/help.hpp"
 #include "dialogs/gototime.hpp"
 #include "dialogs/podcast_configuration.hpp"
@@ -279,7 +280,7 @@ void DialogsProvider::vlmDialog()
 
 void DialogsProvider::helpDialog()
 {
-    HelpDialog::getInstance( p_intf )->toggleVisible();
+    HelpDialog::getInstance( p_intf )->show();
 }
 
 #ifdef UPDATE_CHECK
@@ -291,7 +292,7 @@ void DialogsProvider::updateDialog()
 
 void DialogsProvider::aboutDialog()
 {
-    AboutDialog::getInstance( p_intf )->toggleVisible();
+    AboutDialog::getInstance( p_intf )->show();
 }
 
 void DialogsProvider::mediaInfoDialog()
