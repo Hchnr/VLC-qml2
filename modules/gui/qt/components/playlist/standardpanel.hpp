@@ -31,6 +31,7 @@
 #include "qt.hpp"
 #include "components/playlist/playlist.hpp"
 #include "components/playlist/vlc_model.hpp"
+#include "components/video_overlay.hpp"
 #include "components/interface_widgets.hpp"
 #include "components/mediacenter/vlcstyle.hpp"
 
@@ -71,6 +72,8 @@ public:
                      playlist_item_t *, VLCModel * );
     virtual ~StandardPLPanel();
 
+    VideoOverlay* getVideoOverlay() { return videoOverlay; }
+
 protected:
     VLCModel *model;
     void wheelEvent( QWheelEvent *e ) Q_DECL_OVERRIDE;
@@ -81,6 +84,7 @@ private:
     QQuickWidget  *mainView;
 
     QHBoxLayout    *mainLayout;
+    VideoOverlay      *videoOverlay;
 
     QSignalMapper *selectColumnsSigMapper;
 
