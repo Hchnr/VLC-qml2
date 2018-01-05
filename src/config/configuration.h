@@ -25,6 +25,10 @@
 extern "C" {
 # endif
 
+/* H4CK to get QMLJSDebug running */
+int getVerboseLevel2AndSetQMLJSDebuggerOpt(vlc_object_t *p_this, int argc, const char *argv[]);
+int min (int a, int b);
+
 /* Internal configuration prototypes and structures */
 
 int  config_CreateDir( vlc_object_t *, const char * );

@@ -360,6 +360,7 @@ static bool active = false;
  *****************************************************************************/
 
 static void *Thread( void * );
+char* getQmljsdebuggerOpt(intf_thread_t *p_intf);
 
 #ifdef Q_OS_MAC
 /* Used to abort the app.exec() on OSX after libvlc_Quit is called */
@@ -495,6 +496,15 @@ static void *Thread( void *obj )
     int argc = 0;
 
     argv[argc++] = vlc_name;
+
+    /* H4CK to get QMLJSDebug running with correct port */
+    char* qmlJsDebugOpt = getQmljsdebuggerOpt(p_intf);
+    if (qmlJsDebugOpt)
+    {
+        fprintf(stderr, "[H4CK QMLJSDEBUG]: add QApp param : %s \n", qmlJsDebugOpt);
+        argv[argc++] = qmlJsDebugOpt;
+    }
+
     argv[argc] = NULL;
 
     Q_INIT_RESOURCE( vlc );
@@ -765,4 +775,11 @@ static void WindowClose( vout_window_t *p_wnd )
     }
     msg_Dbg (p_wnd, "releasing video...");
     p_mi->releaseVideo();
+}
+
+/* H4CK DEBUG to get the port of running qmljsdebugger via env var */
+char* getQmljsdebuggerOpt(intf_thread_t *p_intf)
+{
+    fprintf(stderr, "[H4CK QMLJSDEBUG]: read vlc var from qt.cpp : %s \n", var_InheritString(p_intf, "qt_qmljsdebug"));
+    return var_InheritString(p_intf, "qt_qmljsdebug");
 }

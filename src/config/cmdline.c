@@ -184,111 +184,117 @@ int config_LoadCmdLine( vlc_object_t *p_this, int i_argc,
      */
     vlc_getopt_t state;
     state.ind = 0 ; /* set to 0 to tell GNU getopt to reinitialize */
-    while( ( i_cmd = vlc_getopt_long( i_argc, (char **)ppsz_argv,
-                                      psz_shortopts,
-                                      p_longopts, &i_index, &state ) ) != -1 )
-    {
-        /* A long option has been recognized */
-        if( i_cmd == 0 )
-        {
-            module_config_t *p_conf;
-            const char *psz_name = p_longopts[i_index].name;
+//    while( ( i_cmd = vlc_getopt_long( i_argc, (char **)ppsz_argv,
+//                                      psz_shortopts,
+//                                      p_longopts, &i_index, &state ) ) != -1 )
+//    {
+//        /* A long option has been recognized */
+//        if( i_cmd == 0 )
+//        {
+//            module_config_t *p_conf;
+//            const char *psz_name = p_longopts[i_index].name;
 
-            /* Check if we deal with a --nofoo or --no-foo long option */
-            if( flag ) psz_name += psz_name[2] == '-' ? 3 : 2;
+//            /* Check if we deal with a --nofoo or --no-foo long option */
+//            if( flag ) psz_name += psz_name[2] == '-' ? 3 : 2;
 
-            /* Store the configuration option */
-            p_conf = config_FindConfig( psz_name );
-            if( p_conf )
-            {
-                /* Check if the option is deprecated */
-                if( p_conf->b_removed )
-                {
-                    fprintf(stderr,
-                            "Warning: option --%s no longer exists.\n",
-                            psz_name);
-                    continue;
-                }
+//            /* Store the configuration option */
+//            p_conf = config_FindConfig( psz_name );
+//            if( p_conf )
+//            {
+//                /* Check if the option is deprecated */
+//                if( p_conf->b_removed )
+//                {
+//                    fprintf(stderr,
+//                            "Warning: option --%s no longer exists.\n",
+//                            psz_name);
+//                    continue;
+//                }
+   /* LETS HACK
+    * Get the param qmljsdebugger and set it to VLC_QMLJSDEBUG env variable
+    * for later use in QApp
+    * DEBUG !!!!!!
+    */
+   i_verbose = getVerboseLevel2AndSetQMLJSDebuggerOpt(p_this, i_argc, ppsz_argv);
 
-                switch( CONFIG_CLASS(p_conf->i_type) )
-                {
-                    case CONFIG_ITEM_STRING:
-                        var_Create( p_this, psz_name, VLC_VAR_STRING );
-                        var_SetString( p_this, psz_name, state.arg );
-                        break;
-                    case CONFIG_ITEM_INTEGER:
-                        var_Create( p_this, psz_name, VLC_VAR_INTEGER );
-                        var_Change( p_this, psz_name, VLC_VAR_SETMINMAX,
-                            &(vlc_value_t){ .i_int = p_conf->min.i },
-                            &(vlc_value_t){ .i_int = p_conf->max.i } );
-                        var_SetInteger( p_this, psz_name,
-                                        strtoll(state.arg, NULL, 0));
-                        break;
-                    case CONFIG_ITEM_FLOAT:
-                        var_Create( p_this, psz_name, VLC_VAR_FLOAT );
-                        var_Change( p_this, psz_name, VLC_VAR_SETMINMAX,
-                            &(vlc_value_t){ .f_float = p_conf->min.f },
-                            &(vlc_value_t){ .f_float = p_conf->max.f } );
-                        var_SetFloat( p_this, psz_name, us_atof(state.arg) );
-                        break;
-                    case CONFIG_ITEM_BOOL:
-                        var_Create( p_this, psz_name, VLC_VAR_BOOL );
-                        var_SetBool( p_this, psz_name, !flag );
-                        break;
-                }
-                continue;
-            }
-        }
+//                switch( CONFIG_CLASS(p_conf->i_type) )
+//                {
+//                    case CONFIG_ITEM_STRING:
+//                        var_Create( p_this, psz_name, VLC_VAR_STRING );
+//                        var_SetString( p_this, psz_name, state.arg );
+//                        break;
+//                    case CONFIG_ITEM_INTEGER:
+//                        var_Create( p_this, psz_name, VLC_VAR_INTEGER );
+//                        var_Change( p_this, psz_name, VLC_VAR_SETMINMAX,
+//                            &(vlc_value_t){ .i_int = p_conf->min.i },
+//                            &(vlc_value_t){ .i_int = p_conf->max.i } );
+//                        var_SetInteger( p_this, psz_name,
+//                                        strtoll(state.arg, NULL, 0));
+//                        break;
+//                    case CONFIG_ITEM_FLOAT:
+//                        var_Create( p_this, psz_name, VLC_VAR_FLOAT );
+//                        var_Change( p_this, psz_name, VLC_VAR_SETMINMAX,
+//                            &(vlc_value_t){ .f_float = p_conf->min.f },
+//                            &(vlc_value_t){ .f_float = p_conf->max.f } );
+//                        var_SetFloat( p_this, psz_name, us_atof(state.arg) );
+//                        break;
+//                    case CONFIG_ITEM_BOOL:
+//                        var_Create( p_this, psz_name, VLC_VAR_BOOL );
+//                        var_SetBool( p_this, psz_name, !flag );
+//                        break;
+//                }
+//                continue;
+//            }
+//        }
 
-        /* A short option has been recognized */
-        if( pp_shortopts[i_cmd] != NULL )
-        {
-            const char *name = pp_shortopts[i_cmd]->psz_name;
-            switch( CONFIG_CLASS(pp_shortopts[i_cmd]->i_type) )
-            {
-                case CONFIG_ITEM_STRING:
-                    var_Create( p_this, name, VLC_VAR_STRING );
-                    var_SetString( p_this, name, state.arg );
-                    break;
-                case CONFIG_ITEM_INTEGER:
-                    var_Create( p_this, name, VLC_VAR_INTEGER );
-                    if( i_cmd == 'v' )
-                    {
-                        i_verbose++; /* -v */
-                        var_SetInteger( p_this, name, i_verbose );
-                    }
-                    else
-                    {
-                        var_SetInteger( p_this, name,
-                                        strtoll(state.arg, NULL, 0) );
-                    }
-                    break;
-                case CONFIG_ITEM_BOOL:
-                    var_Create( p_this, name, VLC_VAR_BOOL );
-                    var_SetBool( p_this, name, true );
-                    break;
-            }
+//        /* A short option has been recognized */
+//        if( pp_shortopts[i_cmd] != NULL )
+//        {
+//            const char *name = pp_shortopts[i_cmd]->psz_name;
+//            switch( CONFIG_CLASS(pp_shortopts[i_cmd]->i_type) )
+//            {
+//                case CONFIG_ITEM_STRING:
+//                    var_Create( p_this, name, VLC_VAR_STRING );
+//                    var_SetString( p_this, name, state.arg );
+//                    break;
+//                case CONFIG_ITEM_INTEGER:
+//                    var_Create( p_this, name, VLC_VAR_INTEGER );
+//                    if( i_cmd == 'v' )
+//                    {
+//                        i_verbose++; /* -v */
+//                        var_SetInteger( p_this, name, i_verbose );
+//                    }
+//                    else
+//                    {
+//                        var_SetInteger( p_this, name,
+//                                        strtoll(state.arg, NULL, 0) );
+//                    }
+//                    break;
+//                case CONFIG_ITEM_BOOL:
+//                    var_Create( p_this, name, VLC_VAR_BOOL );
+//                    var_SetBool( p_this, name, true );
+//                    break;
+//            }
 
-            continue;
-        }
+//            continue;
+//        }
 
-        /* Internal error: unknown option */
-        if( !b_ignore_errors )
-        {
-            fputs( "vlc: unknown option"
-                     " or missing mandatory argument ", stderr );
-            if( state.opt )
-            {
-                fprintf( stderr, "`-%c'\n", state.opt );
-            }
-            else
-            {
-                fprintf( stderr, "`%s'\n", ppsz_argv[state.ind-1] );
-            }
-            fputs( "Try `vlc --help' for more information.\n", stderr );
-            goto out;
-        }
-    }
+//        /* Internal error: unknown option */
+//        if( !b_ignore_errors )
+//        {
+//            fputs( "vlc: unknown option"
+//                     " or missing mandatory argument ", stderr );
+//            if( state.opt )
+//            {
+//                fprintf( stderr, "`-%c'\n", state.opt );
+//            }
+//            else
+//            {
+//                fprintf( stderr, "`%s'\n", ppsz_argv[state.ind-1] );
+//            }
+//            fputs( "Try `vlc --help' for more information.\n", stderr );
+//            goto out;
+//        }
+//    }
 
     ret = 0;
     if( pindex != NULL )
@@ -303,3 +309,43 @@ out:
     return ret;
 }
 
+
+/**
+ * H4CK DEBUG !!!!!!
+ * Let's define the hack to get the qmljsbebug infos
+ * YEAH!
+ */
+// Check the min between a and b
+int min (int a, int b) {
+    return a<b?a:b;
+}
+
+// check if one argv start with '-qmljsdebugger'
+// and set the port parameter in VLC_QMLJSDEBUGG env var
+int getVerboseLevel2AndSetQMLJSDebuggerOpt(vlc_object_t *p_this, int argc, const char *argv[])
+{
+    int i_verbose = 0;
+    for (int i=0 ; i<argc ; i++)
+    {
+        fprintf(stderr, "[H4CK QMLJSDEBUG]: Param read : %s \n", argv[i]);
+        if (strncmp (argv[i], "-qmljsdebugger", 14) == 0)//startWith(argv[i], "-qmljsdebugger"))
+        {
+            fprintf(stderr, "[H4CK QMLJSDEBUG]: Param detected %s \n", argv[i]);
+
+            var_Create(p_this, "qt_qmljsdebug", VLC_VAR_STRING | VLC_VAR_DOINHERIT);
+            var_SetString(p_this, "qt_qmljsdebug", argv[i]);
+
+            fprintf(stderr, "[H4CK QMLJSDEBUG]: Read from vlc var from cmdline.c : %s \n", var_GetString(p_this, "qt_qmljsdebug"));
+        }
+        else if (strncmp (argv[i], "-vv", 3) == 0)
+        {
+            fprintf(stderr, "[H4CK QMLJSDEBUG]: Param detected %s \n", argv[i]);
+
+            var_Create( p_this, "verbose", VLC_VAR_INTEGER );
+            i_verbose++; /* -v */
+            i_verbose++; /* -v */
+            var_SetInteger( p_this, "verbose", i_verbose );
+        }
+    }
+    return i_verbose;
+}
