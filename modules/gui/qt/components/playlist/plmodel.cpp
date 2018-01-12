@@ -36,6 +36,85 @@ PLModel::PLModel(intf_thread_t *_p_intf, QObject *parent)
     plitems = QList<std::shared_ptr<PLItem>>();
 }
 
+void PLModel::move(const int &from, const int &to)
+{
+    msg_Dbg(p_intf, "plop");
+    msg_Dbg(p_intf, QString::number(from).toLatin1().data());
+    msg_Dbg(p_intf, QString::number(to).toLatin1().data());
+
+//    std::shared_ptr<PLItem> item = plitems.at(from);
+//    removeItem(from);
+//    playlist_InsertInputItemTree( THEPL,
+//        item,
+//        THEPL->p_media_library,
+//        to,
+//        false );
+
+    playlist_item_t* item = playlist_ItemGetByInput(
+        THEPL, plitems.at(from)->getInputItem()
+    );
+    // Need a full-model reset, else only the removed row will
+    // be reloaded in views and if this items leaves a group with
+    // only one element it can't be detected
+
+    beginResetModel();
+    {
+        QList<input_item_t*> inputItems;
+        inputItems.append(item->p_input);
+        dropMove(inputItems, item->p_parent, -1);
+
+        plitems.move(from, to);
+    }
+    endResetModel();
+}
+
+void PLModel::dropMove( QList<input_item_t*> inputItems, playlist_item_t *p_parent, int row)
+{
+    playlist_item_t **pp_items;
+    pp_items = (playlist_item_t **)
+               calloc( inputItems.count(), sizeof( playlist_item_t* ) );
+    if ( !pp_items ) return;
+
+    {
+        vlc_playlist_locker pl_lock ( THEPL );
+
+        if( !p_parent || row > p_parent->i_children )
+        {
+            free( pp_items );
+            return;
+        }
+
+        int new_pos = row == -1 ? p_parent->i_children : row;
+        int i = 0;
+
+        foreach( input_item_t *p_input, inputItems )
+        {
+            playlist_item_t *p_item = playlist_ItemGetByInput( THEPL, p_input );
+            if( !p_item ) continue;
+
+            /* Better not try to move a node into itself.
+               Abort the whole operation in that case,
+               because it is ambiguous. */
+            playlist_item_t *climber = p_parent;
+            while( climber )
+            {
+                if( climber->p_input == p_input )
+                {
+                    free( pp_items );
+                    return;
+                }
+                climber = climber->p_parent;
+            }
+
+            pp_items[i] = p_item;
+            i++;
+        }
+
+        playlist_TreeMoveMany( THEPL, i, pp_items, p_parent, new_pos );
+    }
+    free( pp_items );
+}
+
 QVariant PLModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     return QVariant (QString("This is a header"));
@@ -128,7 +207,7 @@ void PLModel::removeItem( int index )
     // only one element it can't be detected
     beginResetModel();
     {
-        // Doc at /src/playlist/item.c L.336
+        // Doc at /src/playlist/tree.c L.92
         playlist_NodeDelete(
             THEPL,
             playlist_ItemGetByInput(

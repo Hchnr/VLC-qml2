@@ -63,27 +63,41 @@ Rectangle {
     }
 
     /* List of items in the playlist */
-    PlaylistListView {
-        id: listView
+    DropArea {
 
         height: parent.height
         width: parent.width
 
-        vertSpace: vlc_style.margin_xxxsmall
-        horiSpace: vlc_style.margin_xxsmall
-        model: playlist
-        dataFunc: function( elt ) { return elt.album_title; }
-        delegate: PLItem {}
-        delegateGrouped: PLItem { showCover: false }
-        commonGrouped: Image {
-            width: vlc_style.cover_xsmall
-            height: vlc_style.cover_xsmall
+        keys: [ "playlist" ]
 
-            fillMode: Image.PreserveAspectFit
-            source: model !== undefined ? (model.cover || vlc_style.noartCover) : vlc_style.noartCover
+        PlaylistListView {
+            id: listView
+
+            height: parent.height
+            width: parent.width
+
+            vertSpace: vlc_style.margin_xxxsmall
+            horiSpace: vlc_style.margin_xxsmall
+            model: playlist
+            dataFunc: function( elt ) { return elt.album_title; }
+            delegate: PLItem {
+                draggedItemParent: plDisplay
+            }
+            delegateGrouped: PLItem {
+                showCover: false
+                draggedItemParent: plDisplay
+            }
+            commonGrouped: Image {
+                width: vlc_style.cover_xsmall
+                height: vlc_style.cover_xsmall
+
+                fillMode: Image.PreserveAspectFit
+                source: model !== undefined ? (model.cover || vlc_style.noartCover) : vlc_style.noartCover
+            }
+
+            ScrollBar.vertical: ScrollBar { }
         }
 
-        ScrollBar.vertical: ScrollBar { }
     }
 
     /* Hiding animation of the playlist */

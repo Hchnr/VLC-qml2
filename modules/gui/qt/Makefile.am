@@ -499,6 +499,8 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/utils/ExpandGridView.qml \
 	gui/qt/qml/utils/ExpandGridViewRow.qml \
 	gui/qt/qml/utils/TracksDisplay.qml \
+	gui/qt/qml/utils/DraggableItem.qml \
+	gui/qt/qml/utils/DraggableItemDropArea.qml \
 	gui/qt/qml/playlist/PLItem.qml \
 	gui/qt/qml/playlist/PlaylistGrouped.qml \
 	gui/qt/qml/playlist/PlaylistListView.qml \

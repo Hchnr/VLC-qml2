@@ -188,5 +188,7 @@
         <file alias="MLItem.qml">qml/utils/MLItem.qml</file>
         <file alias="ToolTipArea.qml">qml/utils/ToolTipArea.qml</file>
         <file alias="ListExpandItem.qml">qml/utils/ListExpandItem.qml</file>
+        <file alias="DraggableItem.qml">qml/utils/DraggableItem.qml</file>
+        <file alias="DraggableItemDropArea.qml">qml/utils/DraggableItemDropArea.qml</file>
     </qresource>
 </RCC>

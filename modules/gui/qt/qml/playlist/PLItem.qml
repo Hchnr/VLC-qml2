@@ -23,10 +23,16 @@
 
 import QtQuick 2.0
 
+import "qrc:///utils/" as Utils
+
 Row {
+    id: root
 
     // Should the cover be displayed
     property alias showCover: cover.visible
+
+    // This item will become the parent of the dragged item during the drag operation
+    property alias draggedItemParent: draggable_item.draggedItemParent
 
     // Is this item the one currently playing
     function is_current() {
@@ -48,11 +54,11 @@ Row {
     function calc_bgColor() {
         if (delete_mouseArea.containsMouse) return vlc_style.bgColor_removeFromPlaylist;
         else if (medialib.isNightMode()) {
-            if (hover_mouseArea.containsMouse) return vlc_style.hoverBgColor_nightmode;
+            if (draggable_item.containsMouse) return vlc_style.hoverBgColor_nightmode;
             else return vlc_style.bgColor_nightmode;
         }
         else {
-            if (hover_mouseArea.containsMouse) return vlc_style.hoverBgColor_daymode;
+            if (draggable_item.containsMouse) return vlc_style.hoverBgColor_daymode;
             else return vlc_style.bgColor_daymode;
         }
     }
@@ -109,32 +115,29 @@ Row {
         }
     }
 
-    Rectangle {
-        id: bg
+    Utils.DraggableItem {
+        id : draggable_item
 
-        width : parent.width - removeButton.width
-        height: Math.max( textInfo.implicitHeight, cover.height )
+        onMoveItemRequested: { playlist.move(from, to) }
+        onDoubleClicked: playlist.play_item(currentIndex)
 
-        color: calc_bgColor();
+        Rectangle {
+            id: bg
 
-        /* Title/name of the item */
-        Text {
-            id: textInfo
+            width : root.width - removeButton.width
+            height: Math.max( textInfo.implicitHeight, cover.height )
 
-            x: vlc_style.margin_small
+            color: calc_bgColor();
 
-            text: calc_text()
-            color: calc_textColor()
+            /* Title/name of the item */
+            Text {
+                id: textInfo
+
+                x: vlc_style.margin_small
+
+                text: calc_text()
+                color: calc_textColor()
+            }
         }
-
-        MouseArea {
-            id: hover_mouseArea
-
-            anchors.fill: parent
-
-            hoverEnabled: true
-            onDoubleClicked: playlist.play_item(currentIndex)
-        }
-
     }
 }
