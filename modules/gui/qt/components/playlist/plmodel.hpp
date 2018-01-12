@@ -52,6 +52,9 @@ class PLModel : public QAbstractListModel
 public:
     PLModel(intf_thread_t *_p_intf, QObject *parent = nullptr);
 
+    // Move an item inthe playlist (drag&drop)
+    Q_INVOKABLE void move(const int &from, const int &to);
+
     /* Subclassing QAbstractListModel */
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -69,6 +72,7 @@ public:
 
 private:
     std::shared_ptr<PLItem> getItem(const QModelIndex &index ) const;
+    void dropMove( QList<input_item_t*> inputItems, playlist_item_t *p_parent, int row);
 
     intf_thread_t *p_intf;
     QList<std::shared_ptr<PLItem>> plitems;
