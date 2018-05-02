@@ -1,5 +1,5 @@
 /*****************************************************************************
- * input_clock.c: Clock/System date convertions, stream management
+ * input_clock.c: Input clock/System date convertions, stream management
  *****************************************************************************
  * Copyright (C) 1999-2008 VLC authors and VideoLAN
  * Copyright (C) 2008 Laurent Aimar

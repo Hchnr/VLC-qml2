@@ -1,5 +1,5 @@
 /*****************************************************************************
- * input_clock.h: clocks synchronisation
+ * input_clock.h: Input clocks synchronisation
  *****************************************************************************
  * Copyright (C) 2008 VLC authors and VideoLAN
  * Copyright (C) 2008 Laurent Aimar
