@@ -216,9 +216,9 @@ void input_clock_Update( input_clock_t *cl, vlc_object_t *p_log,
         /* */
         b_reset_reference= true;
     }
-    else if( cl->last.i_stream != VLC_TS_INVALID &&
-             ( (cl->last.i_stream - i_ck_stream) > CR_MAX_GAP ||
-               (cl->last.i_stream - i_ck_stream) < -CR_MAX_GAP ) )
+    else if( cl->last.stream != VLC_TS_INVALID &&
+             ( (cl->last.stream - i_ck_stream) > CR_MAX_GAP ||
+               (cl->last.stream - i_ck_stream) < -CR_MAX_GAP ) )
     {
         /* Stream discontinuity, for which we haven't received a
          * warning from the stream control facilities (dd-edited
@@ -265,7 +265,7 @@ void input_clock_Update( input_clock_t *cl, vlc_object_t *p_log,
         /* Try to bufferize more than necessary by reading
          * CR_BUFFERING_RATE/256 faster until we have CR_BUFFERING_TARGET.
          */
-        const mtime_t i_duration = __MAX( i_ck_stream - cl->last.i_stream, 0 );
+        const mtime_t i_duration = __MAX( i_ck_stream - cl->last.stream, 0 );
 
         cl->i_buffering_duration += ( i_duration * CR_BUFFERING_RATE + 255 ) / 256;
         if( cl->i_buffering_duration > CR_BUFFERING_TARGET )
@@ -316,7 +316,7 @@ void input_clock_ChangeRate( input_clock_t *cl, int i_rate )
     {
         /* Move the reference point (as if we were playing at the new rate
          * from the start */
-        cl->ref.i_system = cl->last.i_system - (cl->last.i_system - cl->ref.i_system) * i_rate / cl->i_rate;
+        cl->ref.system = cl->last.system - (cl->last.system - cl->ref.system) * i_rate / cl->i_rate;
     }
     cl->i_rate = i_rate;
 
@@ -337,8 +337,8 @@ void input_clock_ChangePause( input_clock_t *cl, bool b_paused, mtime_t i_date )
 
         if( cl->b_has_reference && i_duration > 0 )
         {
-            cl->ref.i_system += i_duration;
-            cl->last.i_system += i_duration;
+            cl->ref.system += i_duration;
+            cl->last.system += i_duration;
         }
     }
     cl->i_pause_date = i_date;
@@ -358,7 +358,7 @@ mtime_t input_clock_GetWakeup( input_clock_t *cl )
 
     /* Synchronized, we can wait */
     if( cl->b_has_reference )
-        i_wakeup = ClockStreamToSystem( cl, cl->last.i_stream + AvgGet( &cl->drift ) - cl->i_buffering_duration );
+        i_wakeup = ClockStreamToSystem( cl, cl->last.stream + AvgGet( &cl->drift ) - cl->i_buffering_duration );
 
     vlc_mutex_unlock( &cl->lock );
 
@@ -450,11 +450,11 @@ int input_clock_GetState( input_clock_t *cl,
         return VLC_EGENERIC;
     }
 
-    *pi_stream_start = cl->ref.i_stream;
-    *pi_system_start = cl->ref.i_system;
+    *pi_stream_start = cl->ref.stream;
+    *pi_system_start = cl->ref.system;
 
-    *pi_stream_duration = cl->last.i_stream - cl->ref.i_stream;
-    *pi_system_duration = cl->last.i_system - cl->ref.i_system;
+    *pi_stream_duration = cl->last.stream - cl->ref.stream;
+    *pi_system_duration = cl->last.system - cl->ref.system;
 
     vlc_mutex_unlock( &cl->lock );
 
@@ -469,7 +469,7 @@ void input_clock_ChangeSystemOrigin( input_clock_t *cl, bool b_absolute, mtime_t
     mtime_t i_offset;
     if( b_absolute )
     {
-        i_offset = i_system - cl->ref.i_system - ClockGetTsOffset( cl );
+        i_offset = i_system - cl->ref.system - ClockGetTsOffset( cl );
     }
     else
     {
@@ -481,8 +481,8 @@ void input_clock_ChangeSystemOrigin( input_clock_t *cl, bool b_absolute, mtime_t
         i_offset = i_system - cl->i_external_clock;
     }
 
-    cl->ref.i_system += i_offset;
-    cl->last.i_system += i_offset;
+    cl->ref.system += i_offset;
+    cl->last.system += i_offset;
 
     vlc_mutex_unlock( &cl->lock );
 }
@@ -493,7 +493,7 @@ void input_clock_GetSystemOrigin( input_clock_t *cl, mtime_t *pi_system, mtime_t
 
     assert( cl->b_has_reference );
 
-    *pi_system = cl->ref.i_system;
+    *pi_system = cl->ref.system;
     if( pi_delay )
         *pi_delay  = cl->i_pts_delay;
 
@@ -534,7 +534,7 @@ void input_clock_SetJitter( input_clock_t *cl,
     if( i_cr_average < 10 )
         i_cr_average = 10;
 
-    if( cl->drift.i_divider != i_cr_average )
+    if( cl->drift.range != i_cr_average )
         AvgRescale( &cl->drift, i_cr_average );
 
     vlc_mutex_unlock( &cl->lock );
@@ -570,8 +570,8 @@ static mtime_t ClockStreamToSystem( input_clock_t *cl, mtime_t i_stream )
     if( !cl->b_has_reference )
         return VLC_TS_INVALID;
 
-    return ( i_stream - cl->ref.i_stream ) * cl->i_rate / INPUT_RATE_DEFAULT +
-           cl->ref.i_system;
+    return ( i_stream - cl->ref.stream ) * cl->i_rate / INPUT_RATE_DEFAULT +
+           cl->ref.system;
 }
 
 /*****************************************************************************
@@ -582,8 +582,8 @@ static mtime_t ClockStreamToSystem( input_clock_t *cl, mtime_t i_stream )
 static mtime_t ClockSystemToStream( input_clock_t *cl, mtime_t i_system )
 {
     assert( cl->b_has_reference );
-    return ( i_system - cl->ref.i_system ) * INPUT_RATE_DEFAULT / cl->i_rate +
-            cl->ref.i_stream;
+    return ( i_system - cl->ref.system ) * INPUT_RATE_DEFAULT / cl->i_rate +
+            cl->ref.stream;
 }
 
 /**
