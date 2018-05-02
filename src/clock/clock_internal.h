@@ -2,7 +2,6 @@
  * clock_internal.h: Clock internal functions
  *****************************************************************************
  * Copyright (C) 2018 VLC authors and VideoLAN
- * $Id$
  *
  * Authors: Christophe Massiot <massiot@via.ecp.fr>
  *          Laurent Aimar < fenrir _AT_ videolan _DOT_ org >
