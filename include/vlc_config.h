@@ -38,10 +38,9 @@
  * General configuration
  *****************************************************************************/
 
-/* All timestamp below or equal to this define are invalid/unset
- * XXX the numerical value is 0 because of historical reason and will change.*/
-#define VLC_TS_INVALID INT64_C(0)
-#define VLC_TS_0 INT64_C(1)
+/* All timestamp set to this define are invalid/unset. */
+#define VLC_TS_INVALID INT64_MIN
+#define VLC_TS_0 INT64_C(0)
 
 #define CLOCK_FREQ INT64_C(1000000)
 
