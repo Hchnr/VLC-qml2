@@ -1,5 +1,5 @@
 /*****************************************************************************
- * vlc_clock.h: Ouptut modules synchronisation clock
+ * clock.h: Ouptut modules synchronisation clock
  *****************************************************************************
  * Copyright (C) 2018 VLC authors and VideoLAN
  *
