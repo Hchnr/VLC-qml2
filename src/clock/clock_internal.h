@@ -20,6 +20,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
+#ifndef LIBVLC_CLOCK_INTERNAL_H
+#define LIBVLC_CLOCK_INTERNAL_H
 
 #include <vlc_common.h>
 
@@ -27,36 +29,38 @@
  * Structures
  *****************************************************************************/
 
- /**
- * This structure holds long term average
+/**
+ * This structure holds long term moving average
  */
 typedef struct
 {
-    vlc_tick_t i_value;
-    int     i_residue;
-
-    int     i_count;
-    int     i_divider;
+    float value; /* The average value */
+    int count; /* The number of sample evaluated */
+    int range; /* The maximum range of sample on which we calculate the average*/
 } average_t;
 
-void    AvgInit( average_t *, int i_divider );
-void    AvgClean( average_t * );
+void AvgInit(average_t *, int range);
+void AvgClean(average_t *);
 
-void    AvgReset( average_t * );
-void    AvgUpdate( average_t *, vlc_tick_t i_value );
-vlc_tick_t AvgGet( average_t * );
-void    AvgRescale( average_t *, int i_divider );
+void AvgReset(average_t *);
+
+/*  calculates (previous_average * (range - 1) + new_value)/range */
+void AvgUpdate(average_t *, float value);
+
+float AvgGet(average_t *);
+void AvgRescale(average_t *, int range);
 
 /* */
 typedef struct
 {
-    vlc_tick_t i_stream;
-    vlc_tick_t i_system;
+    vlc_tick_t stream;
+    vlc_tick_t system;
 } clock_point_t;
 
-static inline clock_point_t clock_point_Create( vlc_tick_t i_stream, vlc_tick_t i_system )
+static inline clock_point_t clock_point_Create( vlc_tick_t stream, vlc_tick_t system )
 {
-    clock_point_t p = { .i_stream = i_stream, .i_system = i_system };
+    clock_point_t p = { .stream = stream, .system = system };
     return p;
 }
 
+#endif /* LIBVLC_CLOCK_INTERNAL_H */
