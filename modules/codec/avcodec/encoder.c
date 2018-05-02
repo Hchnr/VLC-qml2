@@ -724,7 +724,7 @@ int InitVideoEnc( vlc_object_t *p_this )
 
         p_context->sample_rate = p_enc->fmt_out.audio.i_rate;
         date_Init( &p_sys->buffer_date, p_enc->fmt_out.audio.i_rate, 1 );
-        date_Set( &p_sys->buffer_date, AV_NOPTS_VALUE );
+        date_Set( &p_sys->buffer_date, VLC_TS_0 );
         p_context->time_base.num = 1;
         p_context->time_base.den = p_context->sample_rate;
         p_context->channels      = p_enc->fmt_out.audio.i_channels;
@@ -1334,6 +1334,12 @@ static block_t *EncodeAudio( encoder_t *p_enc, block_t *p_aout_buf )
         /* take back amount we have leftover from previous buffer*/
         if( p_sys->i_samples_delay > 0 )
             date_Decrement( &p_sys->buffer_date, p_sys->i_samples_delay );
+    }
+    if ( unlikely( date_Get( &p_sys->buffer_date ) == VLC_TS_INVALID ) )
+    {
+        /* we haven't received a block with a PTS yet */
+        block_Release(p_aout_buf);
+        return NULL;
     }
     /* Handle reordering here so we have p_sys->p_buffer always in correct
      * order already */
