@@ -1338,7 +1338,7 @@ static block_t *EncodeAudio( encoder_t *p_enc, block_t *p_aout_buf )
     if ( unlikely( date_Get( &p_sys->buffer_date ) == VLC_TS_INVALID ) )
     {
         /* we haven't received a block with a PTS yet */
-        block_Release(block);
+        block_Release(p_aout_buf);
         return NULL;
     }
     /* Handle reordering here so we have p_sys->p_buffer always in correct
