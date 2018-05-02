@@ -75,4 +75,16 @@ VLC_API void date_Move( date_t *, mtime_t );
 VLC_API mtime_t date_Increment( date_t *, uint32_t );
 VLC_API mtime_t date_Decrement( date_t *, uint32_t );
 VLC_API uint64_t NTPtime64( void );
+
+/**
+ * Update the date rate and reset the remainder, unlike date_Change().
+ */
+static inline void date_UpdateRate( date_t *p_date,
+                                    uint32_t i_divider_n, uint32_t i_divider_d )
+{
+    mtime_t current = date_Get( p_date );
+    date_Init( p_date, i_divider_n, i_divider_d );
+    date_Set( p_date, current );
+}
+
 #endif /* !__VLC_MTIME_ */
