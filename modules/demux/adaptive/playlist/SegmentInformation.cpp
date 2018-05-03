@@ -165,7 +165,7 @@ std::size_t SegmentInformation::getAllSegments(std::vector<ISegment *> &retSegme
 uint64_t SegmentInformation::getLiveStartSegmentNumber(uint64_t def) const
 {
     const mtime_t i_max_buffering = getPlaylist()->getMaxBuffering() +
-                                    /* FIXME: add dynamic pts-delay */ CLOCK_FREQ;
+                                    /* FIXME: add dynamic pts-delay */ 1*CLOCK_FREQ;
 
     /* Try to never buffer up to really end */
     const uint64_t OFFSET_FROM_END = 3;
