@@ -331,13 +331,13 @@ static int Demux( demux_t *p_demux )
         {
             if( p_block_out->i_pts == VLC_TS_INVALID &&
                 p_block_out->i_dts == VLC_TS_INVALID )
-                p_block_out->i_dts = VLC_TS_0 + p_sys->i_pts + CLOCK_FREQ / p_sys->f_fps;
+                p_block_out->i_dts = p_sys->i_pts + CLOCK_FREQ / p_sys->f_fps;
             if( p_block_out->i_dts != VLC_TS_INVALID )
-                p_sys->i_pts = p_block_out->i_dts - VLC_TS_0;
+                p_sys->i_pts = p_block_out->i_dts;
         }
         else
         {
-            p_sys->i_pts = p_block_out->i_pts - VLC_TS_0;
+            p_sys->i_pts = p_block_out->i_pts;
         }
 
         if( p_block_out->i_pts != VLC_TS_INVALID )
