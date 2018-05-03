@@ -448,7 +448,7 @@ static int Demux( demux_t * p_demux )
         const int i_page_packets = ogg_page_packets( &p_sys->current_page );
         bool b_doprepcr = false;
 
-        if ( p_stream->i_pcr < VLC_TS_0 && ogg_page_granulepos( &p_sys->current_page ) > 0 )
+        if ( p_stream->i_pcr < 0 && ogg_page_granulepos( &p_sys->current_page ) > 0 )
         {
             // PASS 0
             if ( p_stream->fmt.i_codec == VLC_CODEC_OPUS ||
@@ -664,14 +664,13 @@ static int Demux( demux_t * p_demux )
             continue;
         if( p_stream->fmt.i_codec == VLC_CODEC_OGGSPOTS )
             continue;
-        if( p_stream->i_pcr < VLC_TS_0 )
+        if( p_stream->i_pcr < 0 )
             continue;
         if ( p_stream->b_finished || p_stream->b_initializing )
             continue;
         if ( p_stream->p_preparse_block )
             continue;
-        if( i_pcr_candidate < VLC_TS_0
-            || p_stream->i_pcr <= i_pcr_candidate )
+        if( i_pcr_candidate < 0 || p_stream->i_pcr <= i_pcr_candidate )
         {
             i_pcr_candidate = p_stream->i_pcr;
         }
@@ -1180,19 +1179,19 @@ static void Ogg_SendOrQueueBlocks( demux_t *p_demux, logical_stream_t *p_stream,
             block_t *temp = p_stream->p_preparse_block;
             while ( temp )
             {
-                if ( temp && i_firstpts < VLC_TS_0 )
+                if ( temp && i_firstpts < 0 && temp->i_pts != VLC_TS_INVALID )
                     i_firstpts = temp->i_pts;
 
                 block_t *tosend = temp;
                 temp = temp->p_next;
                 tosend->p_next = NULL;
 
-                if( tosend->i_dts < VLC_TS_0 )
+                if( tosend->i_dts < 0 )
                 {
                     tosend->i_dts = tosend->i_pts;
                 }
 
-                if( tosend->i_dts < VLC_TS_0 )
+                if( tosend->i_dts < 0 )
                 {
                     /* Don't send metadata from chained streams */
                     block_Release( tosend );
@@ -1203,7 +1202,7 @@ static void Ogg_SendOrQueueBlocks( demux_t *p_demux, logical_stream_t *p_stream,
                          tosend->i_dts, tosend->i_pts, p_stream->i_pcr, p_ogg->i_pcr ); )
                 es_out_Send( p_demux->out, p_stream->p_es, tosend );
 
-                if ( p_ogg->i_pcr < VLC_TS_0 && i_firstpts != VLC_TS_INVALID )
+                if ( p_ogg->i_pcr < 0 && i_firstpts != VLC_TS_UNKNOWN )
                 {
                     p_ogg->i_pcr = i_firstpts;
                     if( likely( !p_ogg->b_slave ) )
