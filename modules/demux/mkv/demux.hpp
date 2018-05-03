@@ -335,7 +335,7 @@ public:
         ,b_fastseekable(false)
         ,i_pts(VLC_TS_INVALID)
         ,i_pcr(VLC_TS_INVALID)
-        ,i_start_pts(VLC_TS_0)
+        ,i_start_pts(0)
         ,i_mk_chapter_time(0)
         ,meta(NULL)
         ,i_current_title(0)
