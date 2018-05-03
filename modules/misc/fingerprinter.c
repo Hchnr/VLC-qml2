@@ -336,7 +336,7 @@ static void *Run( void *opaque )
     /* main loop */
     for (;;)
     {
-        msleep( CLOCK_FREQ );
+        msleep( 1*CLOCK_FREQ );
 
         QueueIncomingRequests( p_sys );
 
