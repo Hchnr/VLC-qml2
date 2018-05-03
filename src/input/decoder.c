@@ -287,7 +287,7 @@ static vout_thread_t *aout_request_vout( void *p_private,
     decoder_owner_sys_t *p_owner = p_dec->p_owner;
     input_thread_t *p_input = p_owner->p_input;
 
-    p_vout = input_resource_RequestVout( p_owner->p_resource, p_vout, p_fmt, 1,
+    p_vout = input_resource_RequestVout( p_owner->p_resource, p_vout, NULL, p_fmt, 1,
                                          b_recyle );
     if( p_input != NULL )
         input_SendEventVout( p_input );
@@ -515,7 +515,7 @@ static int vout_update_format( decoder_t *p_dec )
             break;
         }
         p_vout = input_resource_RequestVout( p_owner->p_resource,
-                                             p_vout, &fmt,
+                                             p_vout, p_owner->p_clock, &fmt,
                                              dpb_size +
                                              p_dec->i_extra_picture_buffers + 1,
                                              true );
@@ -1856,7 +1856,7 @@ static void DeleteDecoder( decoder_t * p_dec )
         vout_Cancel( p_owner->p_vout, false );
 
         input_resource_RequestVout( p_owner->p_resource, p_owner->p_vout, NULL,
-                                    0, true );
+                                    NULL, 0, true );
         if( p_owner->p_input != NULL )
             input_SendEventVout( p_owner->p_input );
     }
