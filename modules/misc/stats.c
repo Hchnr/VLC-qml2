@@ -150,7 +150,7 @@ static int Demux( demux_t *p_demux )
     if( !p_block ) return 1;
 
     p_block->i_dts = p_block->i_pts =
-        VLC_TS_0 + date_Increment( &p_sys->pts, kBufferSize );
+        date_Increment( &p_sys->pts, kBufferSize );
 
     msg_Dbg( p_demux, "demux got %"PRId64" ms offset",
              (mdate() - *(mtime_t *)p_block->p_buffer) / 1000 );
