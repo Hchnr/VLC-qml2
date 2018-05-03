@@ -69,6 +69,12 @@ typedef struct
 {
     block_bytestream_t cache; /* bytestream chain for storing cache */
 
+    struct
+    {
+        /* Stats for calculating speed */
+        uint64_t read_bytes;
+        uint64_t read_time;
+    } stat;
 } stream_sys_t;
 
 static int AStreamRefillBlock(stream_t *s)
@@ -90,6 +96,7 @@ static int AStreamRefillBlock(stream_t *s)
     }
 
     /* Now read a new block */
+    const mtime_t start = mdate();
     block_t *b;
 
     for (;;)
@@ -103,6 +110,10 @@ static int AStreamRefillBlock(stream_t *s)
         if (vlc_stream_Eof(s->s))
             return VLC_EGENERIC;
     }
+    sys->stat.read_time += mdate() - start;
+    size_t added_bytes;
+    block_ChainProperties( b, NULL, &added_bytes, NULL );
+    sys->stat.read_bytes += added_bytes;
 
     block_BytestreamPush( &sys->cache, b );
     return VLC_SUCCESS;
@@ -117,13 +128,23 @@ static void AStreamPrebufferBlock(stream_t *s)
     msg_Dbg(s, "starting pre-buffering");
     for (;;)
     {
+        const mtime_t now = mdate();
         size_t cache_size = block_BytestreamRemaining( &sys->cache );
 
         if (vlc_killed() || cache_size > STREAM_CACHE_PREBUFFER_SIZE)
         {
+            int64_t byterate;
 
-            msg_Dbg(s, "prebuffering done %zu bytes in",
-                     cache_size);
+            /* Update stat */
+            sys->stat.read_bytes = cache_size;
+            sys->stat.read_time = now - start;
+            byterate = (CLOCK_FREQ * sys->stat.read_bytes ) /
+                        (sys->stat.read_time -1);
+
+            msg_Dbg(s, "prebuffering done %zu bytes in %zus - %zu KiB/s",
+                        cache_size,
+                        sys->stat.read_time / CLOCK_FREQ,
+                        byterate / 1024 );
             break;
         }
 
@@ -184,24 +205,28 @@ static ssize_t AStreamReadBlock(stream_t *s, void *buf, size_t len)
 {
     stream_sys_t *sys = s->p_sys;
 
-    /* It means EOF */
-    if (sys->cache.p_chain== NULL)
-        return 0;
-
     ssize_t i_current = block_BytestreamRemaining( &sys->cache );
     size_t i_copy = VLC_CLIP((size_t)i_current, 0, len);
+
+    /**
+     * we should not signal end-of-file if we have not exhausted
+     * the cache. i_copy == 0 just means that the cache currently does
+     * not contain data at the offset that we want, not EOF.
+     **/
+    if( i_copy == 0 )
+    {
+        /* Return EOF if we are unable to refill cache, most likely
+         * really EOF */
+        if( AStreamRefillBlock(s) == VLC_EGENERIC )
+            return 0;
+    }
 
     /* Copy data */
     if( block_GetBytes( &sys->cache, buf, i_copy ) )
         return -1;
 
-    /**
-     * we should not signal end-of-file if we have not exhausted
-     * the blocks we know about, as such we should try again if that
-     * is the case. i_copy == 0 just means that the processed block does
-     * not contain data at the offset that we want, not EOF.
-     **/
 
+    /* If we ended up on refill, try to read refilled cache */
     if( i_copy == 0 && sys->cache.p_chain )
         return AStreamReadBlock( s, buf, len );
 
