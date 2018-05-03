@@ -170,9 +170,9 @@ static int Demux( demux_t *p_demux)
                 p_sys->p_es = es_out_Add( p_demux->out, &p_sys->p_packetizer->fmt_out);
             }
 
-            es_out_SetPCR( p_demux->out, VLC_TS_0 + p_sys->i_dts );
-            p_block_out->i_dts = VLC_TS_0 + p_sys->i_dts;
-            p_block_out->i_pts = VLC_TS_0 + p_sys->i_dts;
+            es_out_SetPCR( p_demux->out, p_sys->i_dts );
+            p_block_out->i_dts = p_sys->i_dts;
+            p_block_out->i_pts = p_sys->i_dts;
 
             es_out_Send( p_demux->out, p_sys->p_es, p_block_out );
 

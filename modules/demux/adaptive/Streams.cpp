@@ -419,7 +419,7 @@ AbstractStream::status AbstractStream::dequeue(mtime_t nz_deadline, mtime_t *pi_
                          description.c_str(), commandsqueue->getPCR(), commandsqueue->getFirstDTS(),
                          nz_deadline));
 
-        *pi_pcr = commandsqueue->Process(p_realdemux->out, VLC_TS_0 + nz_deadline);
+        *pi_pcr = commandsqueue->Process(p_realdemux->out, nz_deadline);
         if(!commandsqueue->isEmpty())
             return AbstractStream::status_demuxed;
 
@@ -440,9 +440,9 @@ AbstractStream::status AbstractStream::dequeue(mtime_t nz_deadline, mtime_t *pi_
                      description.c_str(), commandsqueue->getPCR(), commandsqueue->getFirstDTS(),
                      nz_deadline, commandsqueue->getBufferingLevel()));
 
-    if(nz_deadline + VLC_TS_0 <= commandsqueue->getBufferingLevel()) /* demuxed */
+    if(nz_deadline <= commandsqueue->getBufferingLevel()) /* demuxed */
     {
-        *pi_pcr = commandsqueue->Process( p_realdemux->out, VLC_TS_0 + nz_deadline );
+        *pi_pcr = commandsqueue->Process( p_realdemux->out, nz_deadline );
         return AbstractStream::status_demuxed;
     }
 
@@ -533,7 +533,7 @@ bool AbstractStream::setPosition(mtime_t time, bool tryonly)
         else commandsqueue->Abort( true );
 
         es_out_Control(p_realdemux->out, ES_OUT_SET_NEXT_DISPLAY_TIME,
-                       VLC_TS_0 + time);
+                       time);
     }
     return ret;
 }
