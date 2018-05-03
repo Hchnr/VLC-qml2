@@ -248,9 +248,9 @@ static int Demux( demux_t *p_demux )
         bool b_data = Block_Dequeue( p_demux, p_sys->i_time + CHUNK );
 
         p_sys->i_time += CHUNK;
-        es_out_SetPCR( p_demux->out, VLC_TS_0 + p_sys->i_time );
+        es_out_SetPCR( p_demux->out, p_sys->i_time );
 #ifdef ASF_DEBUG
-        msg_Dbg( p_demux, "Demux Loop Setting PCR to %"PRId64, VLC_TS_0 + p_sys->i_time );
+        msg_Dbg( p_demux, "Demux Loop Setting PCR to %"PRId64, p_sys->i_time );
 #endif
         if ( !b_data && p_sys->b_eos )
         {
@@ -380,7 +380,7 @@ static int SeekIndex( demux_t *p_demux, mtime_t i_date, float f_pos )
 
     if ( vlc_stream_Seek( p_demux->s, i_offset + p_sys->i_data_begin ) == VLC_SUCCESS )
     {
-        es_out_Control( p_demux->out, ES_OUT_SET_NEXT_DISPLAY_TIME, VLC_TS_0 + i_date );
+        es_out_Control( p_demux->out, ES_OUT_SET_NEXT_DISPLAY_TIME, i_date );
         return VLC_SUCCESS;
     }
     else return VLC_EGENERIC;
@@ -689,9 +689,9 @@ static bool Block_Dequeue( demux_t *p_demux, mtime_t i_nexttime )
 
             if( p_sys->i_time < VLC_TS_0 )
             {
-                es_out_SetPCR( p_demux->out, VLC_TS_0 + p_sys->i_time );
+                es_out_SetPCR( p_demux->out, p_sys->i_time );
 #ifdef ASF_DEBUG
-                msg_Dbg( p_demux, "    dequeue setting PCR to %"PRId64, VLC_TS_0 + p_sys->i_time );
+                msg_Dbg( p_demux, "    dequeue setting PCR to %"PRId64, p_sys->i_time );
 #endif
             }
 

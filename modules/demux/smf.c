@@ -492,7 +492,7 @@ static int Seek (demux_t *demux, mtime_t pts)
     }
 
     sys->pulse = pulse;
-    sys->tick = ((date_Get (&sys->pts) - VLC_TS_0) / TICK) * TICK + VLC_TS_0;
+    sys->tick = (date_Get (&sys->pts) / TICK) * TICK;
     return VLC_SUCCESS;
 }
 
@@ -511,8 +511,7 @@ static int Control (demux_t *demux, int i_query, va_list args)
         case DEMUX_GET_POSITION:
             if (!sys->duration)
                 return VLC_EGENERIC;
-            *va_arg (args, double *) = (sys->tick - (double)VLC_TS_0)
-                                     / sys->duration;
+            *va_arg (args, double *) = (double)(sys->tick) / sys->duration;
             break;
         case DEMUX_SET_POSITION:
             return Seek (demux, va_arg (args, double) * sys->duration);
@@ -520,7 +519,7 @@ static int Control (demux_t *demux, int i_query, va_list args)
             *va_arg (args, int64_t *) = sys->duration;
             break;
         case DEMUX_GET_TIME:
-            *va_arg (args, int64_t *) = sys->tick - VLC_TS_0;
+            *va_arg (args, int64_t *) = sys->tick;
             break;
         case DEMUX_SET_TIME:
             return Seek (demux, va_arg (args, int64_t));
