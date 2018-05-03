@@ -28,6 +28,8 @@
 #include "libvlc.h"
 #include "background_worker.h"
 
+#define INACTIVE_DEADLINE  0
+
 struct bg_queued_item {
     void* id; /**< id associated with entity */
     void* entity; /**< the entity to process */
@@ -74,7 +76,7 @@ static void* Thread( void* data )
                 vlc_array_remove( &worker->tail.data, 0 );
             }
 
-            if( worker->head.deadline == VLC_TS_0 && item == NULL )
+            if( worker->head.deadline == INACTIVE_DEADLINE && item == NULL )
                 worker->head.active = false;
             worker->head.id = item ? item->id : NULL;
             vlc_cond_broadcast( &worker->head.wait );
@@ -86,7 +88,7 @@ static void* Thread( void* data )
                 else
                     worker->head.deadline = INT64_MAX;
             }
-            else if( worker->head.deadline != VLC_TS_0 )
+            else if( worker->head.deadline != INACTIVE_DEADLINE )
             {
                 /* Wait 1 seconds for new inputs before terminating */
                 mtime_t deadline = mdate() + 1*CLOCK_FREQ;
@@ -96,7 +98,7 @@ static void* Thread( void* data )
                 {
                     /* Timeout: if there is still no items, the thread will be
                      * terminated at next loop iteration (active = false). */
-                    worker->head.deadline = VLC_TS_0;
+                    worker->head.deadline = INACTIVE_DEADLINE;
                 }
                 continue;
             }
@@ -173,7 +175,7 @@ static void BackgroundWorkerCancel( struct background_worker* worker, void* id)
     while( ( id == NULL && worker->head.active )
         || ( id != NULL && worker->head.id == id ) )
     {
-        worker->head.deadline = VLC_TS_0;
+        worker->head.deadline = INACTIVE_DEADLINE;
         vlc_cond_signal( &worker->head.worker_wait );
         vlc_cond_signal( &worker->tail.wait );
         vlc_cond_wait( &worker->head.wait, &worker->lock );
