@@ -531,12 +531,9 @@ static block_t *ParseMPEGBlock( decoder_t *p_dec, block_t *p_frag )
                     {
                         date_Set( &p_sys->dts, p_sys->i_dts );
                     }
-                    else
+                    else if( date_Get( &p_sys->dts ) == VLC_TS_INVALID )
                     {
-                        if( date_Get( &p_sys->dts ) == VLC_TS_INVALID )
-                        {
-                            date_Set( &p_sys->dts, VLC_TS_0 );
-                        }
+                        date_Set( &p_sys->dts, 0 );
                     }
                 }
                 p_sys->prev_iframe_dts = p_sys->dts;
