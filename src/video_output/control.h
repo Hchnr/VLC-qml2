@@ -49,6 +49,7 @@ enum {
     VOUT_CONTROL_CHANGE_SUB_MARGIN,     /* integer */
 
     VOUT_CONTROL_PAUSE,
+    VOUT_CONTROL_CHANGE_RATE,           /* float */
     VOUT_CONTROL_FLUSH,                 /* time */
     VOUT_CONTROL_STEP,                  /* time_ptr */
 
@@ -82,6 +83,7 @@ typedef struct {
             bool is_on;
             mtime_t date;
         } pause;
+        float rate;
         struct {
             int channel;
             char *string;
