@@ -376,7 +376,7 @@ static int SeekSet0 (demux_t *demux)
     /* Default SMF tempo is 120BPM, i.e. half a second per quarter note */
     date_Init (&sys->pts, sys->ppqn * 2, 1);
     sys->pulse = 0;
-    sys->tick = VLC_TS_0;
+    sys->tick = 0;
 
     for (unsigned i = 0; i < sys->trackc; i++)
     {
