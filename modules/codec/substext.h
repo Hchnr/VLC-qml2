@@ -261,7 +261,7 @@ static void SubpictureTextUpdate(subpicture_t *subpic,
     if( b_schedule_blink_update &&
         (sys->i_next_update == VLC_TS_INVALID || sys->i_next_update < ts) )
     {
-        sys->i_next_update = ts + CLOCK_FREQ;
+        sys->i_next_update = ts + 1*CLOCK_FREQ;
         sys->b_blink_even = !sys->b_blink_even;
     }
 }

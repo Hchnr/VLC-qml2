@@ -81,7 +81,7 @@ OMX_ERRORTYPE WaitForOmxEvent(OmxEventQueue *queue, OMX_EVENTTYPE *event,
     OMX_U32 *data_1, OMX_U32 *data_2, OMX_PTR *event_data)
 {
     OmxEvent *p_event;
-    mtime_t deadline = mdate() + CLOCK_FREQ;
+    mtime_t deadline = mdate() + 1*CLOCK_FREQ;
 
     vlc_mutex_lock(&queue->mutex);
 
@@ -124,7 +124,7 @@ OMX_ERRORTYPE WaitForSpecificOmxEvent(OmxEventQueue *queue,
         if(status != OMX_ErrorNone) return status;
 
         if(event == specific_event) break;
-        if(mdate() - before > CLOCK_FREQ) return OMX_ErrorTimeout;
+        if(mdate() - before > 1*CLOCK_FREQ) return OMX_ErrorTimeout;
     }
 
     return OMX_ErrorNone;
