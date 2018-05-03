@@ -220,7 +220,7 @@ static int Demux(demux_t *demux)
             return VLC_DEMUXER_EGENERIC;
 
         data->i_dts =
-        data->i_pts = VLC_TS_0 + pts;
+        data->i_pts = pts;
         es_out_SetPCR(demux->out, data->i_pts);
         if(sys->es)
             es_out_Send(demux->out, sys->es, data);
@@ -267,7 +267,7 @@ static int Control(demux_t *demux, int query, va_list args)
         return VLC_SUCCESS;
     }
     case DEMUX_SET_NEXT_DEMUX_TIME: {
-        int64_t pts_next = VLC_TS_0 + va_arg(args, int64_t);
+        int64_t pts_next = va_arg(args, int64_t);
         if (sys->pts_next == VLC_TS_INVALID)
             sys->pts_origin = pts_next;
         sys->pts_next = pts_next;

@@ -463,7 +463,7 @@ static block_t *GrabJack( demux_t *p_demux )
 
     i_read = jack_ringbuffer_read( p_sys->p_jack_ringbuffer, ( char * ) p_block->p_buffer, i_read );
 
-    p_block->i_dts = p_block->i_pts = VLC_TS_0 + date_Increment( &p_sys->pts,
+    p_block->i_dts = p_block->i_pts = date_Increment( &p_sys->pts,
          i_read/(p_sys->i_channels * p_sys->jack_sample_size) );
 
     p_sys->p_block_audio = p_block;
