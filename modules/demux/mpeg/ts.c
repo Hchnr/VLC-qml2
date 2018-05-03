@@ -2085,7 +2085,7 @@ static int ProbeChunk( demux_t *p_demux, int i_program, bool b_end, int64_t *pi_
                         {
                             p_pmt->pcr.i_first = *pi_pcr;
                         }
-                        else if( p_pmt->pcr.i_first_dts < VLC_TS_0 )
+                        else if( p_pmt->pcr.i_first_dts == VLC_TS_INVALID )
                         {
                             p_pmt->pcr.i_first_dts = FROM_SCALE(*pi_pcr);
                         }
@@ -2401,7 +2401,7 @@ static void PCRFixHandle( demux_t *p_demux, ts_pmt_t *p_pmt, block_t *p_block )
         return;
     }
     /* Record the first data packet timestamp in case there wont be any PCR */
-    else if( !p_pmt->pcr.i_first_dts )
+    else if( p_pmt->pcr.i_first_dts == VLC_TS_INVALID )
     {
         p_pmt->pcr.i_first_dts = p_block->i_dts;
     }
