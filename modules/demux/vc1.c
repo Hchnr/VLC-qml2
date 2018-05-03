@@ -151,8 +151,8 @@ static int Demux( demux_t *p_demux)
     else
     {
         /*  */
-        p_block_in->i_dts = VLC_TS_0;
-        p_block_in->i_pts = VLC_TS_0;
+        p_block_in->i_dts = 0;
+        p_block_in->i_pts = 0;
     }
 
     while( (p_block_out = p_sys->p_packetizer->pf_packetize( p_sys->p_packetizer,
