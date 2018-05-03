@@ -218,7 +218,7 @@ static int ReadDir( stream_t *p_demux, input_item_node_t *p_subitems )
     char       *psz_artist = NULL;
     char       *psz_album_art = NULL;
     int        i_parsed_duration = 0;
-    mtime_t    i_duration = -1;
+    mtime_t    i_duration = VLC_TS_INVALID;
     const char**ppsz_options = NULL;
     char *    (*pf_dup) (const char *) = p_demux->p_sys;
     int        i_options = 0;
@@ -255,7 +255,7 @@ static int ReadDir( stream_t *p_demux, input_item_node_t *p_subitems )
                 FREENULL( psz_artist );
                 parseEXTINF( psz_parse, &psz_artist, &psz_name, &i_parsed_duration );
                 if( i_parsed_duration >= 0 )
-                    i_duration = i_parsed_duration * INT64_C(1000000);
+                    i_duration = i_parsed_duration * CLOCK_FREQ;
                 if( psz_name )
                     psz_name = pf_dup( psz_name );
                 if( psz_artist )
@@ -341,7 +341,7 @@ static int ReadDir( stream_t *p_demux, input_item_node_t *p_subitems )
             FREENULL( psz_artist );
             FREENULL( psz_album_art );
             i_parsed_duration = 0;
-            i_duration = -1;
+            i_duration = VLC_TS_INVALID;
 
             b_cleanup = false;
         }
