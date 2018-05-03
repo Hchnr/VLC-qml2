@@ -583,7 +583,7 @@ static int Demux( demux_t *p_demux )
     if ( !p_sys->b_slave )
     {
         es_out_SetPCR( p_demux->out, VLC_TS_0 + i_barrier );
-        p_sys->i_next_demux_time += CLOCK_FREQ;
+        p_sys->i_next_demux_time += 1*CLOCK_FREQ;
     }
 
     if( p_sys->index.i_current >= p_sys->index.i_count )
