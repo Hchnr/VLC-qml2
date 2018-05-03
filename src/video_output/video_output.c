@@ -132,6 +132,7 @@ static vout_thread_t *VoutCreate(vlc_object_t *object,
     /* */
     vout->p = (vout_thread_sys_t*)&vout[1];
 
+    vout->p->clock = cfg->clock;
     vout->p->original = original;
     vout->p->dpb_size = cfg->dpb_size;
 
@@ -238,15 +239,14 @@ vout_thread_t *vout_Request(vlc_object_t *object,
                 spu_Attach(vout->p->spu, vout->p->input, true);
         }
 
-        if (cfg->change_fmt) {
-            vout_control_cmd_t cmd;
-            vout_control_cmd_Init(&cmd, VOUT_CONTROL_REINIT);
-            cmd.u.cfg = cfg;
+        vout_control_cmd_t cmd;
+        vout_control_cmd_Init(&cmd, VOUT_CONTROL_REINIT);
+        cmd.u.cfg = cfg;
 
-            vout_control_Push(&vout->p->control, &cmd);
-            vout_control_WaitEmpty(&vout->p->control);
+        vout_control_Push(&vout->p->control, &cmd);
+        vout_control_WaitEmpty(&vout->p->control);
+        if (cfg->change_fmt)
             vout_IntfReinit(vout);
-        }
 
         if (!vout->p->dead) {
             msg_Dbg(object, "reusing provided vout");
@@ -1611,6 +1611,11 @@ static void ThreadClean(vout_thread_t *vout)
 static int ThreadReinit(vout_thread_t *vout,
                         const vout_configuration_t *cfg)
 {
+    vout->p->clock = cfg->clock;
+
+    if (!cfg->change_fmt)
+        return VLC_SUCCESS;
+
     video_format_t original;
 
     vout->p->pause.is_on = false;
