@@ -505,7 +505,7 @@ static bool Parse( demux_t *p_demux, block_t **pp_output )
             swab( p_block_in->p_buffer, p_block_in->p_buffer, p_block_in->i_buffer );
         }
 
-        p_block_in->i_pts = p_block_in->i_dts = p_sys->b_start || p_sys->b_initial_sync_failed ? VLC_TS_0 : VLC_TS_INVALID;
+        p_block_in->i_pts = p_block_in->i_dts = p_sys->b_start || p_sys->b_initial_sync_failed ? 0 : VLC_TS_INVALID;
     }
     p_sys->b_initial_sync_failed = p_sys->b_start; /* Only try to resync once */
 
