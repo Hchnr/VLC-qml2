@@ -276,7 +276,7 @@ static void Queue(vout_display_t *vd, picture_t *pic, subpicture_t *subpic)
     mtime_t delay = pic->date - now;
     if (delay < 0)
         delay = 0; /* core bug: date is not updated during pause */
-    if (unlikely(delay > CLOCK_FREQ))
+    if (unlikely(delay > 1*CLOCK_FREQ))
     {   /* We would get stuck if the delay was too long. */
         msg_Dbg(vd, "picture date corrupt: delay of %"PRId64" us", delay);
         delay = CLOCK_FREQ / 50;
