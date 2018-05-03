@@ -400,7 +400,7 @@ static int Open( vlc_object_t *p_this )
 
     vlc_dictionary_init( &p_sys->attachments, 0 );
 
-    p_sys->patfix.i_first_dts = -1;
+    p_sys->patfix.i_first_dts = VLC_TS_INVALID;
     p_sys->patfix.i_timesourcepid = 0;
     p_sys->patfix.status = PAT_WAITING;
 
