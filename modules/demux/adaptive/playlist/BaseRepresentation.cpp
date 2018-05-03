@@ -121,7 +121,7 @@ mtime_t BaseRepresentation::getMinAheadTime(uint64_t curnum) const
         }
 
         /* should not happen */
-        return CLOCK_FREQ;
+        return 1*CLOCK_FREQ;
     }
 
     mtime_t minTime = 0;
