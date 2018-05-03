@@ -62,6 +62,7 @@ struct vout_thread_sys_t
     char            *splitter_name;
 
     vlc_clock_t     *clock;
+    float           rate;
 
     /* Input thread for dvd menu interactions */
     vlc_object_t    *input;
@@ -229,6 +230,12 @@ typedef struct vout_window_mouse_event_t vout_window_mouse_event_t;
  * It is thread safe
  */
 void vout_ChangePause( vout_thread_t *, bool b_paused, mtime_t i_date );
+
+/**
+ * This function will change the rate of the vout
+ * It is thread safe
+ */
+void vout_ChangeRate( vout_thread_t *, float rate );
 
 /**
  * This function will apply an offset on subtitle subpicture.
