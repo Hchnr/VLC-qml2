@@ -231,6 +231,12 @@ typedef struct vout_window_mouse_event_t vout_window_mouse_event_t;
 void vout_ChangePause( vout_thread_t *, bool b_paused, mtime_t i_date );
 
 /**
+ * This function will change the rate of the vout
+ * It is thread safe
+ */
+void vout_ChangeRate( vout_thread_t *, float rate );
+
+/**
  * This function will apply an offset on subtitle subpicture.
  */
 void spu_OffsetSubtitleDate( spu_t *p_spu, mtime_t i_duration );

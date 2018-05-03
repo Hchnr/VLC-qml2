@@ -322,6 +322,16 @@ void vout_ChangePause(vout_thread_t *vout, bool is_paused, mtime_t date)
     vout_control_WaitEmpty(&vout->p->control);
 }
 
+void vout_ChangeRate(vout_thread_t *vout, float rate)
+{
+    vout_control_cmd_t cmd;
+    vout_control_cmd_Init(&cmd, VOUT_CONTROL_CHANGE_RATE);
+    cmd.u.rate = rate;
+    vout_control_Push(&vout->p->control, &cmd);
+
+    vout_control_WaitEmpty(&vout->p->control);
+}
+
 void vout_GetResetStatistic(vout_thread_t *vout, unsigned *restrict displayed,
                             unsigned *restrict lost)
 {
@@ -1315,6 +1325,14 @@ static void ThreadChangePause(vout_thread_t *vout, bool is_paused, mtime_t date)
         vout_window_SetInhibition(window, !is_paused);
 }
 
+static void ThreadChangeRate(vout_thread_t *vout, float rate)
+{
+#if 0
+    if (vout->p->clock)
+        vlc_clock_ChangeRate(vout->p->clock, rate);
+#endif
+}
+
 static void ThreadFlush(vout_thread_t *vout, bool below, mtime_t date)
 {
     vout->p->step.timestamp = VLC_TS_INVALID;
@@ -1735,6 +1753,9 @@ static int ThreadControl(vout_thread_t *vout, vout_control_cmd_t cmd)
         break;
     case VOUT_CONTROL_PAUSE:
         ThreadChangePause(vout, cmd.u.pause.is_on, cmd.u.pause.date);
+        break;
+    case VOUT_CONTROL_CHANGE_RATE:
+        ThreadChangeRate(vout, cmd.u.rate);
         break;
     case VOUT_CONTROL_FLUSH:
         ThreadFlush(vout, false, cmd.u.time);
