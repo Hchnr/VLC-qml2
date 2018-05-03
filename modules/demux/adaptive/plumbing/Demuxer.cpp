@@ -240,7 +240,7 @@ bool SlaveDemuxer::create()
 int SlaveDemuxer::demux(mtime_t nz_deadline)
 {
     /* Always call with increment or buffering will get slow stuck */
-    mtime_t i_next_demux_time = VLC_TS_0 + nz_deadline + CLOCK_FREQ / 4;
+    mtime_t i_next_demux_time = nz_deadline + CLOCK_FREQ / 4;
     if( demux_Control(p_demux, DEMUX_SET_NEXT_DEMUX_TIME, i_next_demux_time ) != VLC_SUCCESS )
     {
         b_eof = true;
