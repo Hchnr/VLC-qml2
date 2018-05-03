@@ -116,7 +116,7 @@ vlc_module_end ()
     @synchronized (self) {
         numberOfSamples = [sampleBuffer numberOfSamples];
         date_Increment(&date,numberOfSamples);
-        currentPts = VLC_TS_0 + date_Get(&date);
+        currentPts = date_Get(&date);
 
         tempAudioBufferList = [sampleBuffer audioBufferListWithOptions:0];
         if (tempAudioBufferList->mNumberBuffers == 2) {

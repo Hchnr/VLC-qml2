@@ -1451,15 +1451,14 @@ static int Demux( demux_t *p_demux )
                 tk->i_next_block_flags |= BLOCK_FLAG_DISCONTINUITY;
             }
             if( p_sys->i_pcr != VLC_TS_INVALID )
-                es_out_SetPCR( p_demux->out, VLC_TS_0 +
-                               __MAX(0, p_sys->i_pcr - PCR_OFF) );
+                es_out_SetPCR( p_demux->out, __MAX(0, p_sys->i_pcr - PCR_OFF) );
         }
         else if( p_sys->i_pcr == VLC_TS_INVALID ||
                  i_minpcr > p_sys->i_pcr + PCR_OBS )
         {
             p_sys->i_pcr = __MAX(0, i_minpcr - PCR_OFF);
             if( p_sys->i_pcr != VLC_TS_INVALID )
-                es_out_SetPCR( p_demux->out, VLC_TS_0 + p_sys->i_pcr );
+                es_out_SetPCR( p_demux->out, p_sys->i_pcr );
         }
     }
 
@@ -2119,7 +2118,7 @@ static void StreamRead( void *p_private, unsigned int i_size,
                 break;
             default:
                 if( i_pts != tk->i_lastpts )
-                    p_block->i_pts = VLC_TS_0 + i_pts;
+                    p_block->i_pts = i_pts;
                 /*FIXME: for h264 you should check that packetization-mode=1 in sdp-file */
                 switch( tk->fmt.i_codec )
                 {
@@ -2130,7 +2129,7 @@ static void StreamRead( void *p_private, unsigned int i_size,
                         p_block->i_dts = VLC_TS_INVALID;
                         break;
                     default:
-                        p_block->i_dts = VLC_TS_0 + i_pts;
+                        p_block->i_dts = i_pts;
                         break;
                 }
 
