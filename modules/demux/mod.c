@@ -277,7 +277,7 @@ static int Demux( demux_t *p_demux )
     }
     p_frame->i_buffer = i_read;
     p_frame->i_dts =
-    p_frame->i_pts = VLC_TS_0 + date_Get( &p_sys->pts );
+    p_frame->i_pts = date_Get( &p_sys->pts );
 
     es_out_SetPCR( p_demux->out, p_frame->i_pts );
     es_out_Send( p_demux->out, p_sys->es, p_frame );
