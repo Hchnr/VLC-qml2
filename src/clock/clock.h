@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
-
+typedef stuct vlc_clock_master_t vlc_clock_master_t;
 typedef struct vlc_clock_t vlc_clock_t;
 
 /**
- * This function creates a new vlc_clock_t.
+ * This function creates a new slave vlc_clock_t.
  * You must use vlc_clock_Delete to free it.
  */
-vlc_clock_t * vlc_clock_New();
+vlc_clock_t * vlc_clock_NewMaster(vlc_clock_master_t * master);
+
+/**
+ * This function creates a new slave vlc_clock_t.
+ * You must use vlc_clock_Delete to free it.
+ */
+vlc_clock_t * vlc_clock_NewSlave(vlc_clock_master_t * master);
 
 /**
  * This function free the resources allocated by vlc_clock_New
@@ -32,9 +38,9 @@ vlc_clock_t * vlc_clock_New();
 void vlc_clock_Delete(vlc_clock_t * clock);
 
 /**
- * This function will update the clock drift.
+ * This function will update the clock drift and returns the drift
  */
-int vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp, mtime_t system_now);
+mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp, mtime_t system_now);
 
 /**
  * This function resets the clock drift
