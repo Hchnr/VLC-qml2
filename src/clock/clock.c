@@ -86,11 +86,8 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
     vlc_clock_main_t * main_clock = clock->owner;
 
     vlc_mutex_lock(&main_clock->lock);
-    if (rate != main_clock->rate)
-    {
-        main_clock->rate = rate;
-        vlc_cond_broadcast(&main_clock->cond);
-    }
+    main_clock->rate = rate;
+
     if (unlikely(pts == VLC_TS_INVALID || system_now == VLC_TS_INVALID))
     {
         vlc_mutex_unlock(&main_clock->lock);
@@ -111,6 +108,7 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
     if (pts != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
         clock->last = clock_point_Create(pts, system_now);
 
+    vlc_cond_broadcast(&main_clock->cond);
     vlc_mutex_unlock(&main_clock->lock);
     return 0;
 }
@@ -172,10 +170,23 @@ static mtime_t vlc_clock_to_system(vlc_clock_t * clock, mtime_t timestamp)
     mtime_t system;
     vlc_mutex_lock(&main_clock->lock);
     system = main_stream_to_system(main_clock, timestamp);
-    if (system == VLC_TS_INVALID &&
-        clock->last.stream != VLC_TS_INVALID &&
-        clock->last.system != VLC_TS_INVALID)
-        system = (timestamp - clock->last.stream) / clock->rate + clock->last.system + main_clock->jitter;
+    if (system == VLC_TS_INVALID)
+    {
+        /** FIXME
+         * If we lack the first time point we cheat and hope the dejitter
+         * delay will be enough.
+         */
+        if (clock != main_clock->master &&
+            (clock->last.stream == VLC_TS_INVALID ||
+             clock->last.system == VLC_TS_INVALID))
+        {
+            clock->last = clock_point_Create(timestamp,
+                                             mdate());
+            clock->rate = main_clock->rate;
+        }
+        system = (timestamp - clock->last.stream) / clock->rate;
+        system += clock->last.system + main_clock->jitter;
+    }
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
