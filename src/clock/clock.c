@@ -108,6 +108,9 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
     }
     main_clock->offset = system_now - pts * main_clock->coeff / rate;
 
+    if (pts != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
+        clock->last = clock_point_Create(pts, system_now);
+
     vlc_mutex_unlock(&main_clock->lock);
     return 0;
 }
@@ -126,7 +129,7 @@ static void vlc_clock_master_reset(vlc_clock_t * clock)
     vlc_clock_main_t * main_clock = clock->owner;
 
     vlc_mutex_lock(&main_clock->lock);
-    vlc_clock_master_reset(main_clock);
+    vlc_clock_main_reset(main_clock);
     vlc_mutex_unlock(&main_clock->lock);
 }
 
@@ -169,6 +172,10 @@ static mtime_t vlc_clock_to_system(vlc_clock_t * clock, mtime_t timestamp)
     mtime_t system;
     vlc_mutex_lock(&main_clock->lock);
     system = main_stream_to_system(main_clock, timestamp);
+    if (system == VLC_TS_INVALID &&
+        clock->last.stream != VLC_TS_INVALID &&
+        clock->last.system != VLC_TS_INVALID)
+        system = (timestamp - clock->last.stream) / clock->rate + clock->last.system;
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
@@ -208,7 +215,11 @@ static mtime_t vlc_clock_get_jitter(vlc_clock_t * clock)
 static mtime_t vlc_clock_slave_update(vlc_clock_t * clock, mtime_t timestamp,
                                       mtime_t system_now, float rate)
 {
+    if (timestamp != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
+        clock->last = clock_point_Create(timestamp, system_now);
+
     mtime_t computed = vlc_clock_to_system(clock, timestamp);
+
     if (computed == VLC_TS_INVALID)
         computed =
             (timestamp - clock->last.stream) / rate + clock->last.system;
@@ -239,14 +250,20 @@ static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
         {
             if (unlikely(clock->last.stream == VLC_TS_INVALID ||
                          clock->last.system == VLC_TS_INVALID))
+            {
+                vlc_mutex_unlock(&main_clock->lock);
                 return 0;
-
+            }
             deadline =
                 (pts - clock->last.stream) / clock->rate + clock->last.system;
         }
         if (vlc_cond_timedwait(&main_clock->cond, &main_clock->lock, deadline))
+        {
+            vlc_mutex_unlock(&main_clock->lock);
             return 0;
+        }
     }
+    vlc_mutex_unlock(&main_clock->lock);
     return 1;
 }
 
@@ -303,6 +320,7 @@ void vlc_clock_main_Delete(vlc_clock_main_t * main_clock)
 
     TAB_CLEAN(main_clock->nslaves, main_clock->slaves);
     vlc_mutex_destroy(&main_clock->lock);
+    vlc_cond_destroy(&main_clock->cond);
     free(main_clock);
 }
 
@@ -310,8 +328,6 @@ mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp,
                          mtime_t system_now, float rate)
 {
     clock->rate = rate;
-    if (timestamp != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
-        clock->last = clock_point_Create(timestamp, system_now);
     return clock->update(clock, timestamp, system_now, rate);
 }
 
