@@ -112,16 +112,21 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
     return 0;
 }
 
-static void vlc_clock_master_reset(vlc_clock_t * clock)
+static void vlc_clock_main_reset(vlc_clock_main_t * main_clock)
 {
-    vlc_clock_main_t * main_clock = clock->owner;
-
-    vlc_mutex_lock(&main_clock->lock);
     main_clock->coeff = 1.0f;
     /* TODO Reset coeff avg */
     main_clock->offset = VLC_TS_INVALID;
     main_clock->rate = 1.0f;
     vlc_cond_broadcast(&main_clock->cond);
+}
+
+static void vlc_clock_master_reset(vlc_clock_t * clock)
+{
+    vlc_clock_main_t * main_clock = clock->owner;
+
+    vlc_mutex_lock(&main_clock->lock);
+    vlc_clock_master_reset(main_clock);
     vlc_mutex_unlock(&main_clock->lock);
 }
 
@@ -434,7 +439,7 @@ void vlc_clock_Delete(vlc_clock_t * clock)
     vlc_mutex_lock(&main_clock->lock);
     if (clock == main_clock->master)
     {
-        vlc_clock_master_reset(clock);
+        vlc_clock_main_reset(main_clock);
         main_clock->master = NULL;
     }
     else
