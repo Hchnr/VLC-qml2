@@ -382,6 +382,7 @@ static void EsOutTerminate( es_out_t *out )
     {
         es_out_pgrm_t *p_pgrm = p_sys->pgrm[i];
         input_clock_Delete( p_pgrm->p_input_clock );
+        vlc_clock_main_Delete( p_pgrm->p_main_clock );
         if( p_pgrm->p_meta )
             vlc_meta_Delete( p_pgrm->p_meta );
 
