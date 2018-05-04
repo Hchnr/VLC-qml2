@@ -258,7 +258,8 @@ void aout_RequestRetiming(audio_output_t *aout, mtime_t audio_ts,
 {
     aout_owner_t *owner = aout_owner (aout);
     const float rate = owner->sync.rate;
-    mtime_t drift = system_ts - audio_ts;
+    mtime_t drift = -vlc_clock_Update(owner->sync.clock, audio_ts, system_ts,
+                                      owner->sync.rate);
 
     /* Late audio output.
      * This can happen due to insufficient caching, scheduling jitter
