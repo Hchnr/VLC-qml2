@@ -25,10 +25,6 @@
 #include "clock.h"
 #include "clock_internal.h"
 
-#ifndef LIBVLC_CLOCK_H
-#error TA CHATTE TA CHATTE TA CHATTE SALOPE
-#endif
-
 struct vlc_clock_main_t
 {
     vlc_mutex_t lock;
