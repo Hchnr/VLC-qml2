@@ -76,7 +76,7 @@ static mtime_t main_stream_to_system(vlc_clock_main_t * main_clock,
 {
     if (unlikely(main_clock->offset == VLC_TS_INVALID))
         return VLC_TS_INVALID;
-    return (mtime_t) (pts * main_clock->coeff / main_clock->rate + main_clock->offset);
+    return (mtime_t) (pts * main_clock->coeff / main_clock->rate + main_clock->offset + main_clock->jitter);
 }
 
 
@@ -175,7 +175,7 @@ static mtime_t vlc_clock_to_system(vlc_clock_t * clock, mtime_t timestamp)
     if (system == VLC_TS_INVALID &&
         clock->last.stream != VLC_TS_INVALID &&
         clock->last.system != VLC_TS_INVALID)
-        system = (timestamp - clock->last.stream) / clock->rate + clock->last.system;
+        system = (timestamp - clock->last.stream) / clock->rate + clock->last.system + main_clock->jitter;
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
@@ -187,6 +187,13 @@ static mtime_t vlc_clock_to_stream(vlc_clock_t * clock, mtime_t system)
 
     vlc_mutex_lock(&main_clock->lock);
     pts = main_system_to_stream(main_clock, system);
+    if (pts == VLC_TS_INVALID &&
+        clock->last.stream != VLC_TS_INVALID &&
+        clock->last.system != VLC_TS_INVALID)
+    {
+        pts =
+           (system - clock->last.system - main_clock->jitter) * clock->rate + clock->last.stream;
+    }
     vlc_mutex_unlock(&main_clock->lock);
     return pts;
 }
@@ -293,7 +300,7 @@ vlc_clock_main_t * vlc_clock_main_New(void)
     main_clock->offset = VLC_TS_INVALID;
 
     main_clock->pause_date = VLC_TS_INVALID;
-    main_clock->jitter = VLC_TS_INVALID;
+    main_clock->jitter = 2000000;
     main_clock->abort = false;
 
     AvgInit(&main_clock->coeff_avg, 10);
