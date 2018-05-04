@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
+#ifndef LIBVLC_CLOCK_H
+#define LIBVLC_CLOCK_H
+
 typedef struct vlc_clock_main_t vlc_clock_main_t;
 typedef struct vlc_clock_t vlc_clock_t;
 
 /**
  * This function creates the vlc_clock_main_t of the program
  */
-vlc_clock_main_t * vlc_clock_main_New();
+vlc_clock_main_t * vlc_clock_main_New(void);
 
 /**
  * Destroy the clock main
@@ -61,8 +64,8 @@ void vlc_clock_Delete(vlc_clock_t * clock);
 /**
  * This function will update the clock drift and returns the drift
  */
-mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp,
-                         mtime_t system_now, double rate);
+mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t pts,
+                         mtime_t system_now, float rate);
 
 /**
  * This function resets the clock drift
@@ -88,7 +91,7 @@ int vlc_clock_Wait(vlc_clock_t * clock, mtime_t pts);
 /**
  * This function converts a timestamp from stream to system
  */
-mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t timestamp);
+mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t pts);
 
 /**
  * This function converts a timestamp from system to stream time
@@ -96,8 +99,8 @@ mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t timestamp);
 mtime_t vlc_clock_ConvertToStream(vlc_clock_t * clock, mtime_t system);
 
 /**
- * This function sets the synchronization delay ie the maximum delay before the synchro
- * is considered to kick in
+ * This function sets the synchronization delay ie the maximum delay before
+ * the synchro is considered to kick in
  */
 void vlc_clock_SetJitter(vlc_clock_t * clock, mtime_t delay, int cr_avg);
 
@@ -105,3 +108,5 @@ void vlc_clock_SetJitter(vlc_clock_t * clock, mtime_t delay, int cr_avg);
  * This function retrieves the synchronization delay
  */
 mtime_t vlc_clock_GetJitter(vlc_clock_t * clock);
+
+#endif /*LIBVLC_CLOCK_H*/
