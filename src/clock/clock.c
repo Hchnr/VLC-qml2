@@ -25,7 +25,7 @@
 #include "clock.h"
 #include "clock_internal.h"
 
-struct vlc_clock_master_t
+struct vlc_clock_main_t
 {
     vlc_mutex_t lock;
     vlc_cond_t cond;
@@ -57,91 +57,91 @@ struct vlc_clock_t
     int (*wait)(vlc_clock_t * clock, mtime_t pts);
     void (*set_jitter)(vlc_clock_t * clock, mtime_t delay, int cr_avg);
 
-    vlc_clock_master_t * owner;
+    vlc_clock_main_t * owner;
     double rate;
     clock_point_t last;
 };
 
-static mtime_t master_system_to_stream(vlc_clock_master_t * master,
+static mtime_t main_system_to_stream(vlc_clock_main_t * main,
                                        mtime_t system)
 {
-    if (unlikely(master->offset == VLC_TS_INVALID))
+    if (unlikely(main->offset == VLC_TS_INVALID))
         return VLC_TS_INVALID;
-    return (mtime_t) ((system - master->offset) * master->rate / master->coeff);
+    return (mtime_t) ((system - main->offset) * main->rate / main->coeff);
 }
 
-static mtime_t master_stream_to_system(vlc_clock_master_t * master,
+static mtime_t main_stream_to_system(vlc_clock_main_t * main,
                                        mtime_t pts)
 {
-    if (unlikely(master->offset == VLC_TS_INVALID))
+    if (unlikely(main->offset == VLC_TS_INVALID))
         return VLC_TS_INVALID;
-    return (mtime_t) (pts * master->coeff / master->rate + master->offset);
+    return (mtime_t) (pts * main->coeff / main->rate + main->offset);
 }
 
 
 static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t timestamp,
                                        mtime_t system_now, double rate)
 {
-    vlc_clock_master_t * master = clock->owner;
+    vlc_clock_main_t * main = clock->owner;
 
-    vlc_mutex_lock(&master->lock);
-    if (rate != master->rate)
+    vlc_mutex_lock(&main->lock);
+    if (rate != main->rate)
     {
-        master->rate = rate;
-        vlc_cond_broadcast(&master->cond);
+        main->rate = rate;
+        vlc_cond_broadcast(&main->cond);
     }
     if (unlikely(timestamp == VLC_TS_INVALID || system_now == VLC_TS_INVALID))
     {
-        vlc_mutex_unlock(&master->lock);
+        vlc_mutex_unlock(&main->lock);
         return VLC_TS_INVALID;
     }
 
-    if (master->offset != VLC_TS_INVALID)
+    if (main->offset != VLC_TS_INVALID)
     {
         /* We have a reference so we can update coeff */
         /* TODO*/
     }
-    master->offset = system_now - timestamp * master->coeff / rate;
+    main->offset = system_now - timestamp * main->coeff / rate;
 
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_unlock(&main->lock);
     return 0;
 }
 
 static void vlc_clock_master_reset(vlc_clock_t * clock)
 {
-    vlc_clock_master_t * master = clock->owner;
+    vlc_clock_main_t * main = clock->owner;
 
-    vlc_mutex_lock(&master->lock);
-    master->coeff = 1.0;
+    vlc_mutex_lock(&main->lock);
+    main->coeff = 1.0;
     /* TODO Reset coeff avg */
-    master->offset = VLC_TS_INVALID;
-    master->rate = 1.0;
-    vlc_cond_broadcast(&master->cond);
-    vlc_mutex_unlock(&master->lock);
+    main->offset = VLC_TS_INVALID;
+    main->rate = 1.0;
+    vlc_cond_broadcast(&main->cond);
+    vlc_mutex_unlock(&main->lock);
 }
 
 static void vlc_clock_master_pause(vlc_clock_t * clock, bool paused, mtime_t now)
 {
-    vlc_clock_master_t * master = clock->owner;
-    vlc_mutex_lock(&master->lock);
+    vlc_clock_main_t * main = clock->owner;
+    vlc_mutex_lock(&main->lock);
 
     if (paused)
-        master->pause_date = now;
+        main->pause_date = now;
     else
-        master->offset += now - master->pause_date;
+        main->offset += now - main->pause_date;
 
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_unlock(&main->lock);
 }
 
 static int vlc_clock_get_rate(vlc_clock_t * clock)
 {
     double rate;
-    vlc_clock_master_t * master = clock->owner;
-    vlc_mutex_lock(&master->lock);
+    vlc_clock_main_t * main = clock->owner;
+    vlc_mutex_lock(&main->lock);
 
-    rate = master->rate;
+    rate = main->rate;
 
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_unlock(&main->lock);
 
     return rate;
 }
@@ -153,42 +153,42 @@ static int vlc_clock_master_wait(vlc_clock_t * clock, mtime_t pts)
 
 static mtime_t vlc_clock_to_system(vlc_clock_t * clock, mtime_t timestamp)
 {
-    vlc_clock_master_t * master = clock->owner;
+    vlc_clock_main_t * main = clock->owner;
     mtime_t system;
-    vlc_mutex_lock(&master->lock);
-    system = master_stream_to_system(master, timestamp);
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_lock(&main->lock);
+    system = main_stream_to_system(main, timestamp);
+    vlc_mutex_unlock(&main->lock);
     return system;
 }
 
 static mtime_t vlc_clock_to_stream(vlc_clock_t * clock, mtime_t system)
 {
-    vlc_clock_master_t * master = clock->owner;
+    vlc_clock_main_t * main = clock->owner;
     mtime_t pts;
 
-    vlc_mutex_lock(&master->lock);
-    pts = master_system_to_stream(master, system);
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_lock(&main->lock);
+    pts = main_system_to_stream(main, system);
+    vlc_mutex_unlock(&main->lock);
     return pts;
 }
 
 static void vlc_clock_master_set_jitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
 {
-    vlc_clock_master_t * master = clock->owner;
+    vlc_clock_main_t * main = clock->owner;
 
-    vlc_mutex_lock(&master->lock);
-    master->jitter = delay;
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_lock(&main->lock);
+    main->jitter = delay;
+    vlc_mutex_unlock(&main->lock);
 }
 
 static mtime_t vlc_clock_get_jitter(vlc_clock_t * clock)
 {
-    vlc_clock_master_t * master = clock->owner;
+    vlc_clock_main_t * main = clock->owner;
     mtime_t jitter;
 
-    vlc_mutex_lock(&master->lock);
-    jitter = master->jitter;
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_lock(&main->lock);
+    jitter = main->jitter;
+    vlc_mutex_unlock(&main->lock);
     return jitter;
 }
 
@@ -210,12 +210,12 @@ static void vlc_clock_slave_pause(vlc_clock_t * clock, bool paused, mtime_t now)
 
 static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
 {
-    vlc_clock_master_t * master = clock->owner;
-    vlc_mutex_lock(&master->lock);
-    while (!master->abort)
+    vlc_clock_main_t * main = clock->owner;
+    vlc_mutex_lock(&main->lock);
+    while (!main->abort)
     {
-        mtime_t deadline = master_stream_to_system(master, pts);
-        /* Fallback to clock monotonic when there is no master */
+        mtime_t deadline = main_stream_to_system(main, pts);
+        /* Fallback to clock monotonic when there is no main */
         if (unlikely(deadline == VLC_TS_INVALID))
         {
             if (unlikely(clock->last.i_stream == VLC_TS_INVALID ||
@@ -225,7 +225,7 @@ static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
             deadline =
                 (pts - clock->last.i_stream) / clock->rate + clock->last.i_system;
         }
-        if (vlc_cond_timedwait(&master->cond, &master->lock, deadline))
+        if (vlc_cond_timedwait(&main->cond, &main->lock, deadline))
             return 0;
     }
     return 1;
@@ -234,51 +234,51 @@ static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
 static void vlc_clock_slave_set_jitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
 {}
 
-vlc_clock_master_t * vlc_clock_master_New()
+vlc_clock_main_t * vlc_clock_main_New()
 {
-    vlc_clock_master_t * master = malloc(sizeof(vlc_clock_master_t));
+    vlc_clock_main_t * main = malloc(sizeof(vlc_clock_main_t));
 
-    if (master == NULL)
+    if (main == NULL)
         return NULL;
 
-    vlc_mutex_init(&master->lock);
-    vlc_cond_init(&master->cond);
-    master->master = NULL;
+    vlc_mutex_init(&main->lock);
+    vlc_cond_init(&main->cond);
+    main->master = NULL;
 
-    TAB_INIT(master->slaves, master->nslaves);
+    TAB_INIT(main->slaves, main->nslaves);
 
-    master->rate = 1.0;
-    master->coeff = 1.0;
-    master->offset = VLC_TS_INVALID;
+    main->rate = 1.0;
+    main->coeff = 1.0;
+    main->offset = VLC_TS_INVALID;
 
-    master->pause_date = VLC_TS_INVALID;
-    master->jitter = VLC_TS_INVALID;
-    master->abort = false;
+    main->pause_date = VLC_TS_INVALID;
+    main->jitter = VLC_TS_INVALID;
+    main->abort = false;
 
-    return master;
+    return main;
 }
 
-void vlc_clock_master_Abort(vlc_clock_master_t * master)
+void vlc_clock_main_Abort(vlc_clock_main_t * main)
 {
     size_t i;
-    vlc_mutex_lock(&master->lock);
-    master->abort = true;
-    vlc_cond_broadcast(&master->cond);
+    vlc_mutex_lock(&main->lock);
+    main->abort = true;
+    vlc_cond_broadcast(&main->cond);
 
-    vlc_mutex_unlock(&master->lock);
+    vlc_mutex_unlock(&main->lock);
 }
 
-void vlc_clock_master_Delete(vlc_clock_master_t * master)
+void vlc_clock_main_Delete(vlc_clock_main_t * main)
 {
-    while (master->nslaves != 0)
-        vlc_clock_Delete(master->slaves[0]);
+    while (main->nslaves != 0)
+        vlc_clock_Delete(main->slaves[0]);
 
-    if (master->master != NULL)
-        vlc_clock_Delete(master->master);
+    if (main->master != NULL)
+        vlc_clock_Delete(main->master);
 
-    TAB_CLEAN(master->nslaves, master->slaves);
-    vlc_mutex_destroy(&master->lock);
-    free(master);
+    TAB_CLEAN(main->nslaves, main->slaves);
+    vlc_mutex_destroy(&main->lock);
+    free(main);
 }
 
 mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp,
@@ -352,74 +352,74 @@ static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
     clk->set_jitter = vlc_clock_slave_set_jitter;
 }
 
-vlc_clock_t * vlc_clock_NewMaster(vlc_clock_master_t * master)
+vlc_clock_t * vlc_clock_NewMaster(vlc_clock_main_t * main)
 {
     vlc_clock_t * clk = malloc(sizeof(vlc_clock_t));
     if (clk == NULL)
         return NULL;
 
-    clk->owner = master;
+    clk->owner = main;
 
-    vlc_mutex_lock(&master->lock);
-    if (master->master != NULL)
+    vlc_mutex_lock(&main->lock);
+    if (main->master != NULL)
     {
-        vlc_clock_master_reset(master->master);
-        vlc_clock_set_slave_cbk(master->master);
-        TAB_APPEND(master->nslaves, master->slaves, master->master);
+        vlc_clock_master_reset(main->master);
+        vlc_clock_set_slave_cbk(main->master);
+        TAB_APPEND(main->nslaves, main->slaves, main->master);
     }
     vlc_clock_set_master_cbk(clk);
-    master->master = clk;
-    vlc_mutex_unlock(&master->lock);
+    main->master = clk;
+    vlc_mutex_unlock(&main->lock);
 
     return clk;
 }
 
-vlc_clock_t * vlc_clock_NewSlave(vlc_clock_master_t * master)
+vlc_clock_t * vlc_clock_NewSlave(vlc_clock_main_t * main)
 {
     vlc_clock_t * clk = malloc(sizeof(vlc_clock_t));
     if (clk == NULL)
         return NULL;
 
-    clk->owner = master;
+    clk->owner = main;
     clk->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
 
-    vlc_mutex_lock(&master->lock);
-    clk->rate = master->rate;
+    vlc_mutex_lock(&main->lock);
+    clk->rate = main->rate;
     vlc_clock_set_slave_cbk(clk);
-    TAB_APPEND(master->nslaves, master->slaves, clk);
-    vlc_mutex_unlock(&master->lock);
+    TAB_APPEND(main->nslaves, main->slaves, clk);
+    vlc_mutex_unlock(&main->lock);
 
     return clk;
 }
 
-void vlc_clock_SetMaster(vlc_clock_master_t * master, vlc_clock_t * clk)
+void vlc_clock_SetMaster(vlc_clock_main_t * main, vlc_clock_t * clk)
 {
-    vlc_mutex_lock(&master->lock);
-    TAB_REMOVE(master->nslaves, master->slaves, clk);
-    if (master->master != NULL)
+    vlc_mutex_lock(&main->lock);
+    TAB_REMOVE(main->nslaves, main->slaves, clk);
+    if (main->master != NULL)
     {
-        vlc_clock_master_reset(master->master);
-        vlc_clock_set_slave_cbk(master->master);
-        TAB_APPEND(master->nslaves, master->slaves, master->master);
+        vlc_clock_master_reset(main->master);
+        vlc_clock_set_slave_cbk(main->master);
+        TAB_APPEND(main->nslaves, main->slaves, main->master);
     }
     vlc_clock_set_master_cbk(clk);
-    master->master = clk;
-    vlc_mutex_unlock(&master->lock);
+    main->master = clk;
+    vlc_mutex_unlock(&main->lock);
 }
 
 
 void vlc_clock_Delete(vlc_clock_t * clock)
 {
-    vlc_clock_master_t * master = clock->owner;
-    vlc_mutex_lock(&master->lock);
-    if (clock == master->master)
+    vlc_clock_main_t * main = clock->owner;
+    vlc_mutex_lock(&main->lock);
+    if (clock == main->master)
     {
         vlc_clock_master_reset(clock);
-        master->master = NULL;
+        main->master = NULL;
     }
     else
-        TAB_REMOVE(master->nslaves, master->slaves, clock);
-    vlc_mutex_unlock(&master->lock);
+        TAB_REMOVE(main->nslaves, main->slaves, clock);
+    vlc_mutex_unlock(&main->lock);
     free(clock);
 }
 

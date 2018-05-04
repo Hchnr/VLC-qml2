@@ -17,31 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
-typedef struct vlc_clock_master_t vlc_clock_master_t;
+typedef struct vlc_clock_main_t vlc_clock_main_t;
 typedef struct vlc_clock_t vlc_clock_t;
 
 /**
- * This function creates the vlc_clock_master_t of the program
+ * This function creates the vlc_clock_main_t of the program
  */
-vlc_clock_master_t * vlc_clock_master_New();
+vlc_clock_main_t * vlc_clock_main_New();
+
+/**
+ * Destroy the clock main
+ */
+void vlc_clock_main_Delete(vlc_clock_main_t * main);
+
+/**
+ * Abort all the pending vlc_clock_Wait
+ */
+void vlc_clock_main_Abort(vlc_clock_main_t * main);
 
 /**
  * This function set the allocated interface as the master making the current
  * master if any a slave.
  */
-void vlc_clock_SetMaster(vlc_clock_master_t * master, vlc_clock_t * new_master);
+void vlc_clock_SetMaster(vlc_clock_main_t * main, vlc_clock_t * new_master);
 
 /**
  * This function creates a new slave vlc_clock_t interface.
  * You must use vlc_clock_Delete to free it.
  */
-vlc_clock_t * vlc_clock_NewMaster(vlc_clock_master_t * master);
+vlc_clock_t * vlc_clock_NewMaster(vlc_clock_main_t * main);
 
 /**
  * This function creates a new slave vlc_clock_t interface.
  * You must use vlc_clock_Delete to free it.
  */
-vlc_clock_t * vlc_clock_NewSlave(vlc_clock_master_t * master);
+vlc_clock_t * vlc_clock_NewSlave(vlc_clock_main_t * main);
 
 /**
  * This function free the resources allocated by vlc_clock_New
@@ -74,11 +84,6 @@ int vlc_clock_GetRate(vlc_clock_t * clock);
  * Wait for a timestamp expressed in stream time
  */
 int vlc_clock_Wait(vlc_clock_t * clock, mtime_t pts);
-
-/**
- * Abort all the pending vlc_clock_Wait
- */
-void vlc_clock_MasterAbort(vlc_clock_master_t * master);
 
 /**
  * This function converts a timestamp from stream to system
