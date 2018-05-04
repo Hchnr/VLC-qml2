@@ -147,6 +147,8 @@ void aout_DecChangePause(audio_output_t *, bool b_paused, mtime_t i_date);
 void aout_DecChangeRate(audio_output_t *aout, float rate);
 void aout_DecFlush(audio_output_t *, bool wait);
 void aout_RequestRestart (audio_output_t *, unsigned);
+void aout_RequestRetiming(audio_output_t *aout, mtime_t audio_ts,
+                          mtime_t system_ts);
 
 static inline void aout_InputRequestRestart(audio_output_t *aout)
 {
