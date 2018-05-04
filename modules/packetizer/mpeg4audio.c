@@ -215,7 +215,6 @@ static int OpenPacketizer(vlc_object_t *p_this)
     /* Misc init */
     p_sys->i_state = STATE_NOSYNC;
     p_sys->b_discontuinity = false;
-    date_Set(&p_sys->end_date, VLC_TS_INVALID);
     block_BytestreamInit(&p_sys->bytestream);
     p_sys->b_latm_cfg = false;
     p_sys->i_warnings = 0;
@@ -294,6 +293,7 @@ static int OpenPacketizer(vlc_object_t *p_this)
 
     date_Init(&p_sys->end_date, p_dec->fmt_out.audio.i_rate ?
                                 p_dec->fmt_out.audio.i_rate : 48000, 1);
+    date_Set(&p_sys->end_date, VLC_TS_INVALID);
 
     /* Set callbacks */
     p_dec->pf_packetize = Packetize;
@@ -968,7 +968,7 @@ static void SetupOutput(decoder_t *p_dec, block_t *p_block)
         msg_Info(p_dec, "AAC channels: %d samplerate: %d",
                   p_sys->i_channels, p_sys->i_rate);
 
-        date_UpdateRate(&p_sys->end_date, p_sys->i_rate, 1);
+        date_Change(&p_sys->end_date, p_sys->i_rate, 1);
     }
 
     p_dec->fmt_out.audio.i_rate     = p_sys->i_rate;

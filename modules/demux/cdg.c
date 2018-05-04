@@ -100,7 +100,6 @@ static int Open( vlc_object_t * p_this )
 
     /* There is CDG_FRAME_RATE frames per second */
     date_Init( &p_sys->pts, CDG_FRAME_RATE, 1 );
-    date_Set( &p_sys->pts, 0 );
 
     p_demux->pf_demux   = Demux;
     p_demux->pf_control = Control;
