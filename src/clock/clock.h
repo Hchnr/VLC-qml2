@@ -32,13 +32,13 @@ vlc_clock_master_t * vlc_clock_master_New();
 void vlc_clock_SetMaster(vlc_clock_master_t * master, vlc_clock_t * new_master);
 
 /**
- * This function creates a new slave vlc_clock_t.
+ * This function creates a new slave vlc_clock_t interface.
  * You must use vlc_clock_Delete to free it.
  */
 vlc_clock_t * vlc_clock_NewMaster(vlc_clock_master_t * master);
 
 /**
- * This function creates a new slave vlc_clock_t.
+ * This function creates a new slave vlc_clock_t interface.
  * You must use vlc_clock_Delete to free it.
  */
 vlc_clock_t * vlc_clock_NewSlave(vlc_clock_master_t * master);

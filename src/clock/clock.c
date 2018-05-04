@@ -384,6 +384,7 @@ vlc_clock_t * vlc_clock_NewSlave(vlc_clock_master_t * master)
     clk->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
 
     vlc_mutex_lock(&master->lock);
+    clk->rate = master->rate;
     vlc_clock_set_slave_cbk(clk);
     TAB_APPEND(master->nslaves, master->slaves, clk);
     vlc_mutex_unlock(&master->lock);
