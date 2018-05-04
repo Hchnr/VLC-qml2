@@ -21,6 +21,17 @@ typedef struct vlc_clock_master_t vlc_clock_master_t;
 typedef struct vlc_clock_t vlc_clock_t;
 
 /**
+ * This function creates the vlc_clock_master_t of the program
+ */
+vlc_clock_master_t * vlc_clock_master_New();
+
+/**
+ * This function set the allocated interface as the master making the current
+ * master if any a slave.
+ */
+void vlc_clock_SetMaster(vlc_clock_master_t * master, vlc_clock_t * new_master);
+
+/**
  * This function creates a new slave vlc_clock_t.
  * You must use vlc_clock_Delete to free it.
  */
@@ -40,17 +51,13 @@ void vlc_clock_Delete(vlc_clock_t * clock);
 /**
  * This function will update the clock drift and returns the drift
  */
-mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp, mtime_t system_now);
+mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp,
+                         mtime_t system_now, double rate);
 
 /**
  * This function resets the clock drift
  */
 void vlc_clock_Reset(vlc_clock_t * clock);
-
-/**
- * This functions allows changing the actual reading speed.
- */
-void vlc_clock_ChangeRate(vlc_clock_t * clock, int rate);
 
 /**
  * This function allows changing the pause status.
@@ -71,7 +78,7 @@ int vlc_clock_Wait(vlc_clock_t * clock, mtime_t pts);
 /**
  * Abort all the pending vlc_clock_Wait
  */
-void vlc_clock_Abort(vlc_clock_t * clock);
+void vlc_clock_MasterAbort(vlc_clock_master_t * master);
 
 /**
  * This function converts a timestamp from stream to system
