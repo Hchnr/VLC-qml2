@@ -1203,7 +1203,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
 
 static int ThreadDisplayPicture(vout_thread_t *vout, mtime_t *deadline)
 {
-    if (unlikely(vout->p->clock))
+    if (unlikely(!vout->p->clock))
         return VLC_EGENERIC;
 
     bool frame_by_frame = !deadline;
