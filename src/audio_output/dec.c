@@ -34,7 +34,6 @@
 
 #include <vlc_common.h>
 #include <vlc_aout.h>
-#include <vlc_input.h>
 
 #include "aout_internal.h"
 #include "libvlc.h"
@@ -225,10 +224,10 @@ static void aout_DecSilence (audio_output_t *aout, mtime_t length, mtime_t pts)
     aout_OutputPlay (aout, block);
 }
 
-static void aout_DecSynchronize (audio_output_t *aout, mtime_t dec_pts,
-                                 int input_rate)
+static void aout_DecSynchronize(audio_output_t *aout, mtime_t dec_pts)
 {
     aout_owner_t *owner = aout_owner (aout);
+    const float rate = owner->sync.rate;
     mtime_t drift;
 
     /**
@@ -258,7 +257,7 @@ static void aout_DecSynchronize (audio_output_t *aout, mtime_t dec_pts,
      * where supported. The other alternative is to flush the buffers
      * completely. */
     if (drift > (owner->sync.discontinuity ? 0
-                  : +3 * input_rate * AOUT_MAX_PTS_DELAY / INPUT_RATE_DEFAULT))
+                : lroundf(+3 * AOUT_MAX_PTS_DELAY * rate)))
     {
         if (!owner->sync.discontinuity)
             msg_Warn (aout, "playback way too late (%"PRId64"): "
@@ -281,7 +280,7 @@ static void aout_DecSynchronize (audio_output_t *aout, mtime_t dec_pts,
     /* Early audio output.
      * This is rare except at startup when the buffers are still empty. */
     if (drift < (owner->sync.discontinuity ? 0
-                : -3 * input_rate * AOUT_MAX_PTS_ADVANCE / INPUT_RATE_DEFAULT))
+                : lroundf(-3 * AOUT_MAX_PTS_ADVANCE * rate)))
     {
         if (!owner->sync.discontinuity)
             msg_Warn (aout, "playback way too early (%"PRId64"): "
@@ -349,7 +348,6 @@ static void aout_DecSynchronize (audio_output_t *aout, mtime_t dec_pts,
 int aout_DecPlay(audio_output_t *aout, block_t *block)
 {
     aout_owner_t *owner = aout_owner (aout);
-    int input_rate;
 
     assert (block->i_pts != VLC_TS_INVALID);
 
@@ -385,11 +383,7 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
         vlc_mutex_unlock (&owner->vp.lock);
     }
 
-    input_rate = lroundf(owner->sync.rate * 1000.f);
-    assert(input_rate >= INPUT_RATE_DEFAULT / AOUT_MAX_INPUT_RATE);
-    assert(input_rate <= INPUT_RATE_DEFAULT * AOUT_MAX_INPUT_RATE);
-
-    block = aout_FiltersPlay (owner->filters, block, input_rate);
+    block = aout_FiltersPlay(owner->filters, block, owner->sync.rate);
     if (block == NULL)
         goto lost;
 
@@ -397,7 +391,7 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     aout_volume_Amplify (owner->volume, block);
 
     /* Drift correction */
-    aout_DecSynchronize (aout, block->i_pts, input_rate);
+    aout_DecSynchronize(aout, block->i_pts);
 
     /* Output */
     owner->sync.end = block->i_pts + block->i_length + 1;
