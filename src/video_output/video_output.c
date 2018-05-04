@@ -1195,6 +1195,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
     /* Display the direct buffer returned by vout_RenderPicture */
     vout->p->displayed.date = mdate();
     vout_display_Display(vd, todisplay, subpic);
+    todisplay->date = stream_pts;
 
     vout_statistic_AddDisplayed(&vout->p->statistic, 1);
 
