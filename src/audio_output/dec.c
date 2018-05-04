@@ -36,13 +36,14 @@
 #include <vlc_aout.h>
 
 #include "aout_internal.h"
+#include "clock/clock.h"
 #include "libvlc.h"
 
 /**
  * Creates an audio output
  */
 int aout_DecNew( audio_output_t *p_aout,
-                 const audio_sample_format_t *p_format,
+                 const audio_sample_format_t *p_format, vlc_clock_t *clock,
                  const audio_replay_gain_t *p_replay_gain,
                  const aout_request_vout_t *p_request_vout )
 {
@@ -80,6 +81,7 @@ int aout_DecNew( audio_output_t *p_aout,
     atomic_store_explicit(&owner->restart, 0, memory_order_relaxed);
     owner->input_format = *p_format;
     owner->mixer_format = owner->input_format;
+    owner->sync.clock = clock;
     owner->request_vout = *p_request_vout;
 
     owner->filters_cfg = AOUT_FILTERS_CFG_INIT;
@@ -222,7 +224,8 @@ static void aout_DecSilence (audio_output_t *aout, vlc_tick_t length, vlc_tick_t
     block->i_pts = pts;
     block->i_dts = pts;
     block->i_length = length;
-    aout->play(aout, block, pts);
+    aout->play(aout, block,
+               vlc_clock_ConvertToSystem(owner->sync.clock, pts));
 }
 
 static void aout_DecSynchronize(audio_output_t *aout, vlc_tick_t dec_pts)
@@ -257,7 +260,8 @@ void aout_RequestRetiming(audio_output_t *aout, vlc_tick_t audio_ts,
 {
     aout_owner_t *owner = aout_owner (aout);
     const float rate = owner->sync.rate;
-    vlc_tick_t drift = system_ts - audio_ts;
+    vlc_tick_t drift = -vlc_clock_Update(owner->sync.clock, audio_ts, system_ts,
+                                      owner->sync.rate);
 
     /* Late audio output.
      * This can happen due to insufficient caching, scheduling jitter
@@ -275,6 +279,7 @@ void aout_RequestRetiming(audio_output_t *aout, vlc_tick_t audio_ts,
             msg_Dbg (aout, "playback too late (%"PRId64"): "
                      "flushing buffers", drift);
         aout->flush(aout, false);
+        vlc_clock_Reset(owner->sync.clock);
 
         aout_StopResampling (aout);
         owner->sync.end = VLC_TS_INVALID;
@@ -388,7 +393,8 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     /* Output */
     owner->sync.end = block->i_pts + block->i_length + 1;
     owner->sync.discontinuity = false;
-    aout->play(aout, block, block->i_pts);
+    aout->play(aout, block, vlc_clock_ConvertToSystem(owner->sync.clock,
+                                                      block->i_pts));
     atomic_fetch_add_explicit(&owner->buffers_played, 1, memory_order_relaxed);
     return ret;
 drop:
@@ -423,7 +429,14 @@ void aout_DecChangePause (audio_output_t *aout, bool paused, vlc_tick_t date)
     }
 
     if (owner->mixer_format.i_format)
-        aout->pause(aout, paused, date);
+    {
+        if (aout->pause != NULL)
+            aout->pause(aout, paused, date);
+        else if (paused)
+            aout->flush(aout, false);
+    }
+
+    vlc_clock_ChangePause(owner->sync.clock, paused, date);
 }
 
 void aout_DecChangeRate(audio_output_t *aout, float rate)
@@ -444,11 +457,17 @@ void aout_DecFlush (audio_output_t *aout, bool wait)
         {
             block_t *block = aout_FiltersDrain (owner->filters);
             if (block)
-                aout->play(aout, block, block->i_pts);
+            {
+                vlc_tick_t date = vlc_clock_ConvertToSystem(owner->sync.clock,
+                                                         block->i_pts);
+                aout->play(aout, block, date);
+            }
         }
         else
             aout_FiltersFlush (owner->filters);
 
         aout->flush(aout, wait);
+        vlc_clock_Reset(owner->sync.clock);
+
     }
 }

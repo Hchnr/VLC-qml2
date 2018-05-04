@@ -47,6 +47,8 @@ struct aout_request_vout
 typedef struct aout_volume aout_volume_t;
 typedef struct aout_dev aout_dev_t;
 
+struct vlc_clock_t;
+
 typedef struct
 {
     vlc_mutex_t lock;
@@ -71,6 +73,7 @@ typedef struct
     struct
     {
         vlc_tick_t end; /**< Last seen PTS */
+        struct vlc_clock_t *clock;
         float rate; /**< Play-out speed rate */
         vlc_tick_t resamp_start_drift; /**< Resampler drift absolute value */
         int resamp_type; /**< Resampler mode (FIXME: redundant / resampling) */
@@ -139,6 +142,7 @@ bool aout_ChangeFilterString( vlc_object_t *manager, vlc_object_t *aout,
 #define AOUT_DEC_FAILED VLC_EGENERIC
 
 int aout_DecNew(audio_output_t *, const audio_sample_format_t *,
+                struct vlc_clock_t *clock,
                 const audio_replay_gain_t *, const aout_request_vout_t *);
 void aout_DecDelete(audio_output_t *);
 int aout_DecPlay(audio_output_t *aout, block_t *block);
