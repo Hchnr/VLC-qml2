@@ -54,6 +54,7 @@
 #include "display.h"
 #include "window.h"
 #include "../misc/variables.h"
+#include "../clock/clock.h"
 
 /*****************************************************************************
  * Local prototypes
@@ -871,15 +872,18 @@ static int ThreadDisplayPreparePicture(vout_thread_t *vout, bool reuse, bool fra
             decoded = picture_Hold(vout->p->displayed.decoded);
         } else {
             decoded = picture_fifo_Pop(vout->p->decoder_fifo);
+
             if (decoded) {
                 if (is_late_dropped && !decoded->b_force) {
+                    const mtime_t date = mdate();
+                    const mtime_t system_pts =
+                        vlc_clock_ConvertToSystem(vout->p->clock, decoded->date);
+                    const mtime_t late = date - system_pts;
                     mtime_t late_threshold;
                     if (decoded->format.i_frame_rate && decoded->format.i_frame_rate_base)
                         late_threshold = ((CLOCK_FREQ/2) * decoded->format.i_frame_rate_base) / decoded->format.i_frame_rate;
                     else
                         late_threshold = VOUT_DISPLAY_LATE_THRESHOLD;
-                    const mtime_t predicted = mdate() + 0; /* TODO improve */
-                    const mtime_t late = predicted - decoded->date;
                     if (late > late_threshold) {
                         msg_Warn(vout, "picture is too late to be displayed (missing %"PRId64" ms)", late/1000);
                         picture_Release(decoded);
@@ -1151,6 +1155,9 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
         return VLC_EGENERIC;
     }
 
+    const mtime_t stream_pts = todisplay->date;
+    todisplay->date = vlc_clock_ConvertToSystem(vout->p->clock, stream_pts);
+
     if (sys->display.use_dr) {
         vout_display_Prepare(vd, todisplay, subpic);
     } else {
@@ -1182,11 +1189,12 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
         msg_Warn(vout, "picture is late (%lld ms)", delay / 1000);
 #endif
     if (!is_forced)
-        mwait(todisplay->date);
+        vlc_clock_Wait(vout->p->clock, stream_pts);
 
     /* Display the direct buffer returned by vout_RenderPicture */
-    vout->p->displayed.date = mdate();
+    vout->p->displayed.date = todisplay->date;
     vout_display_Display(vd, todisplay, subpic);
+    todisplay->date = stream_pts;
 
     vout_statistic_AddDisplayed(&vout->p->statistic, 1);
 
@@ -1195,6 +1203,9 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
 
 static int ThreadDisplayPicture(vout_thread_t *vout, mtime_t *deadline)
 {
+    if (unlikely(!vout->p->clock))
+        return VLC_EGENERIC;
+
     bool frame_by_frame = !deadline;
     bool paused = vout->p->pause.is_on;
     bool first = !vout->p->displayed.current;
@@ -1207,14 +1218,21 @@ static int ThreadDisplayPicture(vout_thread_t *vout, mtime_t *deadline)
         while (!vout->p->displayed.next && !ThreadDisplayPreparePicture(vout, false, frame_by_frame))
             ;
 
-    const mtime_t date = mdate();
     const mtime_t render_delay = vout_chrono_GetHigh(&vout->p->render) + VOUT_MWAIT_TOLERANCE;
 
+fprintf(stderr, "render_delay: %" PRId64 " date: %" PRId64 " % "PRId64 "\n", render_delay, vout->p->displayed.date, VLC_TS_INVALID);
     bool drop_next_frame = frame_by_frame;
     mtime_t date_next = VLC_TS_INVALID;
+
+
     if (!paused && vout->p->displayed.next) {
-        date_next = vout->p->displayed.next->date - render_delay;
-        if (date_next /* + 0 FIXME */ <= date)
+        const mtime_t current_system_pts =
+            vlc_clock_ConvertToSystem(vout->p->clock, vout->p->displayed.current->date);
+        const mtime_t next_system_pts =
+            vlc_clock_ConvertToSystem(vout->p->clock, vout->p->displayed.next->date);
+
+        date_next = next_system_pts - current_system_pts - render_delay;
+        if (date_next <= 0)
             drop_next_frame = true;
     }
 
@@ -1232,7 +1250,8 @@ static int ThreadDisplayPicture(vout_thread_t *vout, mtime_t *deadline)
     mtime_t date_refresh = VLC_TS_INVALID;
     if (vout->p->displayed.date != VLC_TS_INVALID) {
         date_refresh = vout->p->displayed.date + VOUT_REDISPLAY_DELAY - render_delay;
-        refresh = date_refresh <= date;
+        refresh = date_refresh <= mdate();
+fprintf(stderr, "refresh: %d %" PRId64 "\n", refresh, date_refresh);
     }
     bool force_refresh = !drop_next_frame && refresh;
 
