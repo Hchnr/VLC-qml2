@@ -71,6 +71,12 @@ static int var_CopyDevice (vlc_object_t *src, const char *name,
     return var_Set (dst, "audio-device", value);
 }
 
+static void aout_TimingNotify(audio_output_t *aout, mtime_t audio_ts,
+                              mtime_t system_ts)
+{
+    aout_RequestRetiming(aout, audio_ts, system_ts);
+}
+
 /**
  * Supply or update the current custom ("hardware") volume.
  * @param volume current custom volume
@@ -160,6 +166,7 @@ static int aout_GainNotify (audio_output_t *aout, float gain)
 }
 
 static const struct vlc_audio_output_events aout_events = {
+    aout_TimingNotify,
     aout_VolumeNotify,
     aout_MuteNotify,
     aout_PolicyNotify,
