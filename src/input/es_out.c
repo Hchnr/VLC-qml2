@@ -42,6 +42,7 @@
 
 #include "input_internal.h"
 #include "../clock/input_clock.h"
+#include "../clock/clock.h"
 #include "decoder.h"
 #include "es_out.h"
 #include "event.h"
@@ -69,7 +70,9 @@ typedef struct
     bool b_scrambled;
 
     /* Clock for this program */
-    input_clock_t *p_input_clock;
+    input_clock_t    *p_input_clock;
+    vlc_clock_main_t *p_main_clock;
+    vlc_clock_t      *p_master_clock;
 
     vlc_meta_t *p_meta;
 } es_out_pgrm_t;
@@ -91,6 +94,7 @@ struct es_out_id_t
 
     decoder_t   *p_dec;
     decoder_t   *p_dec_record;
+    vlc_clock_t *p_clock;
 
     /* Fields for Video with CC */
     struct
@@ -519,7 +523,7 @@ static int EsOutSetRecord(  es_out_t *out, bool b_record )
             if( !p_es->p_dec || p_es->p_master )
                 continue;
 
-            p_es->p_dec_record = input_DecoderNew( p_input, &p_es->fmt, p_es->p_pgrm->p_input_clock, p_sys->p_sout_record );
+            p_es->p_dec_record = input_DecoderNew( p_input, &p_es->fmt, NULL, p_sys->p_sout_record );
             if( p_es->p_dec_record && p_sys->b_buffering )
                 input_DecoderStartWait( p_es->p_dec_record );
         }
@@ -1093,9 +1097,17 @@ static es_out_pgrm_t *EsOutProgramAdd( es_out_t *out, int i_group )
     p_pgrm->b_selected = false;
     p_pgrm->b_scrambled = false;
     p_pgrm->p_meta = NULL;
+    p_pgrm->p_master_clock = NULL;
     p_pgrm->p_input_clock = input_clock_New( p_sys->i_rate );
     if( !p_pgrm->p_input_clock )
     {
+        free( p_pgrm );
+        return NULL;
+    }
+    p_pgrm->p_main_clock = vlc_clock_main_New();
+    if( !p_pgrm->p_main_clock )
+    {
+        input_clock_Delete( p_pgrm->p_input_clock );
         free( p_pgrm );
         return NULL;
     }
@@ -1152,6 +1164,7 @@ static int EsOutProgramDel( es_out_t *out, int i_group )
         p_sys->p_pgrm = NULL;
 
     input_clock_Delete( p_pgrm->p_input_clock );
+    vlc_clock_main_Delete( p_pgrm->p_main_clock );
 
     if( p_pgrm->p_meta )
         vlc_meta_Delete( p_pgrm->p_meta );
@@ -1684,7 +1697,15 @@ static void EsCreateDecoder( es_out_t *out, es_out_id_t *p_es )
     es_out_sys_t   *p_sys = out->p_sys;
     input_thread_t *p_input = p_sys->p_input;
 
-    p_es->p_dec = input_DecoderNew( p_input, &p_es->fmt, p_es->p_pgrm->p_input_clock, input_priv(p_input)->p_sout );
+    if( p_es->fmt.i_cat == AUDIO_ES && p_es->p_pgrm->p_master_clock == NULL )
+        p_es->p_pgrm->p_master_clock = p_es->p_clock =
+            vlc_clock_NewMaster( p_es->p_pgrm->p_main_clock );
+    else
+        p_es->p_clock = vlc_clock_NewSlave( p_es->p_pgrm->p_main_clock );
+    if( !p_es->p_clock )
+        return;
+
+    p_es->p_dec = input_DecoderNew( p_input, &p_es->fmt, p_es->p_clock, input_priv(p_input)->p_sout );
     if( p_es->p_dec )
     {
         if( p_sys->b_buffering )
@@ -1692,7 +1713,7 @@ static void EsCreateDecoder( es_out_t *out, es_out_id_t *p_es )
 
         if( !p_es->p_master && p_sys->p_sout_record )
         {
-            p_es->p_dec_record = input_DecoderNew( p_input, &p_es->fmt, p_es->p_pgrm->p_input_clock, p_sys->p_sout_record );
+            p_es->p_dec_record = input_DecoderNew( p_input, &p_es->fmt, NULL, p_sys->p_sout_record );
             if( p_es->p_dec_record && p_sys->b_buffering )
                 input_DecoderStartWait( p_es->p_dec_record );
         }
@@ -1709,6 +1730,10 @@ static void EsDestroyDecoder( es_out_t *out, es_out_id_t *p_es )
 
     input_DecoderDelete( p_es->p_dec );
     p_es->p_dec = NULL;
+    if( p_es->p_pgrm->p_master_clock == p_es->p_clock )
+        p_es->p_pgrm->p_master_clock = NULL;
+    vlc_clock_Delete( p_es->p_clock );
+    p_es->p_clock = NULL;
 
     if( p_es->p_dec_record )
     {
