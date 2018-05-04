@@ -47,7 +47,7 @@ void AvgReset(average_t *avg)
     avg->count = 0;
 }
 
-void AvgUpdate(average_t *avg, mtime_t value)
+void AvgUpdate(average_t *avg, float value)
 {
     const int new_value_weight = 1;
     int average_weight;
