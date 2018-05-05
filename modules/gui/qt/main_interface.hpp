@@ -268,7 +268,7 @@ protected slots:
     void setRaise();
     void voutReleaseMouseEvents();
 
-    void showResumePanel( int64_t);
+    void showResumePanel( mtime_t );
     void hideResumePanel();
     void resumePlayback();
     void onInputChanged( bool );

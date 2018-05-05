@@ -209,7 +209,7 @@ private:
     void refresh();
 private slots:
     void setRemainingTime( bool );
-    void setDisplayPosition( float pos, int64_t time, int length );
+    void setDisplayPosition( float pos, mtime_t time, int length );
     void setDisplayPosition( float pos );
 signals:
     void broadcastRemainingTime( bool );

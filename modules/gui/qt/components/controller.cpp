@@ -357,7 +357,7 @@ QWidget *AbstractController::createWidget( buttonType_e button, int options )
 
         /* Update the position when the IM has changed */
         CONNECT( THEMIM->getIM(), positionUpdated( float, mtime_t, int ),
-                slider, setPosition( float, int64_t, int ) );
+                slider, setPosition( float, mtime_t, int ) );
         /* And update the IM, when the position has changed */
         CONNECT( slider, sliderDragged( float ),
                  THEMIM->getIM(), sliderUpdate( float ) );

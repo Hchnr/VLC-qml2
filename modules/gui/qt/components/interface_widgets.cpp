@@ -937,7 +937,7 @@ TimeLabel::TimeLabel( intf_thread_t *_p_intf, TimeLabel::Display _displayType  )
              this, setDisplayPosition( float ) );
 
     CONNECT( THEMIM->getIM(), positionUpdated( float, mtime_t, int ),
-              this, setDisplayPosition( float, int64_t, int ) );
+              this, setDisplayPosition( float, mtime_t, int ) );
 
     connect( this, SIGNAL( broadcastRemainingTime( bool ) ),
          THEMIM->getIM(), SIGNAL( remainingTimeChanged( bool ) ) );
@@ -962,7 +962,7 @@ void TimeLabel::refresh()
     setDisplayPosition( cachedPos, cachedTime, cachedLength );
 }
 
-void TimeLabel::setDisplayPosition( float pos, int64_t t, int length )
+void TimeLabel::setDisplayPosition( float pos, mtime_t t, int length )
 {
     cachedPos = pos;
     if( pos == -1.f )
