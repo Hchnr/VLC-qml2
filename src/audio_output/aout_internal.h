@@ -75,7 +75,7 @@ typedef struct
         mtime_t end; /**< Last seen PTS */
         struct vlc_clock_t *clock;
         float rate; /**< Play-out speed rate */
-        unsigned resamp_start_drift; /**< Resampler drift absolute value */
+        mtime_t resamp_start_drift; /**< Resampler drift absolute value */
         int resamp_type; /**< Resampler mode (FIXME: redundant / resampling) */
         bool discontinuity;
     } sync;
