@@ -64,8 +64,6 @@ struct vlc_clock_t
     mtime_t (*to_system)(vlc_clock_t * clock, mtime_t pts);
 
     vlc_clock_main_t * owner;
-    //float rate;
-   // clock_point_t last;
 };
 
 static mtime_t main_system_to_stream(vlc_clock_main_t * main_clock,
