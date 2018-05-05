@@ -321,7 +321,7 @@ struct demux_cc
             mtime_t time = getTime();
             if( time >= 0 )
             {
-                *va_arg(args, int64_t *) = time;
+                *va_arg(args, mtime_t *) = time;
                 return VLC_SUCCESS;
             }
             return VLC_EGENERIC;

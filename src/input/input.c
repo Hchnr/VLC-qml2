@@ -2759,7 +2759,7 @@ static void InputSourceMeta( input_thread_t *p_input,
 
 static void SlaveDemux( input_thread_t *p_input )
 {
-    int64_t i_time;
+    mtime_t i_time;
     int i;
 
     if( demux_Control( input_priv(p_input)->master->p_demux, DEMUX_GET_TIME, &i_time ) )
@@ -2781,7 +2781,7 @@ static void SlaveDemux( input_thread_t *p_input )
         {
             for( ;; )
             {
-                int64_t i_stime;
+                mtime_t i_stime;
                 if( demux_Control( in->p_demux, DEMUX_GET_TIME, &i_stime ) )
                 {
                     msg_Err( p_input, "slave[%d] doesn't like "
@@ -2815,7 +2815,7 @@ static void SlaveDemux( input_thread_t *p_input )
 
 static void SlaveSeek( input_thread_t *p_input )
 {
-    int64_t i_time;
+    mtime_t i_time;
     int i;
 
     if( demux_Control( input_priv(p_input)->master->p_demux, DEMUX_GET_TIME, &i_time ) )
@@ -3235,7 +3235,7 @@ static int input_SlaveSourceAdd( input_thread_t *p_input,
     {
         if( b_set_time )
         {
-            int64_t i_time;
+            mtime_t i_time;
 
             /* Set position */
             if( demux_Control( input_priv(p_input)->master->p_demux,

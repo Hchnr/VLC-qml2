@@ -1933,11 +1933,11 @@ static int blurayControl(demux_t *p_demux, int query, va_list args)
     }
     case DEMUX_GET_TIME:
     {
-        int64_t *pi_time = va_arg(args, int64_t *);
+        mtime_t *pi_time = va_arg(args, mtime_t *);
         if(p_sys->cur_title < p_sys->i_title &&
            (CURRENT_TITLE->i_flags & INPUT_TITLE_INTERACTIVE))
                 return VLC_EGENERIC;
-        *pi_time = (int64_t)FROM_TICKS(bd_tell_time(p_sys->bluray));
+        *pi_time = (mtime_t)FROM_TICKS(bd_tell_time(p_sys->bluray));
         return VLC_SUCCESS;
     }
 

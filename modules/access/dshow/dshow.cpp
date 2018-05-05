@@ -1964,7 +1964,7 @@ static int AccessControl( stream_t *p_access, int i_query, va_list args )
 static int DemuxControl( demux_t *p_demux, int i_query, va_list args )
 {
     bool    *pb;
-    int64_t *pi64;
+    mtime_t *pi64;
 
     access_sys_t *p_sys = ( access_sys_t * ) p_demux->p_sys;
 
@@ -1985,7 +1985,7 @@ static int DemuxControl( demux_t *p_demux, int i_query, va_list args )
         return VLC_SUCCESS;
 
     case DEMUX_GET_TIME:
-        pi64 = va_arg( args, int64_t * );
+        pi64 = va_arg( args, mtime_t * );
         *pi64 = mdate() - p_sys->i_start;
         return VLC_SUCCESS;
 

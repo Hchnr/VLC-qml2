@@ -356,7 +356,7 @@ static int Control(demux_t *demux, int query, va_list ap)
     switch (query)
     {
         case DEMUX_GET_TIME:
-            *(va_arg(ap, int64_t *)) = mdate() - sys->start_time;
+            *(va_arg(ap, mtime_t *)) = mdate() - sys->start_time;
             break;
 
         case DEMUX_GET_PTS_DELAY:

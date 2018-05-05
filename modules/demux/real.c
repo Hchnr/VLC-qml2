@@ -140,7 +140,7 @@ typedef struct
     size_t     i_buffer;
     uint8_t buffer[65536];
 
-    int64_t     i_pcr;
+    mtime_t     i_pcr;
 
     int64_t     i_index_offset;
     bool        b_seek;
@@ -409,11 +409,9 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
 
         case DEMUX_GET_TIME:
-            pi64 = va_arg( args, int64_t * );
-
             if( p_sys->i_our_duration > 0 )
             {
-                *pi64 = p_sys->i_pcr != VLC_TS_INVALID ? p_sys->i_pcr : 0;
+                *va_arg( args, mtime_t * ) = p_sys->i_pcr != VLC_TS_INVALID ? p_sys->i_pcr : 0;
                 return VLC_SUCCESS;
             }
 
@@ -421,11 +419,11 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             i64 = stream_Size( p_demux->s );
             if( p_sys->i_our_duration > 0 && i64 > 0 )
             {
-                *pi64 = (int64_t)( 1000.0 * p_sys->i_our_duration * vlc_stream_Tell( p_demux->s ) / i64 );
+                *va_arg( args, mtime_t * ) = (mtime_t)( ms_to_mtime( p_sys->i_our_duration) * vlc_stream_Tell( p_demux->s ) / i64 );
                 return VLC_SUCCESS;
             }
 
-            *pi64 = 0;
+            *va_arg( args, mtime_t * ) = 0;
             return VLC_EGENERIC;
 
         case DEMUX_SET_POSITION:
@@ -442,7 +440,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             {
                 /* it is a rtsp stream , it is specials in access/rtsp/... */
                 msg_Dbg(p_demux, "Seek in real rtsp stream!");
-                p_sys->i_pcr = INT64_C(1000) * ( p_sys->i_our_duration * f  );
+                p_sys->i_pcr = ms_to_mtime( p_sys->i_our_duration * f  );
                 p_sys->b_seek = true;
                 return vlc_stream_Seek( p_demux->s, p_sys->i_pcr );
             }
@@ -922,7 +920,7 @@ static int ControlGoToIndex( demux_t *p_demux, real_index_t *p_index )
     demux_sys_t *p_sys = p_demux->p_sys;
 
     p_sys->b_seek = true;
-    p_sys->i_pcr = INT64_C(1000) * p_index->i_time_offset;
+    p_sys->i_pcr = ms_to_mtime(p_index->i_time_offset);
     for( int i = 0; i < p_sys->i_track; i++ )
         p_sys->track[i]->i_last_dts = 0;
     return vlc_stream_Seek( p_demux->s, p_index->i_file_offset );

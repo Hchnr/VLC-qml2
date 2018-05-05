@@ -729,24 +729,23 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             break;
 
         case DEMUX_GET_TIME:
-            pi64 = va_arg( args, int64_t * );
             if( p_sys->i_time_track_index >= 0 && p_sys->i_current_pts > 0 )
             {
-                *pi64 = p_sys->i_current_pts - p_sys->tk[p_sys->i_time_track_index].i_first_pts;
+                *va_arg( args, mtime_t * ) = p_sys->i_current_pts - p_sys->tk[p_sys->i_time_track_index].i_first_pts;
                 return VLC_SUCCESS;
             }
             if( p_sys->i_first_scr > -1 && p_sys->i_scr > -1 )
             {
-                *pi64 = p_sys->i_scr - p_sys->i_first_scr;
+                *va_arg( args, mtime_t * ) = p_sys->i_scr - p_sys->i_first_scr;
                 /* H.222 2.5.2.2 */
                 if( p_sys->i_mux_rate > 0 && p_sys->b_have_pack )
                 {
                     uint64_t i_offset = vlc_stream_Tell( p_demux->s ) - p_sys->i_lastpack_byte;
-                    *pi64 += CLOCK_FREQ * i_offset / (p_sys->i_mux_rate * 50);
+                    *va_arg( args, mtime_t * ) += CLOCK_FREQ * i_offset / (p_sys->i_mux_rate * 50);
                 }
                 return VLC_SUCCESS;
             }
-            *pi64 = 0;
+            *va_arg( args, mtime_t * ) = 0;
             break;
 
         case DEMUX_GET_LENGTH:

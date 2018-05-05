@@ -255,7 +255,7 @@ static int Control(demux_t *demux, int query, va_list args)
         return VLC_SUCCESS;
     }
     case DEMUX_GET_TIME: {
-        int64_t *time = va_arg(args, int64_t *);
+        mtime_t *time = va_arg(args, mtime_t *);
         *time = sys->pts_origin + date_Get(&sys->pts);
         return VLC_SUCCESS;
     }

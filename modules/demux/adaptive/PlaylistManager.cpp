@@ -548,7 +548,7 @@ int PlaylistManager::doControl(int i_query, va_list args)
         case DEMUX_GET_TIME:
         {
             vlc_mutex_locker locker(&cached.lock);
-            *(va_arg (args, int64_t *)) = cached.i_time;
+            *(va_arg (args, mtime_t *)) = cached.i_time;
             break;
         }
 

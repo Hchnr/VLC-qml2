@@ -1974,11 +1974,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             else return VLC_EGENERIC;
 
         case DEMUX_GET_TIME:
-            pi64 = va_arg( args, int64_t * );
-            if( p_sys->i_timescale > 0 )
-                *pi64 = p_sys->i_nztime;
-            else
-                *pi64 = 0;
+            *va_arg( args, mtime_t * ) = p_sys->i_timescale > 0 ? p_sys->i_nztime : 0;
             return VLC_SUCCESS;
 
         case DEMUX_SET_TIME:

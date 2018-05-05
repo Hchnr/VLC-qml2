@@ -319,7 +319,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
 
 #if 0
         case DEMUX_GET_TIME:
-            pi64 = va_arg( args, int64_t * );
+            pi64 = va_arg( args, mtime_t * );
             if( p_sys->i_time < 0 )
             {
                 *pi64 = 0;

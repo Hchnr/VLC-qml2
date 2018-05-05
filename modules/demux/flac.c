@@ -434,7 +434,7 @@ static int64_t ControlGetLength( demux_t *p_demux )
     return i_length;
 }
 
-static int64_t ControlGetTime( demux_t *p_demux )
+static mtime_t ControlGetTime( demux_t *p_demux )
 {
     demux_sys_t *p_sys = p_demux->p_sys;
     return p_sys->i_pts;
@@ -552,7 +552,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
     }
     else if( i_query == DEMUX_GET_TIME )
     {
-        int64_t *pi64 = va_arg( args, int64_t * );
+        mtime_t *pi64 = va_arg( args, mtime_t * );
         *pi64 = ControlGetTime( p_demux );
         return VLC_SUCCESS;
     }
@@ -561,10 +561,10 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         const int64_t i_length = ControlGetLength(p_demux);
         if( i_length > 0 )
         {
-            double current = ControlGetTime(p_demux);
+            mtime_t current = ControlGetTime(p_demux);
             if( current <= i_length )
             {
-                *(va_arg( args, double * )) = current / (double)i_length;
+                *(va_arg( args, double * )) = (double)current / (double)i_length;
                 return VLC_SUCCESS;
             }
         }

@@ -1514,10 +1514,9 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
     switch( i_query )
     {
         case DEMUX_GET_TIME:
-            pi64 = va_arg( args, int64_t * );
             if( p_sys->f_npt > 0 )
             {
-                *pi64 = (int64_t)(p_sys->f_npt * (double)CLOCK_FREQ);
+                *va_arg( args, mtime_t * ) = (int64_t)(p_sys->f_npt * (double)CLOCK_FREQ);
                 return VLC_SUCCESS;
             }
             return VLC_EGENERIC;
