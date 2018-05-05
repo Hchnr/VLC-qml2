@@ -1926,7 +1926,7 @@ vlc_module_begin ()
     add_integer( "clock-synchro", -1, CLOCK_SYNCHRO_TEXT,
                  CLOCK_SYNCHRO_LONGTEXT, true )
         change_integer_list( pi_clock_values, ppsz_clock_descriptions )
-    add_integer( "clock-jitter", 5 * CLOCK_FREQ/1000, CLOCK_JITTER_TEXT,
+    add_integer( "clock-jitter", ms_to_mtime(5), CLOCK_JITTER_TEXT,
               CLOCK_JITTER_LONGTEXT, true )
         change_safe()
     add_integer( "clock-master", VLC_CLOCK_MASTER_DEFAULT,
