@@ -46,6 +46,8 @@
 #include <vlc_aout.h>
 #include <vlc_vout.h>
 
+#include "clock/clock.h"
+
 static const char *const ppsz_snap_formats[] =
 { "png", "jpg", "tiff" };
 
@@ -531,6 +533,19 @@ static const char *const ppsz_pos_descriptions[] =
 #define CLOCK_JITTER_LONGTEXT N_( \
     "This defines the maximum input delay jitter that the synchronization " \
     "algorithms should try to compensate (in milliseconds)." )
+
+#define CLOCK_MASTER_TEXT N_("Clock master source")
+
+static const int pi_clock_master_values[] = {
+    VLC_CLOCK_MASTER_AUDIO,
+    VLC_CLOCK_MASTER_VIDEO,
+    VLC_CLOCK_MASTER_MONOTONIC,
+};
+static const char *const ppsz_clock_master_descriptions[] = {
+    N_("Audio"),
+    N_("Video"),
+    N_("Monotonic")
+};
 
 #define NETSYNC_TEXT N_("Network synchronisation" )
 #define NETSYNC_LONGTEXT N_( "This allows you to remotely " \
@@ -1914,6 +1929,9 @@ vlc_module_begin ()
     add_integer( "clock-jitter", 5 * CLOCK_FREQ/1000, CLOCK_JITTER_TEXT,
               CLOCK_JITTER_LONGTEXT, true )
         change_safe()
+    add_integer( "clock-master", VLC_CLOCK_MASTER_DEFAULT,
+                 CLOCK_MASTER_TEXT, NULL, true )
+        change_integer_list( pi_clock_master_values, ppsz_clock_master_descriptions )
 
     add_bool( "network-synchronisation", false, NETSYNC_TEXT,
               NETSYNC_LONGTEXT, true )
