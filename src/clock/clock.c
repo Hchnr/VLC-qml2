@@ -232,7 +232,6 @@ static mtime_t vlc_clock_slave_to_system_locked(vlc_clock_main_t * main_clock,
         }
         system = (pts - main_clock->wait_sync_ref.stream) / main_clock->rate;
         system += main_clock->wait_sync_ref.system;
-        printf("%lld -> %lld (in %lld)\n", (long long) pts, (long long) system, (long long) system - mdate());
     }
     return system;
 }
