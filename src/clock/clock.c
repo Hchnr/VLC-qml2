@@ -252,7 +252,7 @@ static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
 static mtime_t vlc_clock_slave_update(vlc_clock_t * clock, mtime_t timestamp,
                                       mtime_t system_now, float rate)
 {
-
+    VLC_UNUSED(rate);
     mtime_t computed = vlc_clock_slave_to_system(clock, timestamp);
     return (computed - system_now);
 }
