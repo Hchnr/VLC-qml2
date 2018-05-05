@@ -437,6 +437,8 @@ void aout_DecChangePause (audio_output_t *aout, bool paused, mtime_t date)
         else if (paused)
             aout->flush(aout, false);
     }
+
+    vlc_clock_ChangePause(owner->sync.clock, paused, date);
 }
 
 void aout_DecChangeRate(audio_output_t *aout, float rate)
