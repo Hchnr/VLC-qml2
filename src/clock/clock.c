@@ -119,9 +119,10 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
 static void vlc_clock_main_reset(vlc_clock_main_t * main_clock)
 {
     main_clock->coeff = 1.0f;
-    /* TODO Reset coeff avg */
+    /* Reset coeff avg */
+    AvgReset(&main_clock->coeff_avg);
     main_clock->offset = VLC_TS_INVALID;
-    main_clock->rate = 1.0f;
+    main_clock->rate = 1.0f; /* FIXME shall we reset the rate? */
     vlc_cond_broadcast(&main_clock->cond);
 }
 
@@ -338,6 +339,13 @@ void vlc_clock_main_Abort(vlc_clock_main_t * main_clock)
     main_clock->abort = true;
     vlc_cond_broadcast(&main_clock->cond);
 
+    vlc_mutex_unlock(&main_clock->lock);
+}
+
+void vlc_clock_main_Reset(vlc_clock_main_t * main_clock)
+{
+    vlc_mutex_lock(&main_clock->lock);
+    vlc_clock_main_reset(main_clock);
     vlc_mutex_unlock(&main_clock->lock);
 }
 
