@@ -20,6 +20,14 @@
 #ifndef LIBVLC_CLOCK_H
 #define LIBVLC_CLOCK_H
 
+enum vlc_clock_master_source
+{
+    VLC_CLOCK_MASTER_AUDIO = 0,
+    VLC_CLOCK_MASTER_VIDEO,
+    VLC_CLOCK_MASTER_MONOTONIC,
+    VLC_CLOCK_MASTER_DEFAULT = VLC_CLOCK_MASTER_AUDIO,
+};
+
 typedef struct vlc_clock_main_t vlc_clock_main_t;
 typedef struct vlc_clock_t vlc_clock_t;
 
