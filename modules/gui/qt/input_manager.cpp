@@ -954,14 +954,14 @@ void InputManager::setAtoB()
         timeB = var_GetInteger( p_mim->getInput(), "time"  );
         var_SetInteger( p_mim->getInput(), "time" , timeA );
         CONNECT( this, positionUpdated( float, mtime_t, int ),
-                 this, AtoBLoop( float, int64_t, int ) );
+                 this, AtoBLoop( float, mtime_t, int ) );
     }
     else
     {
         timeA = 0;
         timeB = 0;
         disconnect( this, SIGNAL( positionUpdated( float, mtime_t, int ) ),
-                    this, SLOT( AtoBLoop( float, int64_t, int ) ) );
+                    this, SLOT( AtoBLoop( float, mtime_t, int ) ) );
     }
     emit AtoBchanged( (timeA != 0 ), (timeB != 0 ) );
 }
