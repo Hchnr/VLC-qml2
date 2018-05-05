@@ -108,12 +108,15 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
         main_clock->coeff = AvgGet(&main_clock->coeff_avg);
         /* TODO handle rate change?*/
     }
+    else
+        main_clock->wait_sync_ref =
+            clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
+
     main_clock->offset = system_now - pts * main_clock->coeff / rate;
 
     if (pts != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
         main_clock->last = clock_point_Create(pts, system_now);
 
-    main_clock->wait_sync_ref = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
     vlc_cond_broadcast(&main_clock->cond);
     vlc_mutex_unlock(&main_clock->lock);
     return 0;
