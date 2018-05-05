@@ -287,15 +287,9 @@
  * arithmetic operators, and that no special functions are required.
  */
 typedef int64_t mtime_t;
-static inline mtime_t ms_to_mtime(int64_t ms)
-{
-    return ms * CLOCK_FREQ / 1000;
-}
-static inline int64_t mtime_to_ms(mtime_t m)
-{
-    return m * 1000 / CLOCK_FREQ;
-}
 
+#define ms_to_mtime(ms) ((ms) * (CLOCK_FREQ / 1000))
+#define mtime_to_ms(ms) (((ms) * 1000) / CLOCK_FREQ)
 
 /**
  * The vlc_fourcc_t type.
