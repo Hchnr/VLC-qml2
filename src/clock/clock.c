@@ -180,6 +180,9 @@ static mtime_t vlc_clock_master_to_system(vlc_clock_t * clock, mtime_t pts)
     mtime_t system;
     vlc_mutex_lock(&main_clock->lock);
     system = main_stream_to_system(main_clock, pts);
+    /* FIXME introduce the initial jitter */
+    if (system == VLC_TS_INVALID)
+        system = mdate() + main_clock->dejitter;
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
