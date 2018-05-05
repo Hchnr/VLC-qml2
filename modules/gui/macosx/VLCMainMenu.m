@@ -838,7 +838,7 @@
         /* we can obviously only do that if an input is available */
         int64_t length = var_GetInteger(p_input, "length");
         [_timeSelectionPanel setMaxValue:(length / CLOCK_FREQ)];
-        int64_t pos = var_GetInteger(p_input, "time");
+        mtime_t pos = var_GetInteger(p_input, "time");
         [_timeSelectionPanel setJumpTimeValue: (pos / CLOCK_FREQ)];
         [_timeSelectionPanel runModalForWindow:[NSApp mainWindow]
                              completionHandler:^(NSInteger returnCode, int64_t returnTime) {
