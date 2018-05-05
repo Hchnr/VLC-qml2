@@ -279,6 +279,7 @@ void aout_RequestRetiming(audio_output_t *aout, mtime_t audio_ts,
             msg_Dbg (aout, "playback too late (%"PRId64"): "
                      "flushing buffers", drift);
         aout->flush(aout, false);
+        vlc_clock_Reset(owner->sync.clock);
 
         aout_StopResampling (aout);
         owner->sync.end = VLC_TS_INVALID;
@@ -466,5 +467,7 @@ void aout_DecFlush (audio_output_t *aout, bool wait)
             aout_FiltersFlush (owner->filters);
 
         aout->flush(aout, wait);
+        vlc_clock_Reset(owner->sync.clock);
+
     }
 }
