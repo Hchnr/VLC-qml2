@@ -99,14 +99,14 @@ mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t pts);
 mtime_t vlc_clock_ConvertToStream(vlc_clock_t * clock, mtime_t system);
 
 /**
- * This function sets the synchronization delay ie the maximum delay before
- * the synchro is considered to kick in
+ * This function sets the dejitter delay to absorb the clock jitter
+ * also used as the ma1ximum delay before the synchro is considered to kick in
  */
-void vlc_clock_SetJitter(vlc_clock_t * clock, mtime_t delay, int cr_avg);
+void vlc_clock_SetDejitter(vlc_clock_t * clock, mtime_t delay, int cr_avg);
 
 /**
  * This function retrieves the synchronization delay
  */
-mtime_t vlc_clock_GetJitter(vlc_clock_t * clock);
+mtime_t vlc_clock_GetDejitter(vlc_clock_t * clock);
 
 #endif /*LIBVLC_CLOCK_H*/
