@@ -1597,11 +1597,11 @@ int libvlc_media_player_get_full_chapter_descriptions( libvlc_media_player_t *p_
         }
         (*pp_chapters)[i] = p_chapter;
 
-        p_chapter->i_time_offset = p_seekpoint[i]->i_time_offset / 1000;
+        p_chapter->i_time_offset = mtime_to_ms( p_seekpoint[i]->i_time_offset );
 
         if( i < ci_chapter_count - 1 )
         {
-            p_chapter->i_duration = p_seekpoint[i + 1]->i_time_offset / 1000 -
+            p_chapter->i_duration = mtime_to_ms( p_seekpoint[i + 1]->i_time_offset ) -
                                     p_chapter->i_time_offset;
         }
         else

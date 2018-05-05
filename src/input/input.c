@@ -2123,7 +2123,7 @@ static bool Control( input_thread_t *p_input,
 
             if( i_type == INPUT_CONTROL_SET_SEEKPOINT_PREV )
             {
-                int64_t i_seekpoint_time = input_priv(p_input)->master->title[i_title]->seekpoint[i_seekpoint]->i_time_offset;
+                mtime_t i_seekpoint_time = input_priv(p_input)->master->title[i_title]->seekpoint[i_seekpoint]->i_time_offset;
                 int64_t i_input_time = var_GetInteger( p_input, "time" );
                 if( i_seekpoint_time >= 0 && i_input_time >= 0 )
                 {

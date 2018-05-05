@@ -539,8 +539,8 @@ void vorbis_ParseComment( es_format_t *p_fmt, vlc_meta_t **pp_meta,
                 {
                     p_seekpoint = getChapterEntry( i_chapt, &chapters_array );
                     if ( ! p_seekpoint ) goto next_comment;
-                    p_seekpoint->i_time_offset =
-                      (((int64_t)h * 3600 + (int64_t)m * 60 + (int64_t)s) * 1000 + ms) * 1000;
+                    p_seekpoint->i_time_offset = CLOCK_FREQ *
+                      ((int64_t)h * 3600 + (int64_t)m * 60 + (int64_t)s) + ms_to_mtime(ms);
                 }
             }
         }

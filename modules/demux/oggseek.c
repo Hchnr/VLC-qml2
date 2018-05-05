@@ -895,7 +895,7 @@ static int64_t OggBisectSearchByTime( demux_t *p_demux, logical_stream_t *p_stre
  *************************************************************************/
 
 int Oggseek_BlindSeektoAbsoluteTime( demux_t *p_demux, logical_stream_t *p_stream,
-                                     int64_t i_time, bool b_fastseek )
+                                     mtime_t i_time, bool b_fastseek )
 {
     demux_sys_t *p_sys  = p_demux->p_sys;
     int64_t i_lowerpos = -1;

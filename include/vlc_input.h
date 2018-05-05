@@ -49,7 +49,7 @@
  *****************************************************************************/
 struct seekpoint_t
 {
-    int64_t i_time_offset;
+    mtime_t i_time_offset;
     char    *psz_name;
 };
 

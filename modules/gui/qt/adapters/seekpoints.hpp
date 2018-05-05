@@ -42,7 +42,7 @@ public:
         time = seekpoint->i_time_offset;
         name = QString::fromUtf8( seekpoint->psz_name );
     };
-    int64_t time;
+    mtime_t time;
     QString name;
 };
 
