@@ -173,11 +173,11 @@ int RecentsMRL::time( const QString &mrl )
         return -1;
 }
 
-void RecentsMRL::setTime( const QString &mrl, const int64_t time )
+void RecentsMRL::setTime( const QString &mrl, const mtime_t time )
 {
     int i_index = recents.indexOf( mrl );
     if( i_index != -1 )
-        times[i_index] = QString::number( time / 1000 );
+        times[i_index] = QString::number( mtime_to_ms( time ) );
 }
 
 int Open::openMRL( intf_thread_t *p_intf,

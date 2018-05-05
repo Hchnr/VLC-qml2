@@ -62,7 +62,7 @@ public:
     QSignalMapper *signalMapper;
 
     int time( const QString &mrl );
-    void setTime( const QString &mrl, const int64_t time );
+    void setTime( const QString &mrl, const mtime_t time );
 
 private:
     RecentsMRL( intf_thread_t* _p_intf );
