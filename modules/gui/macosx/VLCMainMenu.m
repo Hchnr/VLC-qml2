@@ -836,7 +836,7 @@
     input_thread_t *p_input = pl_CurrentInput(getIntf());
     if (p_input) {
         /* we can obviously only do that if an input is available */
-        int64_t length = var_GetInteger(p_input, "length");
+        mtime_t length = var_GetInteger(p_input, "length");
         [_timeSelectionPanel setMaxValue:(length / CLOCK_FREQ)];
         mtime_t pos = var_GetInteger(p_input, "time");
         [_timeSelectionPanel setJumpTimeValue: (pos / CLOCK_FREQ)];
