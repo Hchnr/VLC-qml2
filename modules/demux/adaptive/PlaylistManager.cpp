@@ -604,7 +604,7 @@ int PlaylistManager::doControl(int i_query, va_list args)
                 return VLC_EGENERIC;
             }
 
-            int64_t time = va_arg(args, int64_t);// + getFirstPlaybackTime();
+            mtime_t time = va_arg(args, mtime_t);// + getFirstPlaybackTime();
             if(!setPosition(time))
             {
                 setBufferingRunState(true);

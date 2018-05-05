@@ -1505,7 +1505,6 @@ static int Demux( demux_t *p_demux )
 static int Control( demux_t *p_demux, int i_query, va_list args )
 {
     demux_sys_t *p_sys = (demux_sys_t *)p_demux->p_sys;
-    int64_t *pi64, i64;
     double  *pf, f;
     bool *pb;
 
@@ -1550,8 +1549,8 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
 
                 if( (i_query == DEMUX_SET_TIME) && (p_sys->f_npt > 0) )
                 {
-                    i64 = va_arg( args, int64_t );
-                    time = (float)(i64 / 1000000.0); /* in second */
+                    mtime_t i64 = va_arg( args, mtime_t );
+                    time = (float)i64 / (float)CLOCK_FREQ; /* in second */
                 }
                 else if( i_query == DEMUX_SET_TIME )
                     return VLC_EGENERIC;

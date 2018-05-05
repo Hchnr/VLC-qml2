@@ -1034,7 +1034,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
 
         case DEMUX_SET_TIME:
         {
-            i64 = va_arg( args, int64_t );
+            mtime_t i64 = va_arg( args, mtime_t );
             i64 = i64 * AV_TIME_BASE / CLOCK_FREQ + i_start_time;
 
             msg_Warn( p_demux, "DEMUX_SET_TIME: %"PRId64, i64 );

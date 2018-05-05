@@ -999,7 +999,8 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         break;
 
     case DEMUX_SET_TIME:
-        i64 = va_arg( args, int64_t );
+    {
+        mtime_t i64 = va_arg( args, mtime_t );
 
         if( p_sys->b_canseek && p_pmt && p_pmt->pcr.i_first > -1 &&
            !SeekToTime( p_demux, p_pmt, p_pmt->pcr.i_first + TO_SCALE(i64) ) )
@@ -1010,6 +1011,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
         }
         break;
+    }
 
     case DEMUX_GET_TIME:
         if( p_sys->b_access_control )

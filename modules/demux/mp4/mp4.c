@@ -1979,12 +1979,14 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
 
         case DEMUX_SET_TIME:
-            i64 = va_arg( args, int64_t );
+        {
+            mtime_t i64 = va_arg( args, mtime_t );
             b = va_arg( args, int );
             if ( p_demux->pf_demux == DemuxFrag )
                 return FragSeekToTime( p_demux, i64, b );
             else
                 return Seek( p_demux, i64, b );
+        }
 
         case DEMUX_GET_LENGTH:
             pi64 = va_arg( args, mtime_t * );

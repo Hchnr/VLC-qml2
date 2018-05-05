@@ -1687,7 +1687,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
 {
     demux_sys_t *p_sys = p_demux->p_sys;
     double   f, *pf;
-    int64_t i64, *pi64;
+    mtime_t i64, *pi64;
     bool b;
     vlc_meta_t *p_meta;
 
@@ -1722,7 +1722,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         {
             f = 0;
 
-            i64 = va_arg( args, int64_t );
+            i64 = va_arg( args, mtime_t );
             b = va_arg( args, int );
             if( !p_sys->b_seekable )
             {

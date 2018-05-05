@@ -375,7 +375,8 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_EGENERIC;
 
         case DEMUX_SET_TIME:
-            i64 = va_arg( args, int64_t );
+        {
+            mtime_t i64 = va_arg( args, mtime_t );
 #ifndef HAVE_MPC_MPCDEC_H
             if( mpc_decoder_seek_sample( &p_sys->decoder, i64 ) )
 #else
@@ -386,6 +387,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
                 return VLC_SUCCESS;
             }
             return VLC_EGENERIC;
+        }
 
         case DEMUX_CAN_PAUSE:
         case DEMUX_SET_PAUSE_STATE:

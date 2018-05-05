@@ -115,7 +115,7 @@ typedef struct
     es_out_id_t *es;
 
     date_t      pts;
-    int64_t     i_length;
+    mtime_t     i_length;
 
     int         i_data;
     uint8_t     *p_data;
@@ -218,11 +218,11 @@ static int Open( vlc_object_t *p_this )
     /* init time */
     date_Init( &p_sys->pts, settings.mFrequency, 1 );
     date_Set( &p_sys->pts, 0 );
-    p_sys->i_length = ModPlug_GetLength( p_sys->f ) * INT64_C(1000);
+    p_sys->i_length = ms_to_mtime( ModPlug_GetLength( p_sys->f ) );
 
     msg_Dbg( p_demux, "MOD loaded name=%s length=%"PRId64"ms",
              ModPlug_GetName( p_sys->f ),
-             p_sys->i_length );
+             mtime_to_ms( p_sys->i_length ) );
 
 #ifdef WORDS_BIGENDIAN
     es_format_Init( &p_sys->fmt, AUDIO_ES, VLC_FOURCC( 't', 'w', 'o', 's' ) );
@@ -329,16 +329,16 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         return VLC_SUCCESS;
 
     case DEMUX_GET_LENGTH:
-        pi64 = va_arg( args, int64_t * );
+        pi64 = va_arg( args, mtime_t * );
         *pi64 = p_sys->i_length;
         return VLC_SUCCESS;
 
     case DEMUX_SET_TIME:
-        i64 = va_arg( args, int64_t );
+        i64 = va_arg( args, mtime_t );
 
         if( i64 >= 0 && i64 <= p_sys->i_length )
         {
-            ModPlug_Seek( p_sys->f, i64 / 1000 );
+            ModPlug_Seek( p_sys->f, mtime_to_ms( i64 ) );
             date_Set( &p_sys->pts, i64 );
 
             return VLC_SUCCESS;

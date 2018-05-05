@@ -1926,7 +1926,7 @@ static int blurayControl(demux_t *p_demux, int query, va_list args)
     }
     case DEMUX_SET_TIME:
     {
-        int64_t i_time = va_arg(args, int64_t);
+        mtime_t i_time = va_arg(args, mtime_t);
         bd_seek_time(p_sys->bluray, TO_TICKS(i_time));
         notifyDiscontinuity( p_sys );
         return VLC_SUCCESS;

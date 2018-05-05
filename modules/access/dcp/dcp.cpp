@@ -773,7 +773,7 @@ static int Control( demux_t *p_demux, int query, va_list args )
 {
     double f,*pf;
     bool *pb;
-    int64_t *pi64, i64;
+    mtime_t i64;
     demux_sys_t *p_sys = (demux_sys_t *)p_demux->p_sys;
 
     switch ( query )
@@ -819,12 +819,12 @@ static int Control( demux_t *p_demux, int query, va_list args )
             break;
 
         case DEMUX_SET_TIME:
-            i64 = va_arg( args, int64_t );
+            i64 = va_arg( args, mtime_t );
             msg_Warn( p_demux, "DEMUX_SET_TIME"  );
             p_sys->frame_no = i64 * p_sys->frame_rate_num / ( CLOCK_FREQ * p_sys->frame_rate_denom );
-            p_sys->i_pts= i64;
+            p_sys->i_pts = i64;
             es_out_SetPCR(p_demux->out, p_sys->i_pts);
-            es_out_Control( p_demux->out, ES_OUT_SET_NEXT_DISPLAY_TIME, ( mtime_t ) i64 );
+            es_out_Control( p_demux->out, ES_OUT_SET_NEXT_DISPLAY_TIME, i64 );
             break;
         case DEMUX_GET_PTS_DELAY:
             *va_arg( args, mtime_t * ) =

@@ -1002,7 +1002,8 @@ static int Demux( demux_t *p_demux )
  *****************************************************************************/
 static int Control( demux_t *p_demux, int i_query, va_list args )
 {
-    int64_t i64, *pi64, i_sample;
+    mtime_t i64, *pi64;
+    int64_t i_sample;
     double f, *pf;
     frame_span_t position;
 
@@ -1039,7 +1040,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
 
         case DEMUX_SET_TIME:
-            i64 = va_arg( args, int64_t );
+            i64 = va_arg( args, mtime_t );
             i_sample = i64 * p_sys->fmt.audio.i_rate / CLOCK_FREQ;
             if( SetSpanWithSample( p_demux, &position, i_sample ))
                 return VLC_EGENERIC;

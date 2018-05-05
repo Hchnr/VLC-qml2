@@ -766,13 +766,15 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             break;
 
         case DEMUX_SET_TIME:
-            i64 = va_arg( args, int64_t );
+        {
+            mtime_t i64 = va_arg( args, mtime_t );
             if( p_sys->i_time_track_index >= 0 && p_sys->i_current_pts > 0 && p_sys->i_length )
             {
                 i64 -= p_sys->tk[p_sys->i_time_track_index].i_first_pts;
                 return demux_Control( p_demux, DEMUX_SET_POSITION, (double) i64 / p_sys->i_length );
             }
             break;
+        }
 
         case DEMUX_GET_TITLE_INFO:
         {

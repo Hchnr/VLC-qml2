@@ -1868,7 +1868,7 @@ static bool Control( input_thread_t *p_input,
 
         case INPUT_CONTROL_SET_TIME:
         {
-            int64_t i_time;
+            mtime_t i_time;
             int i_ret;
 
             if( input_priv(p_input)->b_recording )

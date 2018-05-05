@@ -434,7 +434,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         case DEMUX_SET_TIME:
             if( p_sys->mllt.p_bits )
             {
-                int64_t i_time = va_arg(args, int64_t);
+                mtime_t i_time = va_arg(args, mtime_t);
                 uint64_t i_pos = SeekByMlltTable( p_demux, &i_time );
                 int i_ret = vlc_stream_Seek( p_demux->s, p_sys->i_stream_offset + i_pos );
                 if( i_ret != VLC_SUCCESS )

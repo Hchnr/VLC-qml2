@@ -274,8 +274,7 @@ int demux_vaControlHelper( stream_t *s,
 {
     int64_t i_tell;
     double  f, *pf;
-    int64_t i64;
-    mtime_t *pi64;
+    mtime_t i64;
 
     if( i_end < 0 )    i_end   = stream_Size( s );
     if( i_start < 0 )  i_start = 0;
@@ -351,7 +350,7 @@ int demux_vaControlHelper( stream_t *s,
             return VLC_EGENERIC;
 
         case DEMUX_SET_TIME:
-            i64 = (int64_t)va_arg( args, int64_t );
+            i64 = (mtime_t)va_arg( args, mtime_t );
             if( i_bitrate > 0 && i64 >= 0 )
             {
                 int64_t i_block = i64 * i_bitrate / INT64_C(8000000) / i_align;

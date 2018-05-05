@@ -450,8 +450,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             if( !p_sys->p_index )
                 return VLC_EGENERIC;
 
-            i64 = va_arg( args, int64_t );
-            return ControlSeekTime( p_demux, i64 );
+            return ControlSeekTime( p_demux, va_arg( args, mtime_t ) );
 
         case DEMUX_GET_LENGTH:
             pi64 = va_arg( args, mtime_t * );

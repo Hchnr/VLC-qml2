@@ -521,7 +521,7 @@ static int Control (demux_t *demux, int i_query, va_list args)
             *va_arg (args, mtime_t *) = sys->tick;
             break;
         case DEMUX_SET_TIME:
-            return Seek (demux, va_arg (args, int64_t));
+            return Seek (demux, va_arg (args, mtime_t));
 
         case DEMUX_CAN_PAUSE:
         case DEMUX_SET_PAUSE_STATE:
