@@ -113,6 +113,7 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
     if (pts != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
         main_clock->last = clock_point_Create(pts, system_now);
 
+    main_clock->wait_sync_ref = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
     vlc_cond_broadcast(&main_clock->cond);
     vlc_mutex_unlock(&main_clock->lock);
     return 0;
@@ -255,7 +256,10 @@ static mtime_t vlc_clock_slave_update(vlc_clock_t * clock, mtime_t timestamp,
 
 static void vlc_clock_slave_reset(vlc_clock_t * clock)
 {
-    VLC_UNUSED(clock);
+    vlc_clock_main_t * main_clock = clock->owner;
+    vlc_mutex_lock(&main_clock->lock);
+    main_clock->wait_sync_ref = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
+    vlc_mutex_unlock(&main_clock->lock);
 }
 
 static void vlc_clock_slave_pause(vlc_clock_t * clock, bool paused, mtime_t now)
