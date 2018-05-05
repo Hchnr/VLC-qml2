@@ -25,6 +25,7 @@
 #define LIBVLC_INPUT_RESOURCE_H 1
 
 #include <vlc_common.h>
+#include "../clock/clock.h"
 
 /**
  * This function set the associated input.
@@ -39,7 +40,7 @@ sout_instance_t *input_resource_RequestSout( input_resource_t *, sout_instance_t
 /**
  * This function handles vout request.
  */
-vout_thread_t *input_resource_RequestVout( input_resource_t *, vout_thread_t *,
+vout_thread_t *input_resource_RequestVout( input_resource_t *, vout_thread_t *, vlc_clock_t *clock,
                                            const video_format_t *, unsigned dpb_size, bool b_recycle );
 
 /**
