@@ -291,7 +291,7 @@ static int vlm_MediaVodControl( void *p_private, vod_media_t *p_vod_media,
     case VOD_MEDIA_PLAY:
     {
         psz = (const char *)va_arg( args, const char * );
-        int64_t *i_time = (int64_t *)va_arg( args, int64_t *);
+        mtime_t *i_time = va_arg( args, mtime_t *);
         bool b_retry = false;
         if (*i_time < 0)
         {
@@ -317,7 +317,7 @@ static int vlm_MediaVodControl( void *p_private, vod_media_t *p_vod_media,
 
     case VOD_MEDIA_PAUSE:
     {
-        int64_t *i_time = (int64_t *)va_arg( args, int64_t *);
+        mtime_t *i_time = va_arg( args, mtime_t *);
         i_ret = vlm_ControlInternal( vlm, VLM_PAUSE_MEDIA_INSTANCE, id, psz_id );
         if (!i_ret)
             i_ret = vlm_ControlInternal( vlm, VLM_GET_MEDIA_INSTANCE_TIME, id, psz_id, i_time );
@@ -330,7 +330,7 @@ static int vlm_MediaVodControl( void *p_private, vod_media_t *p_vod_media,
 
     case VOD_MEDIA_SEEK:
     {
-        int64_t i_time = (int64_t)va_arg( args, int64_t );
+        mtime_t i_time = va_arg( args, mtime_t );
         i_ret = vlm_ControlInternal( vlm, VLM_SET_MEDIA_INSTANCE_TIME, id, psz_id, i_time );
         break;
     }
@@ -1063,7 +1063,7 @@ static int vlm_ControlMediaInstancePause( vlm_t *p_vlm, int64_t id, const char *
         var_SetInteger( p_instance->p_input, "state", PAUSE_S );
     return VLC_SUCCESS;
 }
-static int vlm_ControlMediaInstanceGetTimePosition( vlm_t *p_vlm, int64_t id, const char *psz_id, int64_t *pi_time, double *pd_position )
+static int vlm_ControlMediaInstanceGetTimePosition( vlm_t *p_vlm, int64_t id, const char *psz_id, mtime_t *pi_time, double *pd_position )
 {
     vlm_media_sys_t *p_media = vlm_ControlMediaGetById( p_vlm, id );
     vlm_media_instance_sys_t *p_instance;
@@ -1081,7 +1081,7 @@ static int vlm_ControlMediaInstanceGetTimePosition( vlm_t *p_vlm, int64_t id, co
         *pd_position = var_GetFloat( p_instance->p_input, "position" );
     return VLC_SUCCESS;
 }
-static int vlm_ControlMediaInstanceSetTimePosition( vlm_t *p_vlm, int64_t id, const char *psz_id, int64_t i_time, double d_position )
+static int vlm_ControlMediaInstanceSetTimePosition( vlm_t *p_vlm, int64_t id, const char *psz_id, mtime_t i_time, double d_position )
 {
     vlm_media_sys_t *p_media = vlm_ControlMediaGetById( p_vlm, id );
     vlm_media_instance_sys_t *p_instance;
@@ -1169,8 +1169,8 @@ static int vlm_vaControlInternal( vlm_t *p_vlm, int i_query, va_list args )
     int i_int;
     int *pi_int;
 
-    int64_t *pi_i64;
-    int64_t i_i64;
+    mtime_t *pi_i64;
+    mtime_t i_i64;
     double *pd_double;
     double d_double;
 
@@ -1249,7 +1249,7 @@ static int vlm_vaControlInternal( vlm_t *p_vlm, int i_query, va_list args )
     case VLM_GET_MEDIA_INSTANCE_TIME:
         id = (int64_t)va_arg( args, int64_t );
         psz_id = (const char*)va_arg( args, const char* );
-        pi_i64 = (int64_t*)va_arg( args, int64_t * );
+        pi_i64 = (int64_t*)va_arg( args, mtime_t * );
         return vlm_ControlMediaInstanceGetTimePosition( p_vlm, id, psz_id, pi_i64, NULL );
     case VLM_GET_MEDIA_INSTANCE_POSITION:
         id = (int64_t)va_arg( args, int64_t );
@@ -1260,7 +1260,7 @@ static int vlm_vaControlInternal( vlm_t *p_vlm, int i_query, va_list args )
     case VLM_SET_MEDIA_INSTANCE_TIME:
         id = (int64_t)va_arg( args, int64_t );
         psz_id = (const char*)va_arg( args, const char* );
-        i_i64 = (int64_t)va_arg( args, int64_t);
+        i_i64 = (int64_t)va_arg( args, mtime_t);
         return vlm_ControlMediaInstanceSetTimePosition( p_vlm, id, psz_id, i_i64, -1 );
     case VLM_SET_MEDIA_INSTANCE_POSITION:
         id = (int64_t)va_arg( args, int64_t );

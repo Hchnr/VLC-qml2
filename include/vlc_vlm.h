@@ -73,7 +73,7 @@ typedef struct
 {
     char *psz_name;         /*< vlm media instance descriptive name */
 
-    int64_t     i_time;     /*< vlm media instance vlm media current time */
+    mtime_t     i_time;     /*< vlm media instance vlm media current time */
     int64_t     i_length;   /*< vlm media instance vlm media item length */
     double      d_position; /*< vlm media instance position in stream */
     bool        b_paused;   /*< vlm media instance is paused */
@@ -148,9 +148,9 @@ enum vlm_query_e
     /* Pause an instance */
     VLM_PAUSE_MEDIA_INSTANCE,           /* arg1=int64_t id, arg2=const char *psz_instance_name      res=can fail */
     /* Get instance position time (in microsecond) */
-    VLM_GET_MEDIA_INSTANCE_TIME,        /* arg1=int64_t id, arg2=const char *psz_instance_name arg3=int64_t *   */
+    VLM_GET_MEDIA_INSTANCE_TIME,        /* arg1=int64_t id, arg2=const char *psz_instance_name arg3=mtime_t *   */
     /* Set instance position time (in microsecond) */
-    VLM_SET_MEDIA_INSTANCE_TIME,        /* arg1=int64_t id, arg2=const char *psz_instance_name arg3=int64_t     */
+    VLM_SET_MEDIA_INSTANCE_TIME,        /* arg1=int64_t id, arg2=const char *psz_instance_name arg3=mtime_t     */
     /* Get instance position ([0.0 .. 1.0]) */
     VLM_GET_MEDIA_INSTANCE_POSITION,    /* arg1=int64_t id, arg2=const char *psz_instance_name arg3=double *   */
     /* Set instance position ([0.0 .. 1.0]) */

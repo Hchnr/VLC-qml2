@@ -422,16 +422,16 @@ static int ExecuteControl( vlm_t *p_vlm, const char *psz_name, const int i_arg, 
             if( strstr( psz_argument, "ms" ) || strstr( psz_argument, "s" ) )
             {
                 /* Time (ms or s) */
-                int64_t i_new_time;
+                mtime_t i_new_time;
 
                 if( strstr( psz_argument, "ms" ) )
-                    i_new_time =  1000 * (int64_t)atoi( psz_argument );
+                    i_new_time =  ms_to_mtime(atoi( psz_argument ));
                 else
-                    i_new_time = 1000000 * (int64_t)atoi( psz_argument );
+                    i_new_time = CLOCK_FREQ * atoi( psz_argument );
 
                 if( b_relative )
                 {
-                    int64_t i_time = 0;
+                    mtime_t i_time = 0;
                     vlm_ControlInternal( p_vlm, VLM_GET_MEDIA_INSTANCE_TIME, p_media->cfg.id, psz_instance, &i_time );
                     i_new_time += i_time;
                 }
