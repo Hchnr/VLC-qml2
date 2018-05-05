@@ -82,7 +82,7 @@ static void* Thread( void* data )
             if( item )
             {
                 if( item->timeout > 0 )
-                    worker->head.deadline = mdate() + item->timeout * 1000;
+                    worker->head.deadline = mdate() + ms_to_mtime(item->timeout);
                 else
                     worker->head.deadline = INT64_MAX;
             }
