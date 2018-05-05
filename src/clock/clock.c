@@ -327,6 +327,13 @@ void vlc_clock_main_Abort(vlc_clock_main_t * main_clock)
     vlc_mutex_unlock(&main_clock->lock);
 }
 
+void vlc_clock_main_Reset(vlc_clock_main_t * main_clock)
+{
+    vlc_mutex_lock(&main_clock->lock);
+    vlc_clock_main_reset(main_clock);
+    vlc_mutex_unlock(&main_clock->lock);
+}
+
 void vlc_clock_main_Delete(vlc_clock_main_t * main_clock)
 {
     while (main_clock->nslaves != 0)
