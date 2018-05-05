@@ -436,6 +436,20 @@ static inline int aout_TimeGetDefault(audio_output_t *aout,
     return -1;
 }
 
+/**
+ * Default implementation for audio_output_t.pause
+ *
+ * \warning This default callback implementation is suboptimal as it will
+ * discard some audio samples.
+ * Do not use this unless there are really no possible better alternatives.
+ */
+static inline void aout_PauseDefault(audio_output_t *aout, bool paused,
+                                     mtime_t date)
+{
+    if (paused && aout->flush != NULL)
+        aout->flush(aout, false);
+}
+
 /* Audio output filters */
 
 typedef struct
