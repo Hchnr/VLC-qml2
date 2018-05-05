@@ -385,7 +385,7 @@ static int Control( stream_t *p_access, int i_query, va_list args )
 {
     access_sys_t *sys = p_access->p_sys;
     bool         *pb_bool;
-    int64_t      *pi_64;
+    mtime_t      *pi_64;
     double       *pf1, *pf2;
     frontend_statistic_t stat;
 
@@ -404,7 +404,7 @@ static int Control( stream_t *p_access, int i_query, va_list args )
             return VLC_SUCCESS;
 
         case STREAM_GET_PTS_DELAY:
-            pi_64 = va_arg( args, int64_t * );
+            pi_64 = va_arg( args, mtime_t * );
             *pi_64 = DEFAULT_PTS_DELAY;
             break;
 

@@ -313,7 +313,7 @@ static int FileControl( stream_t *p_access, int i_query, va_list args )
 {
     access_sys_t *p_sys = p_access->p_sys;
     bool    *pb_bool;
-    int64_t *pi_64;
+    mtime_t *pi_64;
 
     switch( i_query )
     {
@@ -340,12 +340,11 @@ static int FileControl( stream_t *p_access, int i_query, va_list args )
         }
 
         case STREAM_GET_PTS_DELAY:
-            pi_64 = va_arg( args, int64_t * );
+            pi_64 = va_arg( args, mtime_t * );
             if (IsRemote (p_sys->fd, p_access->psz_filepath))
-                *pi_64 = var_InheritInteger (p_access, "network-caching");
+                *pi_64 = ms_to_mtime( var_InheritInteger (p_access, "network-caching") );
             else
-                *pi_64 = var_InheritInteger (p_access, "file-caching");
-            *pi_64 *= 1000;
+                *pi_64 = ms_to_mtime (var_InheritInteger (p_access, "file-caching") );
             break;
 
         case STREAM_SET_PAUSE_STATE:

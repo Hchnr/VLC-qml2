@@ -540,8 +540,8 @@ static int Control (stream_t *access, int query, va_list args)
 
         case STREAM_GET_PTS_DELAY:
         {
-            int64_t *v = va_arg (args, int64_t *);
-            *v = var_InheritInteger (access, "live-caching") * INT64_C(1000);
+            mtime_t *v = va_arg (args, mtime_t *);
+            *v = ms_to_mtime( var_InheritInteger (access, "live-caching") );
             break;
         }
 

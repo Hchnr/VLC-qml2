@@ -347,7 +347,7 @@ static int ControlAccess(stream_t *access, int i_query, va_list args)
         return *s ? VLC_SUCCESS : VLC_EGENERIC;
     }
     case STREAM_GET_PTS_DELAY: {
-        int64_t *delay = va_arg(args, int64_t *);
+        mtime_t *delay = va_arg(args, mtime_t *);
         *delay = DEFAULT_PTS_DELAY; /* FIXME? */
         return VLC_SUCCESS;
     }

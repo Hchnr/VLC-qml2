@@ -1918,7 +1918,7 @@ static int AccessControl( stream_t *p_access, int i_query, va_list args )
 {
     access_sys_t *sys = (access_sys_t *)p_access->p_sys;
     bool    *pb_bool;
-    int64_t *pi_64;
+    mtime_t *pi_64;
 
     switch( i_query )
     {
@@ -1931,9 +1931,9 @@ static int AccessControl( stream_t *p_access, int i_query, va_list args )
         break;
 
     case STREAM_GET_PTS_DELAY:
-        pi_64 = va_arg( args, int64_t * );
+        pi_64 = va_arg( args, mtime_t * );
         *pi_64 =
-            INT64_C(1000) * var_InheritInteger( p_access, "live-caching" );
+            ms_to_mtime(var_InheritInteger( p_access, "live-caching" ));
         break;
 
     case STREAM_GET_CONTENT_TYPE:

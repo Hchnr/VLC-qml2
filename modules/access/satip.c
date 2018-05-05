@@ -557,7 +557,7 @@ static block_t* satip_block(stream_t *access, bool *restrict eof) {
 
 static int satip_control(stream_t *access, int i_query, va_list args) {
     bool *pb_bool;
-    int64_t *pi_64;
+    mtime_t *pi_64;
 
     switch(i_query)
     {
@@ -569,8 +569,8 @@ static int satip_control(stream_t *access, int i_query, va_list args) {
             break;
 
         case STREAM_GET_PTS_DELAY:
-            pi_64 = va_arg(args, int64_t *);
-            *pi_64 = INT64_C(1000) * var_InheritInteger(access, "live-caching");
+            pi_64 = va_arg(args, mtime_t *);
+            *pi_64 = ms_to_mtime( var_InheritInteger(access, "live-caching") );
             break;
 
         default:

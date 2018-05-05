@@ -102,7 +102,7 @@ static int Control (stream_t *access, int query, va_list args)
 
         case STREAM_GET_PTS_DELAY:
         {
-            int64_t *dp = va_arg(args, int64_t *);
+            mtime_t *dp = va_arg(args, mtime_t *);
             *dp = DEFAULT_PTS_DELAY;
             return VLC_SUCCESS;
         }

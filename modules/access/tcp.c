@@ -41,7 +41,7 @@ static ssize_t Read(stream_t *access, void *buf, size_t len)
 static int Control( stream_t *p_access, int i_query, va_list args )
 {
     bool    *pb_bool;
-    int64_t *pi_64;
+    mtime_t *pi_64;
 
     switch( i_query )
     {
@@ -60,9 +60,9 @@ static int Control( stream_t *p_access, int i_query, va_list args )
             break;
 
         case STREAM_GET_PTS_DELAY:
-            pi_64 = va_arg( args, int64_t * );
-            *pi_64 = INT64_C(1000)
-                   * var_InheritInteger( p_access, "network-caching" );
+            pi_64 = va_arg( args, mtime_t * );
+            *pi_64 = ms_to_mtime(
+                   var_InheritInteger( p_access, "network-caching" ) );
             break;
 
         case STREAM_SET_PAUSE_STATE:

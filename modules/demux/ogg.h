@@ -185,7 +185,7 @@ typedef struct
     mtime_t i_nzpcr_offset;
     /* informative only */
     mtime_t i_pcr_jitter;
-    int64_t i_access_delay;
+    mtime_t i_access_delay;
 
     /* new stream or starting from a chain */
     bool b_chained_boundary;

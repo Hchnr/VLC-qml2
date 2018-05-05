@@ -156,7 +156,7 @@ int ChunksSourceStream::control_Callback(stream_t *s, int i_query, va_list args)
         break;
 
         case STREAM_GET_PTS_DELAY:
-            *(va_arg( args, uint64_t * )) = DEFAULT_PTS_DELAY;
+            *(va_arg( args, mtime_t * )) = DEFAULT_PTS_DELAY;
             return VLC_SUCCESS;
 
         default:

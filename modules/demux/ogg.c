@@ -686,7 +686,7 @@ static int Demux( demux_t * p_demux )
                 p_sys->i_pcr_jitter = i_pcr_jitter;
                 if ( p_sys->i_access_delay < i_pcr_jitter )
                     msg_Warn( p_demux, "Consider increasing access caching variable from %"PRId64" to >%"PRId64,
-                              p_sys->i_access_delay / 1000, i_pcr_jitter / 1000 );
+                              mtime_to_ms(p_sys->i_access_delay), i_pcr_jitter / 1000 );
             }
         }
 
