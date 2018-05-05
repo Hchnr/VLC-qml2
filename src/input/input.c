@@ -2127,7 +2127,7 @@ static bool Control( input_thread_t *p_input,
                 int64_t i_input_time = var_GetInteger( p_input, "time" );
                 if( i_seekpoint_time >= 0 && i_input_time >= 0 )
                 {
-                    if( i_input_time < i_seekpoint_time + 3000000 )
+                    if( i_input_time < i_seekpoint_time + 3*CLOCK_FREQ )
                         i_seekpoint--;
                 }
                 else
