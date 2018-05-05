@@ -111,7 +111,7 @@ NSString *const kVLCMediaUnknown = @"Unknown";
     assert(p_input != nil);
 
     char psz_time[MSTRTIME_MAX_SIZE];
-    int64_t t = var_GetInteger(p_input, "time");
+    mtime_t t = var_GetInteger(p_input, "time");
 
     mtime_t dur = input_item_GetDuration(input_GetItem(p_input));
     if (b_negative && dur > 0) {

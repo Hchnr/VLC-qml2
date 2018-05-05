@@ -633,8 +633,8 @@ static int InputEvent(vlc_object_t *p_this, const char *psz_var,
     NSMutableDictionary *mutDict = [[NSMutableDictionary alloc] initWithDictionary:[defaults objectForKey:@"recentlyPlayedMedia"]];
 
     float relativePos = var_GetFloat(p_input_thread, "position");
-    mtime_t pos = var_GetInteger(p_input_thread, "time") / CLOCK_FREQ;
-    mtime_t dur = input_item_GetDuration(p_item) / CLOCK_FREQ;
+    int pos = var_GetInteger(p_input_thread, "time") / CLOCK_FREQ;
+    int dur = input_item_GetDuration(p_item) / CLOCK_FREQ;
 
     NSMutableArray *mediaList = [[defaults objectForKey:@"recentlyPlayedMediaList"] mutableCopy];
 

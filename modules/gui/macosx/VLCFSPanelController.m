@@ -253,7 +253,7 @@ static NSString *kAssociatedFullscreenRect = @"VLCFullscreenAssociatedWindowRect
     [_timeSlider setFloatValue:f_updated];
 
 
-    int64_t t = var_GetInteger(p_input, "time");
+    mtime_t t = var_GetInteger(p_input, "time");
     mtime_t dur = input_item_GetDuration(input_GetItem(p_input));
 
     /* Update total duration (right field) */
