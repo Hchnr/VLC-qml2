@@ -1525,7 +1525,7 @@ static void *DecoderThread( void *p_data )
             rate = p_owner->rate;
             vlc_fifo_Unlock( p_owner->p_fifo );
 
-            msg_Dbg( p_dec, "toggling %s", paused ? "resume" : "pause" );
+            msg_Dbg( p_dec, "changing rate: %f", rate );
             if( p_owner->p_vout != NULL )
                 vout_ChangeRate( p_owner->p_vout, rate );
             if( p_owner->p_aout != NULL )

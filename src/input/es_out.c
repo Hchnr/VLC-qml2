@@ -1724,6 +1724,7 @@ static void EsCreateDecoder( es_out_t *out, es_out_id_t *p_es )
 {
     es_out_sys_t   *p_sys = out->p_sys;
     input_thread_t *p_input = p_sys->p_input;
+    decoder_t *dec;
 
     if( p_es->fmt.i_cat != UNKNOWN_ES
      && p_es->fmt.i_cat == p_sys->i_master_source_cat
@@ -1735,9 +1736,8 @@ static void EsCreateDecoder( es_out_t *out, es_out_id_t *p_es )
     if( !p_es->p_clock )
         return;
 
-    decoder_t *dec = p_es->p_dec;
-
-    dec = input_DecoderNew( p_input, &p_es->fmt, p_es->p_clock, input_priv(p_input)->p_sout );
+    dec = input_DecoderNew( p_input, &p_es->fmt, p_es->p_clock,
+                            input_priv(p_input)->p_sout );
     if( dec != NULL )
     {
         input_DecoderChangeRate( dec, p_sys->i_rate );
