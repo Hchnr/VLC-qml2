@@ -177,7 +177,7 @@ static int ControlHEIF( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
         }
         case DEMUX_GET_LENGTH:
-            *(va_arg( args, int64_t * )) = p_sys->p_title->i_seekpoint *
+            *(va_arg( args, mtime_t * )) = p_sys->p_title->i_seekpoint *
                                            p_sys->i_image_duration;
             return VLC_SUCCESS;
         case DEMUX_GET_TIME:

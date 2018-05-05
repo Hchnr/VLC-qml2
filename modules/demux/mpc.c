@@ -312,7 +312,8 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
 {
     demux_sys_t *p_sys = p_demux->p_sys;
     double   f, *pf;
-    int64_t i64, *pi64;
+    int64_t i64;
+    mtime_t *pi64;
     bool *pb_bool;
 
     switch( i_query )
@@ -326,7 +327,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
 
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
+            pi64 = va_arg( args, mtime_t * );
 #ifndef HAVE_MPC_MPCDEC_H
             *pi64 = CLOCK_FREQ * p_sys->info.pcm_samples /
                         p_sys->info.sample_freq;

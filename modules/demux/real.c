@@ -367,7 +367,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
     demux_sys_t *p_sys = p_demux->p_sys;
     double f, *pf;
     int64_t i64;
-    int64_t *pi64;
+    mtime_t *pi64;
 
     switch( i_query )
     {
@@ -454,7 +454,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return ControlSeekTime( p_demux, i64 );
 
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
+            pi64 = va_arg( args, mtime_t * );
 
             if( p_sys->i_our_duration <= 0 )
             {
@@ -463,7 +463,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             }
 
             /* our stored duration is in ms, so... */
-            *pi64 = INT64_C(1000) * p_sys->i_our_duration;
+            *pi64 = ms_to_mtime( p_sys->i_our_duration );
             return VLC_SUCCESS;
 
         case DEMUX_GET_META:

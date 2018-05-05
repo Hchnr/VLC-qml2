@@ -328,11 +328,10 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
 
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
-            if( p_sys->f_duration > 0.0 )
-                *pi64 = static_cast<int64_t>( p_sys->f_duration * 1000 );
-            else
-                *pi64 = VLC_TS_INVALID;
+            pi64 = va_arg( args, mtime_t * );
+            if( p_sys->f_duration <= 0.0 )
+                return VLC_EGENERIC;
+            *pi64 = static_cast<int64_t>( p_sys->f_duration * 1000 );
             return VLC_SUCCESS;
 
         case DEMUX_GET_POSITION:

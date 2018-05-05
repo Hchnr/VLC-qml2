@@ -189,7 +189,7 @@ typedef struct
     /* frameheader buffer */
     uint8_t fh_buffer[NUV_FH_SIZE];
     int64_t i_total_frames;
-    int64_t i_total_length;
+    mtime_t i_total_length;
     /* first frame position (used for calculating size without seektable) */
     int i_first_frame_offset;
 } demux_sys_t;
@@ -449,7 +449,8 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
     demux_sys_t *p_sys  = p_demux->p_sys;
 
     double   f, *pf;
-    int64_t i64, *pi64;
+    int64_t i64;
+    mtime_t *pi64;
 
     switch( i_query )
     {
@@ -521,7 +522,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         }
 
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
+            pi64 = va_arg( args, mtime_t * );
             if( p_sys->i_total_length >= 0 )
             {
                 *pi64 = p_sys->i_total_length;

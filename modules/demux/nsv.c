@@ -348,7 +348,8 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
     demux_sys_t *p_sys = p_demux->p_sys;
     double f, *pf;
     bool b_bool, *pb_bool;
-    int64_t i64, *pi64;
+    int64_t i64;
+    mtime_t *pi64;
 
     switch( i_query )
     {
@@ -390,7 +391,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
 
 #if 0
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
+            pi64 = va_arg( args, mtime_t * );
             if( p_sys->i_mux_rate > 0 )
             {
                 *pi64 = CLOCK_FREQ * ( stream_Size( p_demux->s ) / 50 ) / p_sys->i_mux_rate;

@@ -386,7 +386,7 @@ static void Close( vlc_object_t * p_this )
 static int Control( demux_t *p_demux, int i_query, va_list args )
 {
     demux_sys_t *p_sys  = p_demux->p_sys;
-    int64_t *pi64;
+    mtime_t *pi64;
     bool *pb_bool;
 
     switch( i_query )
@@ -424,7 +424,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
                     return VLC_EGENERIC;
                 }
 
-                pi64 = va_arg( args, int64_t * );
+                pi64 = va_arg( args, mtime_t * );
                 *pi64 = (p_sys->i_pts + p_sys->i_time_offset) / f_pos;
                 return VLC_SUCCESS;
             }

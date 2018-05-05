@@ -92,7 +92,7 @@ typedef struct
     int64_t     i_scr; /* committed, current position */
     int64_t     i_scr_track_id;
     int         i_mux_rate;
-    int64_t     i_length;
+    mtime_t     i_length;
     int         i_time_track_index;
     int64_t     i_current_pts;
     uint64_t    i_start_byte;
@@ -137,7 +137,7 @@ static int OpenCommon( vlc_object_t *p_this, bool b_force )
     unsigned i_max_packets = PS_PACKET_PROBE;
     int format = MPEG_PS;
     int i_mux_rate = 0;
-    int i_length = -1;
+    mtime_t i_length = -1;
 
     i_peek = vlc_stream_Peek( p_demux->s, &p_peek, 16 );
     if( i_peek < 16 )
@@ -372,7 +372,7 @@ static bool FindLength( demux_t *p_demux )
         if( tk->i_first_pts >= 0 &&
             tk->i_last_pts > tk->i_first_pts )
         {
-            int64_t i_length = (int64_t)tk->i_last_pts - tk->i_first_pts;
+            mtime_t i_length = (int64_t)tk->i_last_pts - tk->i_first_pts;
             if( i_length > p_sys->i_length )
             {
                 p_sys->i_length = i_length;
@@ -673,7 +673,8 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
 {
     demux_sys_t *p_sys = p_demux->p_sys;
     double f, *pf;
-    int64_t i64, *pi64;
+    int64_t i64;
+    mtime_t *pi64;
     int i_ret;
 
     switch( i_query )
@@ -749,7 +750,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             break;
 
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
+            pi64 = va_arg( args, mtime_t * );
             if( p_sys->i_length > 0 )
             {
                 *pi64 = p_sys->i_length;

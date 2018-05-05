@@ -42,7 +42,7 @@ struct vlc_demux_chained_t
     struct
     {
         double  position;
-        int64_t length;
+        mtime_t length;
         mtime_t time;
     } stats;
 
@@ -146,7 +146,7 @@ int vlc_demux_chained_ControlVa(vlc_demux_chained_t *dc, int query, va_list ap)
             break;
         case DEMUX_GET_LENGTH:
             vlc_mutex_lock(&dc->lock);
-            *va_arg(ap, int64_t *) = dc->stats.length;
+            *va_arg(ap, mtime_t *) = dc->stats.length;
             vlc_mutex_unlock(&dc->lock);
             break;
         case DEMUX_GET_TIME:

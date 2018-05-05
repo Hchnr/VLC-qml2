@@ -886,7 +886,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
     double f, *pf;
     bool b_bool, *pb_bool;
     int64_t i64;
-    int64_t *pi64;
+    mtime_t *pi64;
     int i_int;
     const ts_pmt_t *p_pmt = NULL;
     const ts_pat_t *p_pat = GetPID(p_sys, 0)->u.p_pat;
@@ -1031,7 +1031,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
         break;
 
     case DEMUX_GET_LENGTH:
-        pi64 = va_arg( args, int64_t * );
+        pi64 = va_arg( args, mtime_t * );
 
         if( p_sys->b_access_control )
         {

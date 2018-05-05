@@ -279,7 +279,7 @@ static int Control (demux_t *demux, int query, va_list args)
 
         case DEMUX_GET_LENGTH:
         {
-            int64_t *v = va_arg (args, int64_t *);
+            mtime_t *v = va_arg (args, mtime_t *);
 
             if (unlikely(sys->track_id >= sys->titlec)
              || (sys->titlev[sys->track_id]->i_length == 0))

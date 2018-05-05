@@ -274,7 +274,7 @@ static int Control(demux_t *demux, int query, va_list args)
         return VLC_SUCCESS;
     }
     case DEMUX_GET_LENGTH: {
-        int64_t *length = va_arg(args, int64_t *);
+        mtime_t *length = va_arg(args, mtime_t *);
         *length = __MAX(sys->duration, 0);
         return VLC_SUCCESS;
     }

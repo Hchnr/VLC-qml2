@@ -1021,7 +1021,7 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_SUCCESS;
 
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
+            pi64 = va_arg( args, mtime_t * );
             if( p_sys->ic->duration != (int64_t)AV_NOPTS_VALUE )
                 *pi64 = p_sys->ic->duration * CLOCK_FREQ / AV_TIME_BASE;
             else

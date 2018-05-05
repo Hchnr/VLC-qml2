@@ -557,7 +557,7 @@ int PlaylistManager::doControl(int i_query, va_list args)
             vlc_mutex_locker locker(&cached.lock);
             if(cached.b_live)
                 return VLC_EGENERIC;
-            *(va_arg (args, int64_t *)) = cached.i_length;
+            *(va_arg (args, mtime_t *)) = cached.i_length;
             break;
         }
 

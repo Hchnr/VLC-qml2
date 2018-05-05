@@ -231,7 +231,7 @@ typedef struct
     bool b_preparsing_done;
     bool b_es_created;
 
-    /* Length, if available. */
+    /* Length in second, if available. */
     int64_t i_length;
 
     bool b_slave;

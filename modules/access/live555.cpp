@@ -1522,14 +1522,13 @@ static int Control( demux_t *p_demux, int i_query, va_list args )
             return VLC_EGENERIC;
 
         case DEMUX_GET_LENGTH:
-            pi64 = va_arg( args, int64_t * );
             if( p_sys->f_npt_length > 0 )
             {
                 double d_length = p_sys->f_npt_length * (double)CLOCK_FREQ;
                 if( d_length >= INT64_MAX )
-                    *pi64 = INT64_MAX;
+                    *va_arg( args, mtime_t * ) = INT64_MAX;
                 else
-                    *pi64 = (int64_t)d_length;
+                    *va_arg( args, mtime_t * ) = (mtime_t)d_length;
                 return VLC_SUCCESS;
             }
             return VLC_EGENERIC;

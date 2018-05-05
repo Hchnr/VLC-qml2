@@ -334,7 +334,7 @@ struct demux_cc
             va_copy( ap, args );
             ret = demux_vaControl( p_demux_filter->p_next, i_query, args );
             if( ret == VLC_SUCCESS )
-                m_length = *va_arg( ap, int64_t * );
+                m_length = *va_arg( ap, mtime_t * );
             va_end( ap );
             return ret;
         }

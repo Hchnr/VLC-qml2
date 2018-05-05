@@ -1889,7 +1889,7 @@ static bool Control( input_thread_t *p_input,
                                    !input_priv(p_input)->b_fast_seek );
             if( i_ret )
             {
-                int64_t i_length;
+                mtime_t i_length;
 
                 /* Emulate it with a SET_POS */
                 if( !demux_Control( input_priv(p_input)->master->p_demux,
