@@ -344,7 +344,6 @@ void vout_Flush(vout_thread_t *vout, mtime_t date)
 {
     vout_control_PushTime(&vout->p->control, VOUT_CONTROL_FLUSH, date);
     vout_control_WaitEmpty(&vout->p->control);
-    vlc_clock_Reset(vout->p->clock);
 }
 
 bool vout_IsEmpty(vout_thread_t *vout)
@@ -1371,6 +1370,8 @@ static void ThreadFlush(vout_thread_t *vout, bool below, mtime_t date)
 
     picture_fifo_Flush(vout->p->decoder_fifo, date, below);
     vout_FilterFlush(vout->p->display.vd);
+    if (vout->p->clock)
+        vlc_clock_Reset(vout->p->clock);
 }
 
 static void ThreadStep(vout_thread_t *vout, mtime_t *duration)
