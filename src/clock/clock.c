@@ -57,6 +57,7 @@ struct vlc_clock_t
     void (*pause)(vlc_clock_t * clock, bool paused, mtime_t now);
     int (*wait)(vlc_clock_t * clock, mtime_t pts);
     void (*set_jitter)(vlc_clock_t * clock, mtime_t delay, int cr_avg);
+    mtime_t (*to_system)(vlc_clock_t * clock, mtime_t pts);
 
     vlc_clock_main_t * owner;
     float rate;
@@ -164,29 +165,12 @@ static int vlc_clock_master_wait(vlc_clock_t * clock, mtime_t pts)
     return 0; /* FIXME unused? */
 }
 
-static mtime_t vlc_clock_to_system(vlc_clock_t * clock, mtime_t timestamp)
+static mtime_t vlc_clock_master_to_system(vlc_clock_t * clock, mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
     mtime_t system;
     vlc_mutex_lock(&main_clock->lock);
-    system = main_stream_to_system(main_clock, timestamp);
-    if (system == VLC_TS_INVALID)
-    {
-        /** FIXME
-         * If we lack the first time point we cheat and hope the dejitter
-         * delay will be enough.
-         */
-        if (clock != main_clock->master &&
-            (clock->last.stream == VLC_TS_INVALID ||
-             clock->last.system == VLC_TS_INVALID))
-        {
-            clock->last = clock_point_Create(timestamp,
-                                             mdate());
-            clock->rate = main_clock->rate;
-        }
-        system = (timestamp - clock->last.stream) / clock->rate;
-        system += clock->last.system + main_clock->jitter;
-    }
+    system = main_stream_to_system(main_clock, pts);
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
@@ -230,13 +214,40 @@ static mtime_t vlc_clock_get_jitter(vlc_clock_t * clock)
     return jitter;
 }
 
+static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
+{
+    vlc_clock_main_t * main_clock = clock->owner;
+    mtime_t system;
+    vlc_mutex_lock(&main_clock->lock);
+    system = main_stream_to_system(main_clock, pts);
+    if (system == VLC_TS_INVALID)
+    {
+        /** FIXME
+         * If we lack the first time point we cheat and hope the dejitter
+         * delay will be enough.
+         */
+        if (clock->last.stream == VLC_TS_INVALID ||
+            clock->last.system == VLC_TS_INVALID)
+        {
+            clock->last = clock_point_Create(pts, mdate());
+            clock->rate = main_clock->rate;
+        }
+        system = (pts - clock->last.stream) / clock->rate;
+        system += clock->last.system + main_clock->jitter;
+    }
+    vlc_mutex_unlock(&main_clock->lock);
+    return system;
+}
+
+
+
 static mtime_t vlc_clock_slave_update(vlc_clock_t * clock, mtime_t timestamp,
                                       mtime_t system_now, float rate)
 {
     if (timestamp != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
         clock->last = clock_point_Create(timestamp, system_now);
 
-    mtime_t computed = vlc_clock_to_system(clock, timestamp);
+    mtime_t computed = vlc_clock_slave_to_system(clock, timestamp);
 
     if (computed == VLC_TS_INVALID)
         computed =
@@ -372,9 +383,9 @@ int vlc_clock_Wait(vlc_clock_t * clock, mtime_t pts)
 }
 
 
-mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t timestamp)
+mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t pts)
 {
-    return vlc_clock_to_system(clock, timestamp);
+    return clock->to_system(clock, pts);
 }
 
 mtime_t vlc_clock_ConvertToStream(vlc_clock_t * clock, mtime_t system)
@@ -400,6 +411,7 @@ static void vlc_clock_set_master_cbk(vlc_clock_t * clk)
     clk->pause = vlc_clock_master_pause;
     clk->wait = vlc_clock_master_wait;
     clk->set_jitter = vlc_clock_master_set_jitter;
+    clk->to_system = vlc_clock_master_to_system;
 }
 
 static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
@@ -409,6 +421,7 @@ static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
     clk->pause = vlc_clock_slave_pause;
     clk->wait = vlc_clock_slave_wait;
     clk->set_jitter = vlc_clock_slave_set_jitter;
+    clk->to_system = vlc_clock_slave_to_system;
 }
 
 vlc_clock_t * vlc_clock_NewMaster(vlc_clock_main_t * main_clock)
