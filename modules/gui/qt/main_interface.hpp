@@ -158,7 +158,7 @@ protected:
     /* resume panel */
     QWidget             *resumePanel;
     QTimer              *resumeTimer;
-    int64_t             i_resumeTime;
+    mtime_t             i_resumeTime;
 
     /* Status Bar */
     QLabel              *nameLabel;

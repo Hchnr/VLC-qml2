@@ -215,7 +215,7 @@ private slots:
 
 signals:
     /// Send new position, new time and new length
-    void positionUpdated( float , int64_t, int );
+    void positionUpdated( float , mtime_t, int );
     void remainingTimeChanged( bool );
     void seekRequested( float pos );
     void rateChanged( float );
@@ -225,7 +225,7 @@ signals:
     void chapterChanged( bool );
     void inputCanSeek( bool );
     /// You can resume playback
-    void resumePlayback( int64_t );
+    void resumePlayback( mtime_t );
     /// Statistics are updated
     void statisticsUpdated( input_item_t* );
     void infoChanged( input_item_t* );

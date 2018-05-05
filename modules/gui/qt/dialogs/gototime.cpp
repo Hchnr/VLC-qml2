@@ -88,7 +88,7 @@ void GotoTimeDialog::toggleVisible()
     reset();
     if ( !isVisible() && THEMIM->getIM()->hasInput() )
     {
-        int64_t i_time = var_GetInteger( THEMIM->getInput(), "time" );
+        mtime_t i_time = var_GetInteger( THEMIM->getInput(), "time" );
         timeEdit->setTime( timeEdit->time().addSecs( i_time / CLOCK_FREQ ) );
     }
     QVLCDialog::toggleVisible();

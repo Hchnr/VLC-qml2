@@ -125,7 +125,7 @@ void InputManager::setInput( input_thread_t *_p_input )
                     !var_GetFloat( p_input, "start-time" ) &&
                     !var_GetFloat( p_input, "stop-time" ) )
             {
-                emit resumePlayback( (int64_t)i_time * 1000 );
+                emit resumePlayback( ms_to_mtime(i_time) );
             }
             playlist_Lock( THEPL );
             // Add root items only
@@ -430,7 +430,7 @@ void InputManager::UpdatePosition()
 {
     /* Update position */
     int64_t i_length = var_GetInteger(  p_input , "length" );
-    int64_t i_time = var_GetInteger(  p_input , "time");
+    mtime_t i_time = var_GetInteger(  p_input , "time");
     float f_pos = var_GetFloat(  p_input , "position" );
     emit positionUpdated( f_pos, i_time, i_length / CLOCK_FREQ );
 }
@@ -953,14 +953,14 @@ void InputManager::setAtoB()
     {
         timeB = var_GetInteger( p_mim->getInput(), "time"  );
         var_SetInteger( p_mim->getInput(), "time" , timeA );
-        CONNECT( this, positionUpdated( float, int64_t, int ),
+        CONNECT( this, positionUpdated( float, mtime_t, int ),
                  this, AtoBLoop( float, int64_t, int ) );
     }
     else
     {
         timeA = 0;
         timeB = 0;
-        disconnect( this, SIGNAL( positionUpdated( float, int64_t, int ) ),
+        disconnect( this, SIGNAL( positionUpdated( float, mtime_t, int ) ),
                     this, SLOT( AtoBLoop( float, int64_t, int ) ) );
     }
     emit AtoBchanged( (timeA != 0 ), (timeB != 0 ) );
@@ -1118,7 +1118,7 @@ void MainInputManager::prev()
 
 void MainInputManager::prevOrReset()
 {
-    if( !p_input || var_GetInteger( p_input, "time") < INT64_C(10000) )
+    if( !p_input || var_GetInteger( p_input, "time") < (CLOCK_FREQ/100) )
         playlist_Prev( THEPL );
     else
         getIM()->sliderUpdate( 0.0 );

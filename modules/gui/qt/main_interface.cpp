@@ -390,13 +390,13 @@ void MainInterface::createResumePanel( QWidget *w )
 
     CONNECT( resumeTimer, timeout(), this, hideResumePanel() );
     CONNECT( cancel, clicked(), this, hideResumePanel() );
-    CONNECT( THEMIM->getIM(), resumePlayback(int64_t), this, showResumePanel(int64_t) );
+    CONNECT( THEMIM->getIM(), resumePlayback(mtime_t), this, showResumePanel(mtime_t) );
     BUTTONACT( ok, resumePlayback() );
 
     w->layout()->addWidget( resumePanel );
 }
 
-void MainInterface::showResumePanel( int64_t _time ) {
+void MainInterface::showResumePanel( mtime_t _time ) {
     int setting = var_InheritInteger( p_intf, "qt-continue" );
 
     if( setting == 0 )
