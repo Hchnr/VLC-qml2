@@ -120,13 +120,13 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
 
 static void vlc_clock_main_reset(vlc_clock_main_t * main_clock)
 {
+    AvgReset(&main_clock->coeff_avg);
     main_clock->coeff = 1.0f;
+    main_clock->rate = 1.0f;
+    main_clock->offset = VLC_TS_INVALID;
 
     main_clock->wait_sync_ref =
         main_clock->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
-    /* TODO Reset coeff avg */
-    main_clock->offset = VLC_TS_INVALID;
-    main_clock->rate = 1.0f;
     vlc_cond_broadcast(&main_clock->cond);
 }
 
@@ -302,13 +302,15 @@ vlc_clock_main_t * vlc_clock_main_New(void)
     main_clock->master = NULL;
 
     TAB_INIT(main_clock->nslaves, main_clock->slaves);
-
-    main_clock->rate = 1.0f;
     main_clock->coeff = 1.0f;
+    main_clock->rate = 1.0f;
     main_clock->offset = VLC_TS_INVALID;
 
+    main_clock->wait_sync_ref =
+        main_clock->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
+
     main_clock->pause_date = VLC_TS_INVALID;
-    main_clock->dejitter = 2000000;
+    main_clock->dejitter = 200000;
     main_clock->abort = false;
 
     AvgInit(&main_clock->coeff_avg, 10);
