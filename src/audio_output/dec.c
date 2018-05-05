@@ -434,14 +434,9 @@ void aout_DecChangePause (audio_output_t *aout, bool paused, mtime_t date)
     if (owner->mixer_format.i_format)
     {
         if (aout->pause != NULL)
-        {
             aout->pause(aout, paused, date);
-        }
         else if (paused)
-        {
             aout->flush(aout, false);
-            vlc_clock_Reset(owner->sync.clock);
-        }
     }
 
     vlc_clock_ChangePause(owner->sync.clock, paused, date);
