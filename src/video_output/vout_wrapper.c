@@ -58,7 +58,7 @@ int vout_OpenWrapper(vout_thread_t *vout,
 
     /* */
     const mtime_t double_click_timeout = 3*CLOCK_FREQ/10;
-    const mtime_t hide_timeout = var_CreateGetInteger(vout, "mouse-hide-timeout") * 1000;
+    const mtime_t hide_timeout = ms_to_mtime( var_CreateGetInteger(vout, "mouse-hide-timeout") );
     char *modlist = var_InheritString(vout, "vout");
 
     if (splitter_name)

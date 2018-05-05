@@ -2522,7 +2522,7 @@ static int EsOutControlLocked( es_out_t *out, int i_query, va_list args )
                 mtime_t i_pts_delay = input_clock_GetJitter( p_pgrm->p_input_clock );
 
                 /* Avoid dangerously high value */
-                const mtime_t i_jitter_max = INT64_C(1000) * var_InheritInteger( p_sys->p_input, "clock-jitter" );
+                const mtime_t i_jitter_max = ms_to_mtime(var_InheritInteger( p_sys->p_input, "clock-jitter" ));
                 if( i_pts_delay > __MIN( i_pts_delay_base + i_jitter_max, INPUT_PTS_DELAY_MAX ) )
                 {
                     msg_Err( p_sys->p_input,
