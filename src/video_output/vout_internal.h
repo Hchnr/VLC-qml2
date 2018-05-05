@@ -32,6 +32,7 @@
 #include "snapshot.h"
 #include "statistic.h"
 #include "chrono.h"
+#include "../clock/clock.h"
 
 /* It should be high enough to absorbe jitter due to difficult picture(s)
  * to decode but not too high as memory is not that cheap.
@@ -46,6 +47,7 @@
  */
 typedef struct {
     vout_thread_t        *vout;
+    vlc_clock_t          *clock;
     vlc_object_t         *input;
     bool                 change_fmt;
     const video_format_t *fmt;
@@ -58,6 +60,9 @@ struct vout_thread_sys_t
 {
     /* Splitter module if used */
     char            *splitter_name;
+
+    vlc_clock_t     *clock;
+    float           rate;
 
     /* Input thread for dvd menu interactions */
     vlc_object_t    *input;
@@ -225,6 +230,12 @@ void spu_ChangeMargin(spu_t *, int);
  * It is thread safe
  */
 void vout_ChangePause( vout_thread_t *, bool b_paused, vlc_tick_t i_date );
+
+/**
+ * This function will change the rate of the vout
+ * It is thread safe
+ */
+void vout_ChangeRate( vout_thread_t *, float rate );
 
 /**
  * Updates the pointing device state.
