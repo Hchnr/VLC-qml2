@@ -176,7 +176,7 @@ int net_Connect( vlc_object_t *p_this, const char *psz_host, int i_port,
                 if (now > deadline)
                     now = deadline;
 
-                val = vlc_poll_i11e(&ufd, 1, (deadline - now) / 1000);
+                val = vlc_poll_i11e(&ufd, 1, mtime_to_ms(deadline - now));
             }
             while (val == -1 && errno == EINTR);
 
