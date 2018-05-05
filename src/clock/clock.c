@@ -40,6 +40,7 @@ struct vlc_clock_main_t
      * Linear function
      * system = pts * coeff / rate + offset
      */
+    clock_point_t last;
     average_t coeff_avg; /* Moving average to smooth out the instant coeff */
     float coeff;
     float rate;
@@ -47,6 +48,7 @@ struct vlc_clock_main_t
 
     mtime_t pause_date;
 
+    clock_point_t wait_sync_ref; /* When the master */
     mtime_t dejitter; /* Delay used to absorb the clock jitter */
     bool abort;
 };
@@ -62,8 +64,8 @@ struct vlc_clock_t
     mtime_t (*to_system)(vlc_clock_t * clock, mtime_t pts);
 
     vlc_clock_main_t * owner;
-    float rate;
-    clock_point_t last;
+    //float rate;
+   // clock_point_t last;
 };
 
 static mtime_t main_system_to_stream(vlc_clock_main_t * main_clock,
@@ -79,7 +81,7 @@ static mtime_t main_stream_to_system(vlc_clock_main_t * main_clock,
 {
     if (unlikely(main_clock->offset == VLC_TS_INVALID))
         return VLC_TS_INVALID;
-    return (mtime_t) (pts * main_clock->coeff / main_clock->rate + main_clock->offset + main_clock->dejitter);
+    return (mtime_t) (pts * main_clock->coeff / main_clock->rate + main_clock->offset);
 }
 
 
@@ -97,11 +99,11 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
         return VLC_TS_INVALID;
     }
 
-    if (main_clock->offset != VLC_TS_INVALID && pts != clock->last.stream)
+    if (main_clock->offset != VLC_TS_INVALID && pts != main_clock->last.stream)
     {
         /* We have a reference so we can update coeff */
         float instant_coeff =
-            ((float) (system_now - clock->last.system))/(pts - clock->last.stream);
+            ((float) (system_now - main_clock->last.system))/(pts - main_clock->last.stream);
         AvgUpdate(&main_clock->coeff_avg, instant_coeff);
         main_clock->coeff = AvgGet(&main_clock->coeff_avg);
         /* TODO handle rate change?*/
@@ -109,7 +111,7 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
     main_clock->offset = system_now - pts * main_clock->coeff / rate;
 
     if (pts != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
-        clock->last = clock_point_Create(pts, system_now);
+        main_clock->last = clock_point_Create(pts, system_now);
 
     vlc_cond_broadcast(&main_clock->cond);
     vlc_mutex_unlock(&main_clock->lock);
@@ -119,6 +121,9 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
 static void vlc_clock_main_reset(vlc_clock_main_t * main_clock)
 {
     main_clock->coeff = 1.0f;
+
+    main_clock->wait_sync_ref =
+        main_clock->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
     /* TODO Reset coeff avg */
     main_clock->offset = VLC_TS_INVALID;
     main_clock->rate = 1.0f;
@@ -184,13 +189,6 @@ static mtime_t vlc_clock_to_stream(vlc_clock_t * clock, mtime_t system)
 
     vlc_mutex_lock(&main_clock->lock);
     pts = main_system_to_stream(main_clock, system);
-    if (pts == VLC_TS_INVALID &&
-        clock->last.stream != VLC_TS_INVALID &&
-        clock->last.system != VLC_TS_INVALID)
-    {
-        pts =
-           (system - clock->last.system - main_clock->dejitter) * clock->rate + clock->last.stream;
-    }
     vlc_mutex_unlock(&main_clock->lock);
     return pts;
 }
@@ -216,44 +214,43 @@ static mtime_t vlc_clock_get_dejitter(vlc_clock_t * clock)
     return dejitter;
 }
 
+static mtime_t vlc_clock_slave_to_system_locked(vlc_clock_main_t * main_clock,
+                                                mtime_t pts)
+{
+    mtime_t system = main_stream_to_system(main_clock, pts);
+    if (system == VLC_TS_INVALID)
+    {
+        /**
+         * We don't have a master sync point, let's fallback to a monotonic
+         * ref point
+         */
+        if (main_clock->wait_sync_ref.stream == VLC_TS_INVALID ||
+            main_clock->wait_sync_ref.system == VLC_TS_INVALID)
+        {
+            main_clock->wait_sync_ref =
+                clock_point_Create(pts, mdate() + main_clock->dejitter);
+        }
+        system = (pts - main_clock->wait_sync_ref.stream) / main_clock->rate;
+        system += main_clock->wait_sync_ref.system;
+        printf("%lld -> %lld (in %lld)\n", (long long) pts, (long long) system, (long long) system - mdate());
+    }
+    return system;
+}
+
 static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
-    mtime_t system;
     vlc_mutex_lock(&main_clock->lock);
-    system = main_stream_to_system(main_clock, pts);
-    if (system == VLC_TS_INVALID)
-    {
-        /** FIXME
-         * If we lack the first time point we cheat and hope the dejitter
-         * delay will be enough.
-         */
-        if (clock->last.stream == VLC_TS_INVALID ||
-            clock->last.system == VLC_TS_INVALID)
-        {
-            clock->last = clock_point_Create(pts, mdate());
-            clock->rate = main_clock->rate;
-        }
-        system = (pts - clock->last.stream) / clock->rate;
-        system += clock->last.system + main_clock->dejitter;
-    }
+    mtime_t system = vlc_clock_slave_to_system_locked(main_clock, pts);
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
 
-
-
 static mtime_t vlc_clock_slave_update(vlc_clock_t * clock, mtime_t timestamp,
                                       mtime_t system_now, float rate)
 {
-    if (timestamp != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
-        clock->last = clock_point_Create(timestamp, system_now);
 
     mtime_t computed = vlc_clock_slave_to_system(clock, timestamp);
-
-    if (computed == VLC_TS_INVALID)
-        computed =
-            (timestamp - clock->last.stream) / rate + clock->last.system;
     return (computed - system_now);
 }
 
@@ -275,19 +272,7 @@ static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
     vlc_mutex_lock(&main_clock->lock);
     while (!main_clock->abort)
     {
-        mtime_t deadline = main_stream_to_system(main_clock, pts);
-        /* Fallback to clock monotonic when there is no main_clock */
-        if (unlikely(deadline == VLC_TS_INVALID))
-        {
-            if (unlikely(clock->last.stream == VLC_TS_INVALID ||
-                         clock->last.system == VLC_TS_INVALID))
-            {
-                vlc_mutex_unlock(&main_clock->lock);
-                return 0;
-            }
-            deadline =
-                (pts - clock->last.stream) / clock->rate + clock->last.system;
-        }
+        mtime_t deadline = vlc_clock_slave_to_system_locked(main_clock, pts);
         if (vlc_cond_timedwait(&main_clock->cond, &main_clock->lock, deadline))
         {
             vlc_mutex_unlock(&main_clock->lock);
@@ -358,13 +343,11 @@ void vlc_clock_main_Delete(vlc_clock_main_t * main_clock)
 mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t timestamp,
                          mtime_t system_now, float rate)
 {
-    clock->rate = rate;
     return clock->update(clock, timestamp, system_now, rate);
 }
 
 void vlc_clock_Reset(vlc_clock_t * clock)
 {
-    clock->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
     clock->reset(clock);
 }
 
@@ -455,10 +438,8 @@ vlc_clock_t * vlc_clock_NewSlave(vlc_clock_main_t * main_clock)
         return NULL;
 
     clk->owner = main_clock;
-    clk->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
 
     vlc_mutex_lock(&main_clock->lock);
-    clk->rate = main_clock->rate;
     vlc_clock_set_slave_cbk(clk);
     TAB_APPEND(main_clock->nslaves, main_clock->slaves, clk);
     vlc_mutex_unlock(&main_clock->lock);
