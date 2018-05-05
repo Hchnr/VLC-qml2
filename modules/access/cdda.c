@@ -180,8 +180,8 @@ static int DemuxControl(demux_t *demux, int query, va_list args)
             *va_arg(args, bool*) = true;
             break;
         case DEMUX_GET_PTS_DELAY:
-            *va_arg(args, int64_t *) =
-                INT64_C(1000) * var_InheritInteger(demux, "disc-caching");
+            *va_arg(args, mtime_t *) =
+                ms_to_mtime( var_InheritInteger(demux, "disc-caching") );
             break;
 
         case DEMUX_SET_PAUSE_STATE:

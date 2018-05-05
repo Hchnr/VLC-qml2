@@ -728,7 +728,7 @@ static int Control(demux_t *demux, int query, va_list args)
 {
     demux_sys_t *sys = (demux_sys_t *)demux->p_sys;
     bool *pb;
-    int64_t *pi64;
+    mtime_t *pi64;
 
     switch(query)
     {
@@ -741,8 +741,8 @@ static int Control(demux_t *demux, int query, va_list args)
             return VLC_SUCCESS;
 
         case DEMUX_GET_PTS_DELAY:
-            pi64 = va_arg(args, int64_t *);
-            *pi64 = INT64_C(1000) * var_InheritInteger(demux, "live-caching");
+            *va_arg(args, mtime_t *) =
+            ms_to_mtime( var_InheritInteger(demux, "live-caching") );
             return VLC_SUCCESS;
 
         case DEMUX_GET_TIME:

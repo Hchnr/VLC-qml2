@@ -829,9 +829,8 @@ static int Control( demux_t *p_demux, int query, va_list args )
             es_out_Control( p_demux->out, ES_OUT_SET_NEXT_DISPLAY_TIME, ( mtime_t ) i64 );
             break;
         case DEMUX_GET_PTS_DELAY:
-            pi64 = va_arg( args, int64_t * );
-            *pi64 =
-                INT64_C(1000) * var_InheritInteger( p_demux, "file-caching" );
+            *va_arg( args, mtime_t * ) =
+                ms_to_mtime( var_InheritInteger( p_demux, "file-caching" ) );
             return VLC_SUCCESS;
 
 

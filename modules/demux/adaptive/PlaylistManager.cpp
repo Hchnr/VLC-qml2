@@ -617,7 +617,7 @@ int PlaylistManager::doControl(int i_query, va_list args)
         }
 
         case DEMUX_GET_PTS_DELAY:
-            *va_arg (args, int64_t *) = 1000 * INT64_C(1000);
+            *va_arg (args, mtime_t *) = 1*CLOCK_FREQ;
             break;
 
         default:

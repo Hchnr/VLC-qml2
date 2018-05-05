@@ -1823,7 +1823,7 @@ static int blurayControl(demux_t *p_demux, int query, va_list args)
 {
     demux_sys_t *p_sys = p_demux->p_sys;
     bool     *pb_bool;
-    int64_t  *pi_64;
+    mtime_t  *pi_64;
 
     switch (query) {
     case DEMUX_CAN_SEEK:
@@ -1834,8 +1834,8 @@ static int blurayControl(demux_t *p_demux, int query, va_list args)
          break;
 
     case DEMUX_GET_PTS_DELAY:
-        pi_64 = va_arg(args, int64_t *);
-        *pi_64 = INT64_C(1000) * var_InheritInteger(p_demux, "disc-caching");
+        pi_64 = va_arg(args, mtime_t *);
+        *pi_64 = ms_to_mtime( var_InheritInteger(p_demux, "disc-caching") );
         break;
 
     case DEMUX_SET_PAUSE_STATE:

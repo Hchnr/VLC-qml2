@@ -529,7 +529,7 @@ static int ControlDemux(demux_t *demux, int i_query, va_list args)
         return VLC_SUCCESS;
 
     case DEMUX_GET_PTS_DELAY: {
-        int64_t *delay = va_arg(args, int64_t *);
+        mtime_t *delay = va_arg(args, mtime_t *);
         *delay = DEFAULT_PTS_DELAY; /* FIXME? */
         return VLC_SUCCESS;
     }
