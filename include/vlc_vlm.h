@@ -74,7 +74,7 @@ typedef struct
     char *psz_name;         /*< vlm media instance descriptive name */
 
     mtime_t     i_time;     /*< vlm media instance vlm media current time */
-    int64_t     i_length;   /*< vlm media instance vlm media item length */
+    mtime_t     i_length;   /*< vlm media instance vlm media item length */
     double      d_position; /*< vlm media instance position in stream */
     bool        b_paused;   /*< vlm media instance is paused */
     int         i_rate;     // normal is INPUT_RATE_DEFAULT
