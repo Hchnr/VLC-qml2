@@ -194,7 +194,7 @@ static void DisplayVoutTitle( input_resource_t *p_resource,
     free( psz_nowplaying );
 }
 static vout_thread_t *RequestVout( input_resource_t *p_resource,
-                                   vout_thread_t *p_vout,
+                                   vout_thread_t *p_vout, vlc_clock_t *p_clock,
                                    const video_format_t *p_fmt, unsigned dpb_size,
                                    bool b_recycle )
 {
@@ -233,6 +233,7 @@ static vout_thread_t *RequestVout( input_resource_t *p_resource,
         /* */
         vout_configuration_t cfg = {
             .vout       = p_vout,
+            .clock      = p_clock,
             .input      = VLC_OBJECT(p_resource->p_input),
             .change_fmt = true,
             .fmt        = p_fmt,
@@ -278,6 +279,7 @@ static vout_thread_t *RequestVout( input_resource_t *p_resource,
 
             vout_configuration_t cfg = {
                 .vout       = p_vout,
+                .clock      = NULL,
                 .input      = NULL,
                 .change_fmt = false,
                 .fmt        = NULL,
@@ -464,12 +466,12 @@ void input_resource_SetInput( input_resource_t *p_resource, input_thread_t *p_in
 }
 
 vout_thread_t *input_resource_RequestVout( input_resource_t *p_resource,
-                                            vout_thread_t *p_vout,
+                                            vout_thread_t *p_vout, vlc_clock_t *p_clock,
                                             const video_format_t *p_fmt, unsigned dpb_size,
                                             bool b_recycle )
 {
     vlc_mutex_lock( &p_resource->lock );
-    vout_thread_t *p_ret = RequestVout( p_resource, p_vout, p_fmt, dpb_size, b_recycle );
+    vout_thread_t *p_ret = RequestVout( p_resource, p_vout, p_clock, p_fmt, dpb_size, b_recycle );
     vlc_mutex_unlock( &p_resource->lock );
 
     return p_ret;
@@ -487,7 +489,7 @@ void input_resource_HoldVouts( input_resource_t *p_resource, vout_thread_t ***pp
 
 void input_resource_TerminateVout( input_resource_t *p_resource )
 {
-    input_resource_RequestVout( p_resource, NULL, NULL, 0, false );
+    input_resource_RequestVout( p_resource, NULL, NULL, NULL, 0, false );
 }
 bool input_resource_HasVout( input_resource_t *p_resource )
 {
