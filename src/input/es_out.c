@@ -621,7 +621,10 @@ static void EsOutChangePosition( es_out_t *out )
     }
 
     for( int i = 0; i < p_sys->i_pgrm; i++ )
+    {
         input_clock_Reset( p_sys->pgrm[i]->p_input_clock );
+        vlc_clock_main_Reset( p_sys->pgrm[i]->p_main_clock );
+    }
 
     p_sys->b_buffering = true;
     p_sys->i_buffering_extra_initial = 0;
@@ -2541,7 +2544,10 @@ static int EsOutControlLocked( es_out_t *out, int i_query, va_list args )
 
                     /* reset clock */
                     for( int i = 0; i < p_sys->i_pgrm; i++ )
-                      input_clock_Reset( p_sys->pgrm[i]->p_input_clock );
+                    {
+                        input_clock_Reset( p_sys->pgrm[i]->p_input_clock );
+                        vlc_clock_main_Reset( p_sys->pgrm[i]->p_main_clock );
+                    }
                 }
                 else
                 {

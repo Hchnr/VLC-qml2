@@ -39,6 +39,11 @@ void vlc_clock_main_Delete(vlc_clock_main_t * main);
 void vlc_clock_main_Abort(vlc_clock_main_t * main);
 
 /**
+ * Reset the vlc_clock_main_t
+ */
+void vlc_clock_main_Reset(vlc_clock_main_t * main);
+
+/**
  * This function set the allocated interface as the master making the current
  * master if any a slave.
  */
