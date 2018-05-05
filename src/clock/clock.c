@@ -32,20 +32,22 @@ struct vlc_clock_main_t
 
     vlc_clock_t * master;
 
+    /* FIXME do we need to keep the slaves?*/
     vlc_clock_t ** slaves;
     int nslaves;
 
-    /* Linear function
+    /**
+     * Linear function
      * system = pts * coeff / rate + offset
      */
-    average_t coeff_avg;
-    float coeff; /* TODO use a moving average */
+    average_t coeff_avg; /* Moving average to smooth out the instant coeff */
+    float coeff;
     float rate;
     mtime_t offset;
 
     mtime_t pause_date;
 
-    mtime_t jitter; /* TODO */
+    mtime_t dejitter; /* Delay used to absorb the clock jitter */
     bool abort;
 };
 
@@ -56,7 +58,7 @@ struct vlc_clock_t
     void (*reset)(vlc_clock_t * clock);
     void (*pause)(vlc_clock_t * clock, bool paused, mtime_t now);
     int (*wait)(vlc_clock_t * clock, mtime_t pts);
-    void (*set_jitter)(vlc_clock_t * clock, mtime_t delay, int cr_avg);
+    void (*set_dejitter)(vlc_clock_t * clock, mtime_t delay, int cr_avg);
     mtime_t (*to_system)(vlc_clock_t * clock, mtime_t pts);
 
     vlc_clock_main_t * owner;
@@ -77,7 +79,7 @@ static mtime_t main_stream_to_system(vlc_clock_main_t * main_clock,
 {
     if (unlikely(main_clock->offset == VLC_TS_INVALID))
         return VLC_TS_INVALID;
-    return (mtime_t) (pts * main_clock->coeff / main_clock->rate + main_clock->offset + main_clock->jitter);
+    return (mtime_t) (pts * main_clock->coeff / main_clock->rate + main_clock->offset + main_clock->dejitter);
 }
 
 
@@ -187,31 +189,31 @@ static mtime_t vlc_clock_to_stream(vlc_clock_t * clock, mtime_t system)
         clock->last.system != VLC_TS_INVALID)
     {
         pts =
-           (system - clock->last.system - main_clock->jitter) * clock->rate + clock->last.stream;
+           (system - clock->last.system - main_clock->dejitter) * clock->rate + clock->last.stream;
     }
     vlc_mutex_unlock(&main_clock->lock);
     return pts;
 }
 
-static void vlc_clock_master_set_jitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
+static void vlc_clock_master_set_dejitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
 {
     VLC_UNUSED(cr_avg);
     vlc_clock_main_t * main_clock = clock->owner;
 
     vlc_mutex_lock(&main_clock->lock);
-    main_clock->jitter = delay;
+    main_clock->dejitter = delay;
     vlc_mutex_unlock(&main_clock->lock);
 }
 
-static mtime_t vlc_clock_get_jitter(vlc_clock_t * clock)
+static mtime_t vlc_clock_get_dejitter(vlc_clock_t * clock)
 {
     vlc_clock_main_t * main_clock = clock->owner;
-    mtime_t jitter;
+    mtime_t dejitter;
 
     vlc_mutex_lock(&main_clock->lock);
-    jitter = main_clock->jitter;
+    dejitter = main_clock->dejitter;
     vlc_mutex_unlock(&main_clock->lock);
-    return jitter;
+    return dejitter;
 }
 
 static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
@@ -233,7 +235,7 @@ static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
             clock->rate = main_clock->rate;
         }
         system = (pts - clock->last.stream) / clock->rate;
-        system += clock->last.system + main_clock->jitter;
+        system += clock->last.system + main_clock->dejitter;
     }
     vlc_mutex_unlock(&main_clock->lock);
     return system;
@@ -296,7 +298,7 @@ static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
     return 1;
 }
 
-static void vlc_clock_slave_set_jitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
+static void vlc_clock_slave_set_dejitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
 {
     VLC_UNUSED(clock);
     VLC_UNUSED(delay);
@@ -322,7 +324,7 @@ vlc_clock_main_t * vlc_clock_main_New(void)
     main_clock->offset = VLC_TS_INVALID;
 
     main_clock->pause_date = VLC_TS_INVALID;
-    main_clock->jitter = 2000000;
+    main_clock->dejitter = 2000000;
     main_clock->abort = false;
 
     AvgInit(&main_clock->coeff_avg, 10);
@@ -393,14 +395,14 @@ mtime_t vlc_clock_ConvertToStream(vlc_clock_t * clock, mtime_t system)
     return vlc_clock_to_stream(clock, system);
 }
 
-void vlc_clock_SetJitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
+void vlc_clock_SetDejitter(vlc_clock_t * clock, mtime_t delay, int cr_avg)
 {
-    clock->set_jitter(clock, delay, cr_avg);
+    clock->set_dejitter(clock, delay, cr_avg);
 }
 
-mtime_t vlc_clock_GetJitter(vlc_clock_t * clock)
+mtime_t vlc_clock_GetDejitter(vlc_clock_t * clock)
 {
-    return vlc_clock_get_jitter(clock);
+    return vlc_clock_get_dejitter(clock);
 }
 
 static void vlc_clock_set_master_cbk(vlc_clock_t * clk)
@@ -410,7 +412,7 @@ static void vlc_clock_set_master_cbk(vlc_clock_t * clk)
     clk->reset = vlc_clock_master_reset;
     clk->pause = vlc_clock_master_pause;
     clk->wait = vlc_clock_master_wait;
-    clk->set_jitter = vlc_clock_master_set_jitter;
+    clk->set_dejitter = vlc_clock_master_set_dejitter;
     clk->to_system = vlc_clock_master_to_system;
 }
 
@@ -420,7 +422,7 @@ static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
     clk->reset = vlc_clock_slave_reset;
     clk->pause = vlc_clock_slave_pause;
     clk->wait = vlc_clock_slave_wait;
-    clk->set_jitter = vlc_clock_slave_set_jitter;
+    clk->set_dejitter = vlc_clock_slave_set_dejitter;
     clk->to_system = vlc_clock_slave_to_system;
 }
 
