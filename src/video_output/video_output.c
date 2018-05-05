@@ -156,7 +156,7 @@ static vout_thread_t *VoutCreate(vlc_object_t *object,
     vout->p->spu = spu_Create(vout, vout);
 
     vout->p->title.show     = var_InheritBool(vout, "video-title-show");
-    vout->p->title.timeout  = var_InheritInteger(vout, "video-title-timeout");
+    vout->p->title.timeout  = ms_to_mtime( var_InheritInteger(vout, "video-title-timeout") );
     vout->p->title.position = var_InheritInteger(vout, "video-title-position");
 
     /* Get splitter name if present */
@@ -1297,7 +1297,7 @@ static void ThreadDisplayOsdTitle(vout_thread_t *vout, const char *string)
         return;
 
     vout_OSDText(vout, VOUT_SPU_CHANNEL_OSD,
-                 vout->p->title.position, INT64_C(1000) * vout->p->title.timeout,
+                 vout->p->title.position, vout->p->title.timeout,
                  string);
 }
 
