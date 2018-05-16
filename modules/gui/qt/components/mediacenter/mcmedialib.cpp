@@ -44,10 +44,15 @@ MCMediaLib::MCMediaLib(
         m_PLModel( _pl_model ),
         QObject( _parent )
 {
-    m_ml->initialize("/home/moamoak/vlc-bdd.db", "/home/moamoak/vlc-thumb", m_cb);
+    char* cachedir = config_GetUserDir( VLC_CACHE_DIR );
+
+    m_ml->initialize(qtu(QString("%1%2%3").arg(cachedir, DIR_SEP, "vlc-bdd.db")),
+                     qtu(QString("%1%2%3").arg(cachedir, DIR_SEP, "vlc-thumb")),
+                     m_cb);
     m_ml->start();
 
     retrieveAlbums();
+    free(cachedir);
 }
 
 // Are we exploring a specific item or just browsing generic category
@@ -445,7 +450,7 @@ void MCMediaLib::retrieveAlbums()
 void MCMediaLib::retrieveArtists()
 {
     m_currentObj = QList<std::shared_ptr<MLItem>>();
-    std::vector<medialibrary::ArtistPtr> a = m_ml->artists(m_currentSort, m_isDesc);
+    std::vector<medialibrary::ArtistPtr> a = m_ml->artists(true, m_currentSort, m_isDesc);
     for ( int i=0 ; i<a.size() ; i++ )
     {
         std::shared_ptr<MLArtist> item = std::make_shared<MLArtist>( a[i] );

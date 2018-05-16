@@ -878,7 +878,7 @@ void MainInterface::setVideoFullScreen( bool fs )
             }
         }
 
-        if( playlistWidget != NULL && playlistWidget->artContainer->currentWidget() == videoWidget )
+        if( playlistWidget != NULL )
             showTab( videoWidget );
 
         /* we won't be able to get its windowed sized once in fullscreen, so update it now */

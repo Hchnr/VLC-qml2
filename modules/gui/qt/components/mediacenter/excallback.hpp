@@ -28,6 +28,9 @@ public:
     virtual void onMediaDeleted( std::vector<int64_t> mediaIds ) override
     { }
 
+    virtual void onMediaThumbnailReady( MediaPtr media, bool success ) override
+    { }
+
     virtual void onArtistsAdded( std::vector<ArtistPtr> artists ) override
     { }
     virtual void onArtistsModified( std::vector<ArtistPtr> artists ) override
