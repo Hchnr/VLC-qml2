@@ -54,6 +54,12 @@
 /* */
 typedef struct {
     subpicture_t *subpicture;
+    vlc_tick_t       start;
+    vlc_tick_t       stop;
+} spu_render_entry_t;
+
+typedef struct {
+    subpicture_t *subpicture;
     bool          reject;
 } spu_heap_entry_t;
 
@@ -64,6 +70,8 @@ typedef struct {
 struct spu_private_t {
     vlc_mutex_t  lock;            /* lock to protect all followings fields */
     vlc_object_t *input;
+
+    vlc_clock_t *clock;
 
     spu_heap_t   heap;
 
@@ -498,20 +506,70 @@ static int IntegerCmp(int64_t i0, int64_t i1)
  *
  * XXX spu_RenderSubpictures depends heavily on this order.
  */
-static int SubpictureCmp(const void *s0, const void *s1)
+static int SpuRenderCmp(const void *s0, const void *s1)
 {
-    subpicture_t *subpic0 = *(subpicture_t**)s0;
-    subpicture_t *subpic1 = *(subpicture_t**)s1;
+    const spu_render_entry_t *render_entry0 = s0;
+    const spu_render_entry_t *render_entry1 = s1;
+    subpicture_t *subpic0 = render_entry0->subpicture;
+    subpicture_t *subpic1 = render_entry1->subpicture;
     int r;
 
     r = IntegerCmp(!subpic0->b_absolute, !subpic1->b_absolute);
     if (!r)
-        r = IntegerCmp(subpic0->i_start, subpic1->i_start);
+        r = IntegerCmp(render_entry0->start, render_entry1->start);
     if (!r)
         r = IntegerCmp(subpic0->i_channel, subpic1->i_channel);
     if (!r)
         r = IntegerCmp(subpic0->i_order, subpic1->i_order);
     return r;
+}
+
+static int SpuConvertDates(spu_t *spu, vlc_tick_t system_now,
+                           spu_render_entry_t *render_entries)
+{
+    spu_private_t *sys = spu->p;
+
+    if (!sys->clock)
+        return 0;
+
+    vlc_tick_t date_array[VOUT_MAX_SUBPICTURES *2];
+    size_t entry_count = 0;
+    for (size_t index = 0; index < VOUT_MAX_SUBPICTURES; index++)
+    {
+        spu_heap_entry_t *entry = &sys->heap.entry[index];
+        subpicture_t *current = entry->subpicture;
+
+        if (!current)
+            continue;
+
+        date_array[entry_count * 2] = current->i_start;
+        date_array[entry_count * 2 + 1] = current->i_stop;
+        entry_count++;
+    }
+    if (entry_count == 0)
+        return 0;
+
+    vlc_clock_ConvertArrayToSystem(sys->clock, system_now, date_array,
+                                   entry_count * 2);
+
+    entry_count = 0;
+    for (size_t index = 0; index < VOUT_MAX_SUBPICTURES; index++)
+    {
+        spu_render_entry_t *render_entry = &render_entries[index];
+        spu_heap_entry_t *entry = &sys->heap.entry[index];
+        subpicture_t *current = entry->subpicture;
+
+        if (!current)
+            render_entry->subpicture = NULL;
+        else
+        {
+            render_entry->subpicture = current;
+            render_entry->start = date_array[entry_count * 2];
+            render_entry->stop = date_array[entry_count * 2 + 1];
+            entry_count++;
+        }
+    }
+    return entry_count;
 }
 
 /*****************************************************************************
@@ -526,15 +584,19 @@ static int SubpictureCmp(const void *s0, const void *s1)
  *****************************************************************************/
 static void SpuSelectSubpictures(spu_t *spu,
                                  size_t *subpicture_count,
-                                 subpicture_t **subpicture_array,
+                                 spu_render_entry_t *subpicture_array,
                                  vlc_tick_t render_subtitle_date,
-                                 vlc_tick_t render_osd_date,
+                                 vlc_tick_t system_now,
                                  bool ignore_osd)
 {
     spu_private_t *sys = spu->p;
 
     /* */
     *subpicture_count = 0;
+
+    spu_render_entry_t render_entries[VOUT_MAX_SUBPICTURES];
+    if (SpuConvertDates(spu, system_now, render_entries) == 0)
+        return;
 
     /* Create a list of channels */
     int channel[VOUT_MAX_SUBPICTURES];
@@ -556,7 +618,7 @@ static void SpuSelectSubpictures(spu_t *spu,
 
     /* Fill up the subpicture_array arrays with relevant pictures */
     for (int i = 0; i < channel_count; i++) {
-        subpicture_t *available_subpic[VOUT_MAX_SUBPICTURES];
+        spu_render_entry_t available_entries[VOUT_MAX_SUBPICTURES];
         bool         is_available_late[VOUT_MAX_SUBPICTURES];
         size_t       available_count = 0;
 
@@ -569,6 +631,7 @@ static void SpuSelectSubpictures(spu_t *spu,
         /* Select available pictures */
         for (int index = 0; index < VOUT_MAX_SUBPICTURES; index++) {
             spu_heap_entry_t *entry = &sys->heap.entry[index];
+            spu_render_entry_t *render_entry = &render_entries[index];
             subpicture_t *current = entry->subpicture;
             bool is_stop_valid;
             bool is_late;
@@ -583,33 +646,33 @@ static void SpuSelectSubpictures(spu_t *spu,
                (ignore_osd && !current->b_subtitle))
                 continue;
 
-            const vlc_tick_t render_date = current->b_subtitle ? render_subtitle_date : render_osd_date;
+            const vlc_tick_t render_date = current->b_subtitle ? render_subtitle_date : system_now;
             if (render_date &&
-                render_date < current->i_start) {
+                render_date < render_entry->start) {
                 /* Too early, come back next monday */
                 continue;
             }
 
             vlc_tick_t *ephemer_date_ptr  = current->b_subtitle ? &ephemer_subtitle_date  : &ephemer_osd_date;
             int64_t *ephemer_order_ptr = current->b_subtitle ? &ephemer_subtitle_order : &ephemer_system_order;
-            if (current->i_start >= *ephemer_date_ptr) {
-                *ephemer_date_ptr = current->i_start;
+            if (render_entry->start >= *ephemer_date_ptr) {
+                *ephemer_date_ptr = render_entry->start;
                 if (current->i_order > *ephemer_order_ptr)
                     *ephemer_order_ptr = current->i_order;
             }
 
-            is_stop_valid = !current->b_ephemer || current->i_stop > current->i_start;
+            is_stop_valid = !current->b_ephemer || render_entry->stop > render_entry->start;
 
-            is_late = is_stop_valid && current->i_stop <= render_date;
+            is_late = is_stop_valid && render_entry->stop <= render_date;
 
             /* start_date will be used for correct automatic overlap support
              * in case picture that should not be displayed anymore (display_time)
-             * overlap with a picture to be displayed (current->i_start)  */
+             * overlap with a picture to be displayed (render_entry->start)  */
             if (current->b_subtitle && !is_late && !current->b_ephemer)
-                start_date = current->i_start;
+                start_date = render_entry->start;
 
             /* */
-            available_subpic[available_count] = current;
+            available_entries[available_count] = *render_entry;
             is_available_late[available_count] = is_late;
             available_count++;
         }
@@ -622,19 +685,20 @@ static void SpuSelectSubpictures(spu_t *spu,
 
         /* Select pictures to be displayed */
         for (size_t index = 0; index < available_count; index++) {
-            subpicture_t *current = available_subpic[index];
+            spu_render_entry_t *render_entry = &available_entries[index];
+            subpicture_t *current = render_entry->subpicture;
             bool is_late = is_available_late[index];
 
-            const vlc_tick_t stop_date = current->b_subtitle ? __MAX(start_date, sys->last_sort_date) : render_osd_date;
+            const vlc_tick_t stop_date = current->b_subtitle ? __MAX(start_date, sys->last_sort_date) : system_now;
             const vlc_tick_t ephemer_date  = current->b_subtitle ? ephemer_subtitle_date  : ephemer_osd_date;
             const int64_t ephemer_order = current->b_subtitle ? ephemer_subtitle_order : ephemer_system_order;
 
             /* Destroy late and obsolete ephemer subpictures */
-            bool is_rejeted = is_late && current->i_stop <= stop_date;
+            bool is_rejeted = is_late && render_entry->stop  <= stop_date;
             if (current->b_ephemer) {
-                if (current->i_start < ephemer_date)
+                if (render_entry->start < ephemer_date)
                     is_rejeted = true;
-                else if (current->i_start == ephemer_date &&
+                else if (render_entry->start == ephemer_date &&
                          current->i_order < ephemer_order)
                     is_rejeted = true;
             }
@@ -642,7 +706,7 @@ static void SpuSelectSubpictures(spu_t *spu,
             if (is_rejeted)
                 SpuHeapDeleteSubpicture(&sys->heap, current);
             else
-                subpicture_array[(*subpicture_count)++] = current;
+                subpicture_array[(*subpicture_count)++] = *render_entry;
         }
     }
 
@@ -656,13 +720,14 @@ static void SpuSelectSubpictures(spu_t *spu,
  */
 static void SpuRenderRegion(spu_t *spu,
                             subpicture_region_t **dst_ptr, spu_area_t *dst_area,
-                            subpicture_t *subpic, subpicture_region_t *region,
+                            const spu_render_entry_t *entry, subpicture_region_t *region,
                             const spu_scale_t scale_size,
                             const vlc_fourcc_t *chroma_list,
                             const video_format_t *fmt,
                             const spu_area_t *subtitle_area, int subtitle_area_count,
                             vlc_tick_t render_date)
 {
+    subpicture_t *subpic = entry->subpicture;
     spu_private_t *sys = spu->p;
 
     video_format_t fmt_original = region->fmt;
@@ -681,7 +746,7 @@ static void SpuRenderRegion(spu_t *spu,
     if (region->fmt.i_chroma == VLC_CODEC_TEXT) {
         SpuRenderText(spu, &restore_text, region,
                       chroma_list,
-                      render_date - subpic->i_start);
+                      render_date - entry->start);
 
         /* Check if the rendering has failed ... */
         if (region->fmt.i_chroma == VLC_CODEC_TEXT)
@@ -963,11 +1028,11 @@ static void SpuRenderRegion(spu_t *spu,
         dst->p_picture = picture_Hold(region_picture);
         int fade_alpha = 255;
         if (subpic->b_fade) {
-            vlc_tick_t fade_start = subpic->i_start + 3 * (subpic->i_stop - subpic->i_start) / 4;
+            vlc_tick_t fade_start = entry->start + 3 * (entry->stop - entry->start) / 4;
 
-            if (fade_start <= render_date && fade_start < subpic->i_stop)
-                fade_alpha = 255 * (subpic->i_stop - render_date) /
-                                   (subpic->i_stop - fade_start);
+            if (fade_start <= render_date && fade_start < entry->stop)
+                fade_alpha = 255 * (entry->stop - render_date) /
+                                   (entry->stop - fade_start);
         }
         dst->i_alpha   = fade_alpha * subpic->i_alpha * region->i_alpha / 65025;
     }
@@ -996,12 +1061,12 @@ exit:
  */
 static subpicture_t *SpuRenderSubpictures(spu_t *spu,
                                           size_t i_subpicture,
-                                          subpicture_t **pp_subpicture,
+                                          const spu_render_entry_t *p_entries,
                                           const vlc_fourcc_t *chroma_list,
                                           const video_format_t *fmt_dst,
                                           const video_format_t *fmt_src,
                                           vlc_tick_t render_subtitle_date,
-                                          vlc_tick_t render_osd_date)
+                                          vlc_tick_t system_now)
 {
     spu_private_t *sys = spu->p;
 
@@ -1009,7 +1074,7 @@ static subpicture_t *SpuRenderSubpictures(spu_t *spu,
     unsigned int subtitle_region_count = 0;
     unsigned int region_count          = 0;
     for (unsigned i = 0; i < i_subpicture; i++) {
-        const subpicture_t *subpic = pp_subpicture[i];
+        const subpicture_t *subpic = p_entries[i].subpicture;
 
         unsigned count = 0;
         for (subpicture_region_t *r = subpic->p_region; r != NULL; r = r->p_next)
@@ -1026,7 +1091,7 @@ static subpicture_t *SpuRenderSubpictures(spu_t *spu,
     subpicture_t *output = subpicture_New(NULL);
     if (!output)
         return NULL;
-    output->i_order = pp_subpicture[i_subpicture - 1]->i_order;
+    output->i_order = p_entries[i_subpicture - 1].subpicture->i_order;
     output->i_original_picture_width  = fmt_dst->i_visible_width;
     output->i_original_picture_height = fmt_dst->i_visible_height;
     subpicture_region_t **output_last_ptr = &output->p_region;
@@ -1042,8 +1107,9 @@ static subpicture_t *SpuRenderSubpictures(spu_t *spu,
         subtitle_area = calloc(subtitle_region_count, sizeof(*subtitle_area));
 
     /* Process all subpictures and regions (in the right order) */
-    for (unsigned int index = 0; index < i_subpicture; index++) {
-        subpicture_t        *subpic = pp_subpicture[index];
+    for (size_t index = 0; index < i_subpicture; index++) {
+        const spu_render_entry_t *entry = &p_entries[index];
+        subpicture_t *subpic = entry->subpicture;
         subpicture_region_t *region;
 
         if (!subpic->p_region)
@@ -1107,10 +1173,10 @@ static subpicture_t *SpuRenderSubpictures(spu_t *spu,
 
             /* */
             SpuRenderRegion(spu, output_last_ptr, &area,
-                            subpic, region, scale,
+                            entry, region, scale,
                             chroma_list, fmt_dst,
                             subtitle_area, subtitle_area_count,
-                            subpic->b_subtitle ? render_subtitle_date : render_osd_date);
+                            subpic->b_subtitle ? render_subtitle_date : system_now);
             if (*output_last_ptr)
                 output_last_ptr = &(*output_last_ptr)->p_next;
 
@@ -1303,6 +1369,7 @@ spu_t *spu_Create(vlc_object_t *object, vout_thread_t *vout)
 
     SpuHeapInit(&sys->heap);
 
+    sys->clock = NULL;
     sys->text = NULL;
     sys->scale = NULL;
     sys->scale_yuvp = NULL;
@@ -1411,6 +1478,11 @@ void spu_Attach(spu_t *spu, vlc_object_t *input, bool attach)
         var_DelCallback(input, "highlight", CropCallback, spu);
         var_Destroy(input, "highlight");
     }
+}
+
+void spu_SetClock(spu_t *spu, vlc_clock_t *clock)
+{
+    spu->p->clock = clock;
 }
 
 /**
@@ -1524,7 +1596,7 @@ subpicture_t *spu_Render(spu_t *spu,
                          const video_format_t *fmt_dst,
                          const video_format_t *fmt_src,
                          vlc_tick_t render_subtitle_date,
-                         vlc_tick_t render_osd_date,
+                         vlc_tick_t system_now,
                          bool ignore_osd)
 {
     spu_private_t *sys = spu->p;
@@ -1553,7 +1625,7 @@ subpicture_t *spu_Render(spu_t *spu,
         free(chain_update);
     }
     /* Run subpicture sources */
-    filter_chain_SubSource(sys->source_chain, spu, render_osd_date);
+    filter_chain_SubSource(sys->source_chain, spu, system_now);
     vlc_mutex_unlock(&sys->source_chain_lock);
 
     static const vlc_fourcc_t chroma_list_default_yuv[] = {
@@ -1580,11 +1652,11 @@ subpicture_t *spu_Render(spu_t *spu,
     vlc_mutex_lock(&sys->lock);
 
     size_t subpicture_count;
-    subpicture_t *subpicture_array[VOUT_MAX_SUBPICTURES];
+    spu_render_entry_t subpicture_array[VOUT_MAX_SUBPICTURES];
 
     /* Get an array of subpictures to render */
     SpuSelectSubpictures(spu, &subpicture_count, subpicture_array,
-                         render_subtitle_date, render_osd_date, ignore_osd);
+                         render_subtitle_date, system_now, ignore_osd);
     if (subpicture_count == 0) {
         vlc_mutex_unlock(&sys->lock);
         return NULL;
@@ -1592,15 +1664,15 @@ subpicture_t *spu_Render(spu_t *spu,
 
     /* Updates the subpictures */
     for (size_t i = 0; i < subpicture_count; i++) {
-        subpicture_t *subpic = subpicture_array[i];
+        subpicture_t *subpic = subpicture_array[i].subpicture;
         subpicture_Update(subpic,
                           fmt_src, fmt_dst,
-                          subpic->b_subtitle ? render_subtitle_date : render_osd_date);
+                          subpic->b_subtitle ? render_subtitle_date : system_now);
     }
 
     /* Now order the subpicture array
      * XXX The order is *really* important for overlap subtitles positionning */
-    qsort(subpicture_array, subpicture_count, sizeof(*subpicture_array), SubpictureCmp);
+    qsort(subpicture_array, subpicture_count, sizeof(*subpicture_array), SpuRenderCmp);
 
     /* Render the subpictures */
     subpicture_t *render = SpuRenderSubpictures(spu,
@@ -1609,7 +1681,7 @@ subpicture_t *spu_Render(spu_t *spu,
                                                 fmt_dst,
                                                 fmt_src,
                                                 render_subtitle_date,
-                                                render_osd_date);
+                                                system_now);
     vlc_mutex_unlock(&sys->lock);
 
     return render;

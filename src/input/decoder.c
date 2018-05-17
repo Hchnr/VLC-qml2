@@ -591,6 +591,7 @@ static subpicture_t *spu_new_buffer( decoder_t *p_dec,
     if( p_owner->p_vout != p_vout )
     {
         p_owner->i_spu_channel = vout_RegisterSubpictureChannel( p_vout );
+        vout_SetSubpictureClock( p_vout, p_owner->p_clock );
         p_owner->i_spu_order = 0;
         p_owner->p_vout = p_vout;
     }
@@ -1784,7 +1785,10 @@ static void DeleteDecoder( decoder_t * p_dec )
             if( p_vout )
             {
                 if( p_owner->p_vout == p_vout )
+                {
                     vout_FlushSubpictureChannel( p_vout, p_owner->i_spu_channel );
+                    vout_SetSubpictureClock( p_vout, NULL );
+                }
                 vlc_object_release( p_vout );
             }
             break;

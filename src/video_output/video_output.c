@@ -404,6 +404,13 @@ int vout_RegisterSubpictureChannel( vout_thread_t *vout )
 
     return channel;
 }
+void vout_SetSubpictureClock( vout_thread_t *vout, vlc_clock_t *clock )
+{
+    vlc_mutex_lock(&vout->p->spu_lock);
+    if (vout->p->spu)
+        spu_SetClock(vout->p->spu, clock);
+    vlc_mutex_unlock(&vout->p->spu_lock);
+}
 void vout_FlushSubpictureChannel( vout_thread_t *vout, int channel )
 {
     vout_control_PushInteger(&vout->p->control, VOUT_CONTROL_FLUSH_SUBPICTURE,
@@ -988,6 +995,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
      * Get the subpicture to be displayed
      */
     const bool do_snapshot = vout_snapshot_IsRequested(&vout->p->snapshot);
+    vlc_tick_t system_now = vlc_tick_now();
     vlc_tick_t render_subtitle_date;
     if (vout->p->pause.is_on)
         render_subtitle_date = vout->p->pause.date;
@@ -1058,7 +1066,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
     subpicture_t *subpic = spu_Render(vout->p->spu,
                                       subpicture_chromas, &fmt_spu_rot,
                                       &vd->source,
-                                      render_subtitle_date, render_osd_date,
+                                      render_subtitle_date, system_now,
                                       do_snapshot);
     /*
      * Perform rendering
