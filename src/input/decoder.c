@@ -112,6 +112,7 @@ struct decoder_owner
     /* Pause & Rate */
     mtime_t pause_date;
     float rate;
+    float spu_rate;
     unsigned frames_countdown;
     bool paused;
 
@@ -893,7 +894,12 @@ static void DecoderPlayVideo( decoder_t *p_dec, picture_t *p_picture,
 
     prerolled = p_owner->i_preroll_end > (mtime_t)INT64_MIN;
     p_owner->i_preroll_end = (mtime_t)INT64_MIN;
+
+    p_picture->date += p_owner->i_ts_delay;
     vlc_mutex_unlock( &p_owner->lock );
+
+    if( p_picture->date < 0 )
+        goto discard;
 
     if( unlikely(prerolled) )
     {
@@ -1022,7 +1028,16 @@ static void DecoderPlayAudio( decoder_t *p_dec, block_t *p_audio,
 
     prerolled = p_owner->i_preroll_end > (mtime_t)INT64_MIN;
     p_owner->i_preroll_end = (mtime_t)INT64_MIN;
+
+    p_audio->i_pts += p_owner->i_ts_delay;
     vlc_mutex_unlock( &p_owner->lock );
+
+    if( p_audio->i_pts < 0 )
+    {
+        block_Release( p_audio );
+        *pi_lost_sum += 1;
+        return;
+    }
 
     if( unlikely(prerolled) )
     {
@@ -1144,9 +1159,15 @@ static void DecoderPlaySpu( decoder_t *p_dec, subpicture_t *p_subpic )
     }
 
     DecoderWaitUnblock( p_dec );
+
+    p_subpic->i_start += p_owner->i_ts_delay;
+    p_subpic->i_stop += p_owner->i_ts_delay;
+
+    p_subpic->i_start *= p_owner->spu_rate;
+    p_subpic->i_stop *= p_owner->spu_rate;
     vlc_mutex_unlock( &p_owner->lock );
 
-    if( p_subpic->i_start == VLC_TS_INVALID )
+    if( p_subpic->i_start == VLC_TS_INVALID || p_subpic->i_stop < 0 )
     {
         subpicture_Delete( p_subpic );
         return;
@@ -1479,6 +1500,8 @@ static void *DecoderThread( void *p_data )
                         aout_DecChangeRate( p_owner->p_aout, rate );
                     break;
                 case SPU_ES:
+                    if( p_owner->p_vout != NULL )
+                        vout_ChangeSpuRate( p_owner->p_vout, rate );
                     break;
                 default:
                     vlc_assert_unreachable();
@@ -1609,7 +1632,7 @@ static decoder_t * CreateDecoder( vlc_object_t *p_parent,
     p_owner->b_fmt_description = false;
     p_owner->p_description = NULL;
 
-    p_owner->rate = 1.f;
+    p_owner->rate = p_owner->spu_rate = 1.f;
     p_owner->paused = false;
     p_owner->pause_date = VLC_TS_INVALID;
     p_owner->frames_countdown = 0;

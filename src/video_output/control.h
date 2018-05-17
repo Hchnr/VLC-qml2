@@ -49,6 +49,7 @@ enum {
 
     VOUT_CONTROL_PAUSE,
     VOUT_CONTROL_CHANGE_RATE,           /* float */
+    VOUT_CONTROL_CHANGE_SPU_RATE,       /* float */
     VOUT_CONTROL_FLUSH,                 /* time */
     VOUT_CONTROL_STEP,                  /* time_ptr */
 
