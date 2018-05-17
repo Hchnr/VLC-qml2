@@ -48,9 +48,13 @@ void input_DecoderChangePause( decoder_t *, bool b_paused, mtime_t i_date );
 void input_DecoderChangeRate( decoder_t *dec, float rate );
 
 /**
- * This function changes the delay.
+ * Changes the decoder delay.
+ *
+ * This function changes delay of the intended playback
+ * \param dec decoder
+ * \param delay delay (default is 0)
  */
-void input_DecoderChangeDelay( decoder_t *, mtime_t i_delay );
+void input_DecoderChangeDelay( decoder_t *dec, mtime_t delay );
 
 /**
  * This function makes the decoder start waiting for a valid data block from its fifo.
