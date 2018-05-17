@@ -63,6 +63,9 @@ struct vout_thread_sys_t
 
     vlc_clock_t     *clock;
     float           rate;
+    mtime_t         delay;
+
+    float           spu_rate;
 
     /* Input thread for dvd menu interactions */
     vlc_object_t    *input;
@@ -236,6 +239,25 @@ void vout_ChangePause( vout_thread_t *, bool b_paused, mtime_t i_date );
  * It is thread safe
  */
 void vout_ChangeRate( vout_thread_t *, float rate );
+
+/**
+ * This function will change the rate of the spu channel
+ * It is thread safe
+ */
+void vout_ChangeSpuRate( vout_thread_t *, int spu_channel, float rate );
+
+/**
+ * This function will change the delay of the vout
+ * It is thread safe
+ */
+void vout_ChangeDelay( vout_thread_t *, mtime_t delay );
+
+/**
+ * This function will change the delay of the spu channel
+ * It is thread safe
+ */
+void vout_ChangeSpuDelay( vout_thread_t *, int spu_channel, mtime_t delay );
+
 
 /**
  * Updates the pointing device state.
