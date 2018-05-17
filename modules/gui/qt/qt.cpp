@@ -498,12 +498,12 @@ static void *Thread( void *obj )
     argv[argc++] = vlc_name;
 
     /* H4CK to get QMLJSDebug running with correct port */
-    char* qmlJsDebugOpt = getQmljsdebuggerOpt(p_intf);
-    if (qmlJsDebugOpt)
-    {
-        fprintf(stderr, "[H4CK QMLJSDEBUG]: add QApp param : %s \n", qmlJsDebugOpt);
-        argv[argc++] = qmlJsDebugOpt;
-    }
+    //char* qmlJsDebugOpt = getQmljsdebuggerOpt(p_intf);
+    //if (qmlJsDebugOpt)
+    //{
+    //    fprintf(stderr, "[H4CK QMLJSDEBUG]: add QApp param : %s \n", qmlJsDebugOpt);
+    //    argv[argc++] = qmlJsDebugOpt;
+    //}
 
     argv[argc] = NULL;
 
