@@ -78,6 +78,8 @@ typedef struct
         mtime_t resamp_start_drift; /**< Resampler drift absolute value */
         int resamp_type; /**< Resampler mode (FIXME: redundant / resampling) */
         bool discontinuity;
+        mtime_t request_delay;
+        mtime_t delay;
     } sync;
 
     int requested_stereo_mode; /**< Requested stereo mode set by the user */
@@ -149,6 +151,7 @@ int aout_DecPlay(audio_output_t *aout, block_t *block);
 void aout_DecGetResetStats(audio_output_t *, unsigned *, unsigned *);
 void aout_DecChangePause(audio_output_t *, bool b_paused, mtime_t i_date);
 void aout_DecChangeRate(audio_output_t *aout, float rate);
+void aout_DecChangeDelay(audio_output_t *aout, mtime_t delay);
 void aout_DecFlush(audio_output_t *, bool wait);
 void aout_RequestRestart (audio_output_t *, unsigned);
 void aout_RequestRetiming(audio_output_t *aout, mtime_t audio_ts,
