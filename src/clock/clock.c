@@ -45,6 +45,7 @@ struct vlc_clock_main_t
     float coeff;
     float rate;
     mtime_t offset;
+    mtime_t last_pts_delay;
 
     mtime_t pause_date;
 
@@ -59,11 +60,13 @@ struct vlc_clock_t
                       mtime_t system_now, float rate);
     void (*reset)(vlc_clock_t * clock);
     void (*pause)(vlc_clock_t * clock, bool paused, mtime_t now);
+    void (*set_delay)(vlc_clock_t * clock, mtime_t pts_delay);
     int (*wait)(vlc_clock_t * clock, mtime_t pts);
     void (*set_dejitter)(vlc_clock_t * clock, mtime_t delay, int cr_avg);
     mtime_t (*to_system)(vlc_clock_t * clock, mtime_t pts);
 
     vlc_clock_main_t * owner;
+    mtime_t pts_delay;
 };
 
 static mtime_t main_system_to_stream(vlc_clock_main_t * main_clock,
@@ -116,8 +119,15 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
         main_clock->last = clock_point_Create(pts, system_now);
 
     vlc_cond_broadcast(&main_clock->cond);
+    mtime_t pts_delay = 0;
+    if (clock->pts_delay != main_clock->last_pts_delay)
+    {
+        pts_delay = clock->pts_delay > 0 ? clock->pts_delay : 0;
+        main_clock->last_pts_delay = clock->pts_delay;
+        fprintf(stderr, "vlc_clock_master_update: new drift: %" PRId64 "\n", pts_delay);
+    }
     vlc_mutex_unlock(&main_clock->lock);
-    return 0;
+    return pts_delay;
 }
 
 static void vlc_clock_main_reset(vlc_clock_main_t * main_clock)
@@ -126,6 +136,7 @@ static void vlc_clock_main_reset(vlc_clock_main_t * main_clock)
     main_clock->coeff = 1.0f;
     main_clock->rate = 1.0f;
     main_clock->offset = VLC_TS_INVALID;
+    main_clock->last_pts_delay = VLC_TS_INVALID;
 
     main_clock->wait_sync_ref =
         main_clock->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
@@ -151,6 +162,16 @@ static void vlc_clock_master_pause(vlc_clock_t * clock, bool paused, mtime_t now
     else
         main_clock->offset += now - main_clock->pause_date;
 
+    vlc_mutex_unlock(&main_clock->lock);
+}
+
+static void vlc_clock_master_set_delay(vlc_clock_t * clock, mtime_t pts_delay)
+{
+fprintf(stderr, "vlc_clock_master_set_delay: %" PRId64 "\n", pts_delay);
+    vlc_clock_main_t * main_clock = clock->owner;
+    vlc_mutex_lock(&main_clock->lock);
+    clock->pts_delay = pts_delay;
+    vlc_cond_broadcast(&main_clock->cond);
     vlc_mutex_unlock(&main_clock->lock);
 }
 
@@ -245,7 +266,14 @@ static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
-    mtime_t system = vlc_clock_slave_to_system_locked(main_clock, pts);
+    mtime_t system = vlc_clock_slave_to_system_locked(main_clock, pts)
+                   + clock->pts_delay;
+
+    /* Since the master clock can't be hastened, delay all slaves in case of a
+     * negative delay for the master */
+
+    if (main_clock->master && main_clock->master->pts_delay < 0)
+        system -= main_clock->master->pts_delay;
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
@@ -271,6 +299,16 @@ static void vlc_clock_slave_pause(vlc_clock_t * clock, bool paused, mtime_t now)
     VLC_UNUSED(clock);
     VLC_UNUSED(paused);
     VLC_UNUSED(now);
+}
+
+static void vlc_clock_slave_set_delay(vlc_clock_t * clock, mtime_t pts_delay)
+{
+fprintf(stderr, "vlc_clock_slave_set_delay: %" PRId64 "\n", pts_delay);
+    vlc_clock_main_t * main_clock = clock->owner;
+    vlc_mutex_lock(&main_clock->lock);
+    clock->pts_delay = pts_delay;
+    vlc_cond_broadcast(&main_clock->cond);
+    vlc_mutex_unlock(&main_clock->lock);
 }
 
 static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
@@ -313,6 +351,7 @@ vlc_clock_main_t * vlc_clock_main_New(void)
     main_clock->coeff = 1.0f;
     main_clock->rate = 1.0f;
     main_clock->offset = VLC_TS_INVALID;
+    main_clock->last_pts_delay = VLC_TS_INVALID;
 
     main_clock->wait_sync_ref =
         main_clock->last = clock_point_Create(VLC_TS_INVALID, VLC_TS_INVALID);
@@ -367,10 +406,14 @@ void vlc_clock_Reset(vlc_clock_t * clock)
     clock->reset(clock);
 }
 
-void vlc_clock_ChangePause(vlc_clock_t * clock, bool paused,
-                              mtime_t system_now)
+void vlc_clock_ChangePause(vlc_clock_t * clock, bool paused, mtime_t system_now)
 {
     clock->pause(clock, paused, system_now);
+}
+
+void vlc_clock_SetDelay(vlc_clock_t * clock, mtime_t pts_delay)
+{
+    clock->set_delay(clock, pts_delay);
 }
 
 int vlc_clock_GetRate(vlc_clock_t * clock)
@@ -410,6 +453,7 @@ static void vlc_clock_set_master_cbk(vlc_clock_t * clk)
     clk->update = vlc_clock_master_update;
     clk->reset = vlc_clock_master_reset;
     clk->pause = vlc_clock_master_pause;
+    clk->set_delay = vlc_clock_master_set_delay;
     clk->wait = vlc_clock_master_wait;
     clk->set_dejitter = vlc_clock_master_set_dejitter;
     clk->to_system = vlc_clock_master_to_system;
@@ -420,6 +464,7 @@ static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
     clk->update = vlc_clock_slave_update;
     clk->reset = vlc_clock_slave_reset;
     clk->pause = vlc_clock_slave_pause;
+    clk->set_delay = vlc_clock_slave_set_delay;
     clk->wait = vlc_clock_slave_wait;
     clk->set_dejitter = vlc_clock_slave_set_dejitter;
     clk->to_system = vlc_clock_slave_to_system;
@@ -432,6 +477,7 @@ vlc_clock_t * vlc_clock_NewMaster(vlc_clock_main_t * main_clock)
         return NULL;
 
     clk->owner = main_clock;
+    clk->pts_delay = 0;
 
     vlc_mutex_lock(&main_clock->lock);
     if (main_clock->master != NULL)
@@ -454,6 +500,7 @@ vlc_clock_t * vlc_clock_NewSlave(vlc_clock_main_t * main_clock)
         return NULL;
 
     clk->owner = main_clock;
+    clk->pts_delay = 0;
 
     vlc_mutex_lock(&main_clock->lock);
     vlc_clock_set_slave_cbk(clk);

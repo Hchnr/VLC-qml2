@@ -106,6 +106,7 @@ error:
     owner->sync.end = VLC_TS_INVALID;
     owner->sync.resamp_type = AOUT_RESAMPLING_NONE;
     owner->sync.discontinuity = true;
+    owner->pts_delay = 0;
 
     atomic_init (&owner->buffers_lost, 0);
     atomic_init (&owner->buffers_played, 0);
@@ -228,7 +229,7 @@ static void aout_DecSilence (audio_output_t *aout, mtime_t length, mtime_t pts)
                vlc_clock_ConvertToSystem(owner->sync.clock, pts));
 }
 
-static void aout_DecSynchronize(audio_output_t *aout, mtime_t dec_pts)
+static void aout_DecSynchronize(audio_output_t *aout, mtime_t *dec_pts)
 {
     mtime_t now = mdate();
     mtime_t delay;
@@ -252,7 +253,9 @@ static void aout_DecSynchronize(audio_output_t *aout, mtime_t dec_pts)
     if (aout->time_get(aout, &delay) != 0)
         return; /* nothing can be done if timing is unknown */
 
-    aout_RequestRetiming(aout, dec_pts - delay, now);
+    aout_RequestRetiming(aout, *dec_pts - delay, now);
+
+    *dec_pts += aout_owner(aout)->pts_delay;
 }
 
 void aout_RequestRetiming(audio_output_t *aout, mtime_t audio_ts,
@@ -260,8 +263,21 @@ void aout_RequestRetiming(audio_output_t *aout, mtime_t audio_ts,
 {
     aout_owner_t *owner = aout_owner (aout);
     const float rate = owner->sync.rate;
-    mtime_t drift = -vlc_clock_Update(owner->sync.clock, audio_ts, system_ts,
-                                      owner->sync.rate);
+    mtime_t delay = vlc_clock_Update(owner->sync.clock, audio_ts, system_ts,
+                                     owner->sync.rate);
+
+    if (delay != owner->pts_delay && delay > 0)
+    {
+        fprintf(stderr, "playing silence for %" PRId64 "\n", delay);
+        aout_DecSilence (aout, delay, audio_ts);
+        fprintf(stderr, "playing silence for %" PRId64 " DONE\n", delay);
+        owner->pts_delay = delay;
+    }
+
+    return;
+
+    /* XXX MASTER VS SLAVE */
+    mtime_t drift = -delay;
 
     /* Late audio output.
      * This can happen due to insufficient caching, scheduling jitter
@@ -388,7 +404,7 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     aout_volume_Amplify (owner->volume, block);
 
     /* Drift correction */
-    aout_DecSynchronize(aout, block->i_pts);
+    aout_DecSynchronize(aout, &block->i_pts);
 
     /* Output */
     owner->sync.end = block->i_pts + block->i_length + 1;

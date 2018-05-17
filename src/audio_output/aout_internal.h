@@ -80,6 +80,8 @@ typedef struct
         bool discontinuity;
     } sync;
 
+    mtime_t pts_delay;
+
     int requested_stereo_mode; /**< Requested stereo mode set by the user */
 
     audio_sample_format_t input_format;

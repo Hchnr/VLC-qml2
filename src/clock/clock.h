@@ -89,7 +89,9 @@ void vlc_clock_Reset(vlc_clock_t * clock);
  * This function allows changing the pause status.
  */
 void vlc_clock_ChangePause(vlc_clock_t * clock, bool paused,
-                              mtime_t sysem_now);
+                           mtime_t sysem_now);
+
+void vlc_clock_SetDelay(vlc_clock_t * clock, mtime_t pts_delay);
 
 /**
  * This function returns the current rate.

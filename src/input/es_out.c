@@ -821,10 +821,12 @@ static void EsOutDecoderChangeDelay( es_out_t *out, es_out_id_t *p_es )
     else
         return;
 
-    if( p_es->p_dec )
-        input_DecoderChangeDelay( p_es->p_dec, i_delay );
-    if( p_es->p_dec_record )
-        input_DecoderChangeDelay( p_es->p_dec_record, i_delay );
+    if( p_es->p_clock )
+        vlc_clock_SetDelay( p_es->p_clock, i_delay );
+    /* XXX record has not clock for now
+     * if( p_es->p_dec_record )
+     *    input_DecoderChangeDelay( p_es->p_dec_record, i_delay );
+     */
 }
 static void EsOutProgramsChangeRate( es_out_t *out )
 {

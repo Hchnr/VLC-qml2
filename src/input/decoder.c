@@ -137,9 +137,6 @@ struct decoder_owner
         decoder_cc_desc_t desc;
         decoder_t *pp_decoder[MAX_CC_DECODERS];
     } cc;
-
-    /* Delay */
-    mtime_t i_ts_delay;
 };
 
 /* Pictures which are DECODER_BOGUS_VIDEO_DELAY or more in advance probably have
@@ -895,7 +892,6 @@ static void DecoderPlayVideo( decoder_t *p_dec, picture_t *p_picture,
     prerolled = p_owner->i_preroll_end > (mtime_t)INT64_MIN;
     p_owner->i_preroll_end = (mtime_t)INT64_MIN;
 
-    p_picture->date += p_owner->i_ts_delay;
     vlc_mutex_unlock( &p_owner->lock );
 
     if( p_picture->date < 0 )
@@ -1029,7 +1025,6 @@ static void DecoderPlayAudio( decoder_t *p_dec, block_t *p_audio,
     prerolled = p_owner->i_preroll_end > (mtime_t)INT64_MIN;
     p_owner->i_preroll_end = (mtime_t)INT64_MIN;
 
-    p_audio->i_pts += p_owner->i_ts_delay;
     vlc_mutex_unlock( &p_owner->lock );
 
     if( p_audio->i_pts < 0 )
@@ -1159,9 +1154,6 @@ static void DecoderPlaySpu( decoder_t *p_dec, subpicture_t *p_subpic )
     }
 
     DecoderWaitUnblock( p_dec );
-
-    p_subpic->i_start += p_owner->i_ts_delay;
-    p_subpic->i_stop += p_owner->i_ts_delay;
 
     p_subpic->i_start *= p_owner->spu_rate;
     p_subpic->i_stop *= p_owner->spu_rate;
@@ -1734,7 +1726,6 @@ static decoder_t * CreateDecoder( vlc_object_t *p_parent,
     p_owner->cc.desc.i_708_channels = 0;
     for( unsigned i = 0; i < MAX_CC_DECODERS; i++ )
         p_owner->cc.pp_decoder[i] = NULL;
-    p_owner->i_ts_delay = 0;
     return p_dec;
 }
 
@@ -2223,15 +2214,6 @@ void input_DecoderChangeRate( decoder_t *dec, float rate )
     owner->rate = rate;
     vlc_fifo_Signal( owner->p_fifo );
     vlc_fifo_Unlock( owner->p_fifo );
-}
-
-void input_DecoderChangeDelay( decoder_t *p_dec, mtime_t i_delay )
-{
-    struct decoder_owner *p_owner = dec_get_owner( p_dec );
-
-    vlc_mutex_lock( &p_owner->lock );
-    p_owner->i_ts_delay = i_delay;
-    vlc_mutex_unlock( &p_owner->lock );
 }
 
 void input_DecoderStartWait( decoder_t *p_dec )

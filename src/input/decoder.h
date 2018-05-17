@@ -48,11 +48,6 @@ void input_DecoderChangePause( decoder_t *, bool b_paused, mtime_t i_date );
 void input_DecoderChangeRate( decoder_t *dec, float rate );
 
 /**
- * This function changes the delay.
- */
-void input_DecoderChangeDelay( decoder_t *, mtime_t i_delay );
-
-/**
  * This function makes the decoder start waiting for a valid data block from its fifo.
  */
 void input_DecoderStartWait( decoder_t * );
