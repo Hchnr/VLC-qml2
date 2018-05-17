@@ -337,6 +337,38 @@ void vout_ChangeRate(vout_thread_t *vout, float rate)
     vout_control_WaitEmpty(&vout->p->control);
 }
 
+void vout_ChangeSpuRate(vout_thread_t *vout, int channel, float rate)
+{
+    vout_control_cmd_t cmd;
+    vout_control_cmd_Init(&cmd, VOUT_CONTROL_CHANGE_SPU_RATE);
+    cmd.spu_rate.channel = channel;
+    cmd.spu_rate.value = rate;
+    vout_control_Push(&vout->p->control, &cmd);
+
+    vout_control_WaitEmpty(&vout->p->control);
+}
+
+void vout_ChangeDelay(vout_thread_t *vout, mtime_t delay)
+{
+    vout_control_cmd_t cmd;
+    vout_control_cmd_Init(&cmd, VOUT_CONTROL_CHANGE_DELAY);
+    cmd.delay = delay;
+    vout_control_Push(&vout->p->control, &cmd);
+
+    vout_control_WaitEmpty(&vout->p->control);
+}
+
+void vout_ChangeSpuDelay(vout_thread_t *vout, int channel, mtime_t delay)
+{
+    vout_control_cmd_t cmd;
+    vout_control_cmd_Init(&cmd, VOUT_CONTROL_CHANGE_SPU_DELAY);
+    cmd.spu_delay.channel = channel;
+    cmd.spu_delay.value = delay;
+    vout_control_Push(&vout->p->control, &cmd);
+
+    vout_control_WaitEmpty(&vout->p->control);
+}
+
 void vout_GetResetStatistic(vout_thread_t *vout, unsigned *restrict displayed,
                             unsigned *restrict lost)
 {
@@ -1333,6 +1365,26 @@ static void ThreadChangeRate(vout_thread_t *vout, float rate)
     vout->p->rate = rate;
 }
 
+static void ThreadChangeSpuRate(vout_thread_t *vout, int channel, float rate)
+{
+    /* TODO */
+}
+
+static void ThreadChangeDelay(vout_thread_t *vout, mtime_t delay)
+{
+    if (vout->p->clock)
+    {
+        mtime_t drift = vlc_clock_SetDelay(vout->p->clock, delay);
+        /* TODO handle drift if master */
+    }
+
+}
+
+static void ThreadChangeSpuDelay(vout_thread_t *vout, int channel, mtime_t delay)
+{
+    /* TODO */
+}
+
 static void ThreadFlush(vout_thread_t *vout, bool below, mtime_t date)
 {
     vout->p->step.timestamp = VLC_TS_INVALID;
@@ -1747,6 +1799,15 @@ static int ThreadControl(vout_thread_t *vout, vout_control_cmd_t cmd)
         break;
     case VOUT_CONTROL_CHANGE_RATE:
         ThreadChangeRate(vout, cmd.rate);
+        break;
+    case VOUT_CONTROL_CHANGE_SPU_RATE:
+        ThreadChangeSpuRate(vout, cmd.spu_rate.channel, cmd.spu_rate.value);
+        break;
+    case VOUT_CONTROL_CHANGE_DELAY:
+        ThreadChangeDelay(vout, cmd.delay);
+        break;
+    case VOUT_CONTROL_CHANGE_SPU_DELAY:
+        ThreadChangeSpuDelay(vout, cmd.spu_delay.channel, cmd.spu_delay.value);
         break;
     case VOUT_CONTROL_FLUSH:
         ThreadFlush(vout, false, cmd.time);
