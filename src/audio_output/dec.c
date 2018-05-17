@@ -106,6 +106,7 @@ error:
     owner->sync.end = VLC_TS_INVALID;
     owner->sync.resamp_type = AOUT_RESAMPLING_NONE;
     owner->sync.discontinuity = true;
+    owner->sync.delay = owner->sync.request_delay = 0;
 
     atomic_init (&owner->buffers_lost, 0);
     atomic_init (&owner->buffers_played, 0);
@@ -230,6 +231,19 @@ static void aout_DecSilence (audio_output_t *aout, vlc_tick_t length, vlc_tick_t
 
 static void aout_DecSynchronize(audio_output_t *aout, vlc_tick_t dec_pts)
 {
+    aout_owner_t *owner = aout_owner (aout);
+
+    if (owner->sync.request_delay != owner->sync.delay)
+    {
+        owner->sync.delay = owner->sync.request_delay;
+        vlc_tick_t delta = vlc_clock_SetDelay(owner->sync.clock, owner->sync.delay);
+        if (delta > 0)
+        {
+            fprintf(stderr, "Silence for %" PRId64 "\n", delta);
+            aout_DecSilence (aout, delta, dec_pts);
+        }
+    }
+
     vlc_tick_t now = vlc_tick_now();
     vlc_tick_t delay;
 
@@ -390,6 +404,12 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     /* Drift correction */
     aout_DecSynchronize(aout, block->i_pts);
 
+    if (owner->sync.delay != 0)
+    {
+        block->i_pts += owner->sync.delay;
+        block->i_dts += owner->sync.delay;
+    }
+
     /* Output */
     owner->sync.end = block->i_pts + block->i_length + 1;
     owner->sync.discontinuity = false;
@@ -444,6 +464,13 @@ void aout_DecChangeRate(audio_output_t *aout, float rate)
     aout_owner_t *owner = aout_owner(aout);
 
     owner->sync.rate = rate;
+}
+
+void aout_DecChangeDelay(audio_output_t *aout, vlc_tick_t delay)
+{
+    aout_owner_t *owner = aout_owner(aout);
+
+    owner->sync.request_delay = delay;
 }
 
 void aout_DecFlush (audio_output_t *aout, bool wait)

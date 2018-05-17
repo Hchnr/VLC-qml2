@@ -48,7 +48,10 @@ enum {
     VOUT_CONTROL_CHANGE_SUB_MARGIN,     /* integer */
 
     VOUT_CONTROL_PAUSE,
-    VOUT_CONTROL_CHANGE_RATE,           /* float */
+    VOUT_CONTROL_CHANGE_RATE,           /* rate */
+    VOUT_CONTROL_CHANGE_SPU_RATE,       /* spu_rate */
+    VOUT_CONTROL_CHANGE_DELAY,          /* delay */
+    VOUT_CONTROL_CHANGE_SPU_DELAY,      /* spu_delay */
     VOUT_CONTROL_FLUSH,                 /* time */
     VOUT_CONTROL_STEP,                  /* time_ptr */
 
@@ -85,6 +88,7 @@ typedef struct {
             vlc_tick_t date;
         } pause;
         float rate;
+        vlc_tick_t delay;
         struct {
             int channel;
             char *string;
@@ -101,6 +105,14 @@ typedef struct {
             unsigned width;
             unsigned height;
         } window;
+        struct {
+            int channel;
+            float value;
+        } spu_rate;
+        struct {
+            int channel;
+            vlc_tick_t value;
+        } spu_delay;
         vlc_mouse_t mouse;
         const vout_configuration_t *cfg;
         subpicture_t *subpicture;
