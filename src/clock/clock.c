@@ -174,19 +174,6 @@ static int vlc_clock_master_wait(vlc_clock_t * clock, mtime_t pts)
     return 0; /* FIXME unused? */
 }
 
-static mtime_t vlc_clock_master_to_system(vlc_clock_t * clock, mtime_t pts)
-{
-    vlc_clock_main_t * main_clock = clock->owner;
-    mtime_t system;
-    vlc_mutex_lock(&main_clock->lock);
-    system = main_stream_to_system(main_clock, pts);
-    /* FIXME introduce the initial jitter */
-    if (system == VLC_TS_INVALID)
-        system = mdate() + main_clock->dejitter;
-    vlc_mutex_unlock(&main_clock->lock);
-    return system;
-}
-
 static mtime_t vlc_clock_to_stream(vlc_clock_t * clock, mtime_t system)
 {
     vlc_clock_main_t * main_clock = clock->owner;
@@ -241,7 +228,7 @@ static mtime_t vlc_clock_slave_to_system_locked(vlc_clock_main_t * main_clock,
     return system;
 }
 
-static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
+static mtime_t vlc_clock_to_system(vlc_clock_t * clock, mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
@@ -254,7 +241,7 @@ static mtime_t vlc_clock_slave_update(vlc_clock_t * clock, mtime_t timestamp,
                                       mtime_t system_now, float rate)
 {
     VLC_UNUSED(rate);
-    mtime_t computed = vlc_clock_slave_to_system(clock, timestamp);
+    mtime_t computed = vlc_clock_to_system(clock, timestamp);
     return (computed - system_now);
 }
 
@@ -412,7 +399,7 @@ static void vlc_clock_set_master_cbk(vlc_clock_t * clk)
     clk->pause = vlc_clock_master_pause;
     clk->wait = vlc_clock_master_wait;
     clk->set_dejitter = vlc_clock_master_set_dejitter;
-    clk->to_system = vlc_clock_master_to_system;
+    clk->to_system = vlc_clock_to_system;
 }
 
 static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
@@ -422,7 +409,7 @@ static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
     clk->pause = vlc_clock_slave_pause;
     clk->wait = vlc_clock_slave_wait;
     clk->set_dejitter = vlc_clock_slave_set_dejitter;
-    clk->to_system = vlc_clock_slave_to_system;
+    clk->to_system = vlc_clock_to_system;
 }
 
 vlc_clock_t * vlc_clock_NewMaster(vlc_clock_main_t * main_clock)
