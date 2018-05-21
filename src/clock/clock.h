@@ -99,7 +99,7 @@ int vlc_clock_GetRate(vlc_clock_t * clock);
 /**
  * Wait for a timestamp expressed in stream time
  */
-int vlc_clock_Wait(vlc_clock_t * clock, mtime_t pts);
+int vlc_clock_Wait(vlc_clock_t * clock, mtime_t pts, mtime_t max_duration);
 
 /**
  * This function converts a timestamp from stream to system

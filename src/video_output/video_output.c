@@ -1183,7 +1183,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
         msg_Warn(vout, "picture is late (%lld ms)", delay / 1000);
 #endif
     if (!is_forced)
-        vlc_clock_Wait(vout->p->clock, todisplay->date);
+        vlc_clock_Wait(vout->p->clock, todisplay->date, VOUT_REDISPLAY_DELAY);
 
     /* Display the direct buffer returned by vout_RenderPicture */
     vout_display_Display(vd, todisplay, subpic);
