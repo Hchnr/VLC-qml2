@@ -281,26 +281,21 @@ static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts,
 {
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
-    mtime_t max_deadline = VLC_TS_INVALID;
+    mtime_t now = mdate();
+    mtime_t max_deadline = max_duration > 0 ? now + max_duration : INT64_MAX;
     while (!main_clock->abort)
     {
+        mtime_t deadline;
         if (main_clock->pause_date != VLC_TS_INVALID)
-            vlc_cond_wait(&main_clock->cond, &main_clock->lock);
+            deadline = INT64_MAX;
         else
-        {
-            mtime_t now = mdate();
-            mtime_t deadline = vlc_clock_main_to_system_locked(main_clock, now, pts);
-            if (max_deadline == VLC_TS_INVALID && max_duration > 0)
-                max_deadline = now + max_duration;
-            if (max_deadline != VLC_TS_INVALID)
-                deadline = __MIN(deadline, max_deadline);
+            deadline = vlc_clock_main_to_system_locked(main_clock, now, pts);
+        deadline = __MIN(deadline, max_deadline);
 
-            if (vlc_cond_timedwait(&main_clock->cond, &main_clock->lock, deadline) &&
-                main_clock->pause_date == VLC_TS_INVALID)
-            {
-                vlc_mutex_unlock(&main_clock->lock);
-                return 0;
-            }
+        if (vlc_cond_timedwait(&main_clock->cond, &main_clock->lock, deadline))
+        {
+            vlc_mutex_unlock(&main_clock->lock);
+            return 0;
         }
     }
     vlc_mutex_unlock(&main_clock->lock);
