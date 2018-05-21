@@ -280,10 +280,7 @@ static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
     mtime_t system = vlc_clock_slave_to_system_locked(main_clock, pts)
                    + clock->delay;
 
-    /* Since the master clock can't be hastened, delay all slaves in case of a
-     * negative delay for the master */
-    if (main_clock->delay < 0)
-        system -= main_clock->delay;
+    system -= main_clock->delay;
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
