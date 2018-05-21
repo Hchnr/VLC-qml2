@@ -270,6 +270,7 @@ static mtime_t vlc_clock_slave_to_system_locked(vlc_clock_main_t * main_clock,
         system = (pts - main_clock->wait_sync_ref.stream) / main_clock->rate;
         system += main_clock->wait_sync_ref.system;
     }
+    system -= main_clock->delay;
     return system;
 }
 
@@ -277,10 +278,7 @@ static mtime_t vlc_clock_slave_to_system(vlc_clock_t * clock, mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
-    mtime_t system = vlc_clock_slave_to_system_locked(main_clock, pts)
-                   + clock->delay;
-
-    system -= main_clock->delay;
+    mtime_t system = vlc_clock_slave_to_system_locked(main_clock, pts);
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
