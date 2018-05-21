@@ -149,8 +149,22 @@ static void vlc_clock_master_pause(vlc_clock_t * clock, bool paused, mtime_t now
     if (paused)
         main_clock->pause_date = now;
     else
-        main_clock->offset += now - main_clock->pause_date;
-
+    {
+        /**
+         * Only apply a delay if the clock has a reference point to avoid
+         * messing up the timings if the stream was paused then seeked
+         */
+        if (main_clock->offset != VLC_TS_INVALID ||
+            (main_clock->wait_sync_ref.stream != VLC_TS_INVALID ||
+             main_clock->wait_sync_ref.system != VLC_TS_INVALID))
+        {
+            const mtime_t delay = now - main_clock->pause_date;
+            main_clock->last.system += delay;
+            main_clock->offset += delay;
+        }
+        main_clock->pause_date = VLC_TS_INVALID;
+        vlc_cond_broadcast(&main_clock->cond);
+    }
     vlc_mutex_unlock(&main_clock->lock);
 }
 
@@ -206,7 +220,7 @@ static mtime_t vlc_clock_get_dejitter(vlc_clock_t * clock)
     return dejitter;
 }
 
-static mtime_t vlc_clock_slave_to_system_locked(vlc_clock_main_t * main_clock,
+static mtime_t vlc_clock_main_to_system_locked(vlc_clock_main_t * main_clock,
                                                 mtime_t pts)
 {
     mtime_t system = main_stream_to_system(main_clock, pts);
@@ -232,7 +246,7 @@ static mtime_t vlc_clock_to_system(vlc_clock_t * clock, mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
-    mtime_t system = vlc_clock_slave_to_system_locked(main_clock, pts);
+    mtime_t system = vlc_clock_main_to_system_locked(main_clock, pts);
     vlc_mutex_unlock(&main_clock->lock);
     return system;
 }
@@ -266,11 +280,17 @@ static int vlc_clock_slave_wait(vlc_clock_t * clock, mtime_t pts)
     vlc_mutex_lock(&main_clock->lock);
     while (!main_clock->abort)
     {
-        mtime_t deadline = vlc_clock_slave_to_system_locked(main_clock, pts);
-        if (vlc_cond_timedwait(&main_clock->cond, &main_clock->lock, deadline))
+        if (main_clock->pause_date != VLC_TS_INVALID)
+            vlc_cond_wait(&main_clock->cond, &main_clock->lock);
+        else
         {
-            vlc_mutex_unlock(&main_clock->lock);
-            return 0;
+            mtime_t deadline = vlc_clock_main_to_system_locked(main_clock, pts);
+            if (vlc_cond_timedwait(&main_clock->cond, &main_clock->lock, deadline) &&
+                main_clock->pause_date == VLC_TS_INVALID)
+            {
+                vlc_mutex_unlock(&main_clock->lock);
+                return 0;
+            }
         }
     }
     vlc_mutex_unlock(&main_clock->lock);
