@@ -1454,6 +1454,8 @@ static void OutputChangeDelay( decoder_t *p_dec, vlc_tick_t delay )
                 vout_ChangeSpuDelay( p_owner->p_vout, p_owner->i_spu_channel,
                                      delay );
             break;
+        case DATA_ES:
+            break;
         default:
             vlc_assert_unreachable();
     }
