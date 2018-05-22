@@ -614,7 +614,7 @@ static void EsOutChangeRate( es_out_t *out, int i_rate )
             input_DecoderChangeRate( es->p_dec, rate );
 }
 
-static void EsOutChangePosition( es_out_t *out )
+static void EsOutChangePosition( es_out_t *out, bool b_flush )
 {
     es_out_sys_t *p_sys = container_of(out, es_out_sys_t, out);
     es_out_id_t *p_es;
@@ -624,7 +624,8 @@ static void EsOutChangePosition( es_out_t *out )
     vlc_list_foreach(p_es, &p_sys->es, node)
         if( p_es->p_dec != NULL )
         {
-            input_DecoderFlush( p_es->p_dec );
+            if( b_flush )
+                input_DecoderFlush( p_es->p_dec );
             if( !p_sys->b_buffering )
             {
                 input_DecoderStartWait( p_es->p_dec );
@@ -2573,10 +2574,7 @@ static int EsOutControlLocked( es_out_t *out, int i_query, va_list args )
                              (int)(i_pts_delay/1000) );
 
                     /* Force a rebufferization when we are too late */
-
-                    /* It is not really good, as we throw away already buffered data
-                     * TODO have a mean to correctly reenter bufferization */
-                    es_out_Control( out, ES_OUT_RESET_PCR );
+                    EsOutChangePosition( out, false );
                 }
 
                 es_out_SetJitter( out, i_pts_delay_base, i_pts_delay - i_pts_delay_base, p_sys->i_cr_average );
@@ -2587,7 +2585,7 @@ static int EsOutControlLocked( es_out_t *out, int i_query, va_list args )
 
     case ES_OUT_RESET_PCR:
         msg_Dbg( p_sys->p_input, "ES_OUT_RESET_PCR called" );
-        EsOutChangePosition( out );
+        EsOutChangePosition( out, true );
         return VLC_SUCCESS;
 
     case ES_OUT_SET_GROUP:
