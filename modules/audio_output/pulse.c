@@ -234,12 +234,6 @@ static void stream_start(pa_stream *s, audio_output_t *aout, vlc_tick_t date)
         sys->trigger = NULL;
     }
 
-    if (date == VLC_TS_INVALID) {
-        msg_Dbg(aout, "starting as clock source");
-        stream_start_now(s, aout);
-        return;
-    }
-
     delta = vlc_pa_get_latency(aout, sys->context, s);
     if (unlikely(delta == VLC_TS_INVALID)) {
         msg_Dbg(aout, "cannot synchronize start");
