@@ -252,19 +252,6 @@ static void stream_start(pa_stream *s, audio_output_t *aout, vlc_tick_t date)
     }
 }
 
-static void stream_latency_cb(pa_stream *s, void *userdata)
-{
-    audio_output_t *aout = userdata;
-    aout_sys_t *sys = aout->sys;
-
-    /* This callback is _never_ called while paused. */
-    if (sys->first_pts == VLC_TS_INVALID)
-        return; /* nothing to do if buffers are (still) empty */
-    if (pa_stream_is_corked(s) > 0)
-        stream_start(s, aout, sys->first_date);
-}
-
-
 /*** Stream helpers ***/
 static void stream_state_cb(pa_stream *s, void *userdata)
 {
@@ -539,13 +526,9 @@ static void Pause(audio_output_t *aout, bool paused, vlc_tick_t date)
     pa_threaded_mainloop_lock(sys->mainloop);
 
     if (paused) {
-        pa_stream_set_latency_update_callback(s, NULL, NULL);
         stream_stop(s, aout);
-    } else {
-        pa_stream_set_latency_update_callback(s, stream_latency_cb, aout);
-        if (likely(sys->first_pts != VLC_TS_INVALID))
-            stream_start_now(s, aout);
-    }
+    } else if (likely(sys->first_pts != VLC_TS_INVALID))
+        stream_start_now(s, aout);
 
     pa_threaded_mainloop_unlock(sys->mainloop);
     (void) date;
@@ -928,7 +911,6 @@ static int Start(audio_output_t *aout, audio_sample_format_t *restrict fmt)
     pa_stream_set_state_callback(s, stream_state_cb, sys->mainloop);
     pa_stream_set_buffer_attr_callback(s, stream_buffer_attr_cb, aout);
     pa_stream_set_event_callback(s, stream_event_cb, aout);
-    pa_stream_set_latency_update_callback(s, stream_latency_cb, aout);
     pa_stream_set_moved_callback(s, stream_moved_cb, aout);
     pa_stream_set_overflow_callback(s, stream_overflow_cb, aout);
     pa_stream_set_started_callback(s, stream_started_cb, aout);
