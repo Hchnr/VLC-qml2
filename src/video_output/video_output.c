@@ -1358,6 +1358,9 @@ static void ThreadChangePause(vout_thread_t *vout, bool is_paused, mtime_t date)
     vout_window_t *window = vout->p->window;
     if (window != NULL)
         vout_window_SetInhibition(window, !is_paused);
+
+    if (vout->p->clock)
+        vlc_clock_ChangePause(vout->p->clock, is_paused, date);
 }
 
 static void ThreadChangeRate(vout_thread_t *vout, float rate)
