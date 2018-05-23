@@ -62,8 +62,10 @@ QString PLItem::getCover()
 void PLItem::activate( playlist_t *pl )
 {
 
+    playlist_Lock( pl );
     playlist_item_t* playlist_item = playlist_ItemGetByInput(pl, inputItem);
 
     if( playlist_item )
         playlist_ViewPlay( pl, NULL, playlist_item );
+    playlist_Unlock( pl );
 }

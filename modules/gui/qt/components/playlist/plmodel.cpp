@@ -50,6 +50,8 @@ void PLModel::move(const int &from, const int &to)
 //        to,
 //        false );
 
+    vlc_playlist_locker locker(THEPL);
+
     playlist_item_t* item = playlist_ItemGetByInput(
         THEPL, plitems.at(from)->getInputItem()
     );
@@ -66,52 +68,51 @@ void PLModel::move(const int &from, const int &to)
         plitems.move(from, to);
     }
     endResetModel();
+
 }
 
 void PLModel::dropMove( QList<input_item_t*> inputItems, playlist_item_t *p_parent, int row)
 {
+    playlist_AssertLocked(THEPL);
+
     playlist_item_t **pp_items;
     pp_items = (playlist_item_t **)
                calloc( inputItems.count(), sizeof( playlist_item_t* ) );
     if ( !pp_items ) return;
 
+    if( !p_parent || row > p_parent->i_children )
     {
-        vlc_playlist_locker pl_lock ( THEPL );
-
-        if( !p_parent || row > p_parent->i_children )
-        {
-            free( pp_items );
-            return;
-        }
-
-        int new_pos = row == -1 ? p_parent->i_children : row;
-        int i = 0;
-
-        foreach( input_item_t *p_input, inputItems )
-        {
-            playlist_item_t *p_item = playlist_ItemGetByInput( THEPL, p_input );
-            if( !p_item ) continue;
-
-            /* Better not try to move a node into itself.
-               Abort the whole operation in that case,
-               because it is ambiguous. */
-            playlist_item_t *climber = p_parent;
-            while( climber )
-            {
-                if( climber->p_input == p_input )
-                {
-                    free( pp_items );
-                    return;
-                }
-                climber = climber->p_parent;
-            }
-
-            pp_items[i] = p_item;
-            i++;
-        }
-
-        playlist_TreeMoveMany( THEPL, i, pp_items, p_parent, new_pos );
+        free( pp_items );
+        return;
     }
+
+    int new_pos = row == -1 ? p_parent->i_children : row;
+    int i = 0;
+
+    foreach( input_item_t *p_input, inputItems )
+    {
+        playlist_item_t *p_item = playlist_ItemGetByInput( THEPL, p_input );
+        if( !p_item ) continue;
+
+        /* Better not try to move a node into itself.
+           Abort the whole operation in that case,
+           because it is ambiguous. */
+        playlist_item_t *climber = p_parent;
+        while( climber )
+        {
+            if( climber->p_input == p_input )
+            {
+                free( pp_items );
+                return;
+            }
+            climber = climber->p_parent;
+        }
+
+        pp_items[i] = p_item;
+        i++;
+    }
+    playlist_TreeMoveMany( THEPL, i, pp_items, p_parent, new_pos );
+
     free( pp_items );
 }
 
@@ -201,6 +202,8 @@ Qt::ItemFlags PLModel::flags(const QModelIndex &index) const
 void PLModel::removeItem( int index )
 {
     if( index < 0 || index > rowCount() ) return;
+
+    vlc_playlist_locker locker(THEPL);
 
     // Need a full-model reset, else only the removed row will
     // be reloaded in views and if this items leaves a group with
