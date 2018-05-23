@@ -49,7 +49,6 @@ enum {
 
     VOUT_CONTROL_PAUSE,
     VOUT_CONTROL_CHANGE_RATE,           /* rate */
-    VOUT_CONTROL_CHANGE_SPU_RATE,       /* spu_rate */
     VOUT_CONTROL_CHANGE_DELAY,          /* delay */
     VOUT_CONTROL_CHANGE_SPU_DELAY,      /* spu_delay */
     VOUT_CONTROL_FLUSH,                 /* time */

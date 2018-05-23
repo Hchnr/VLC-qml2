@@ -226,6 +226,9 @@ void vout_ManageWrapper(vout_thread_t *);
 /* */
 int spu_ProcessMouse(spu_t *, const vlc_mouse_t *, const video_format_t *);
 void spu_Attach( spu_t *, vlc_object_t *input, bool );
+void vout_SetSubpictureClock( vout_thread_t *vout, vlc_clock_t *clock ); /* FIXME */
+void spu_SetClock( spu_t *, vlc_clock_t * );
+void spu_SetClockDelay(spu_t *spu, mtime_t delay);
 void spu_ChangeMargin(spu_t *, int);
 
 /**
@@ -239,12 +242,6 @@ void vout_ChangePause( vout_thread_t *, bool b_paused, mtime_t i_date );
  * It is thread safe
  */
 void vout_ChangeRate( vout_thread_t *, float rate );
-
-/**
- * This function will change the rate of the spu channel
- * It is thread safe
- */
-void vout_ChangeSpuRate( vout_thread_t *, int spu_channel, float rate );
 
 /**
  * This function will change the delay of the vout
