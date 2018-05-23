@@ -22,6 +22,7 @@
 #endif
 
 #include <vlc_common.h>
+#include <assert.h>
 #include "clock.h"
 #include "clock_internal.h"
 
@@ -103,6 +104,8 @@ static mtime_t vlc_clock_master_update(vlc_clock_t * clock, mtime_t pts,
     vlc_clock_main_t * main_clock = clock->owner;
 
     vlc_mutex_lock(&main_clock->lock);
+    assert(main_clock->pause_date == VLC_TS_INVALID);
+
     if (main_clock->reset_date != VLC_TS_INVALID)
     {
         if (system_now < main_clock->reset_date)
@@ -157,6 +160,7 @@ static void vlc_clock_master_pause(vlc_clock_t * clock, bool paused, mtime_t now
 {
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
+    assert(paused == (main_clock->pause_date == VLC_TS_INVALID));
 
     if (paused)
         main_clock->pause_date = now;
@@ -275,6 +279,9 @@ static mtime_t vlc_clock_slave_to_system_locked(vlc_clock_t * clock, mtime_t now
                                                 mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
+    if (main_clock->pause_date != VLC_TS_INVALID)
+        return INT64_MAX;
+
     return vlc_clock_main_to_system_locked(main_clock, now, pts)
          + clock->delay - main_clock->delay;
 }
@@ -283,6 +290,7 @@ static mtime_t vlc_clock_master_to_system_locked(vlc_clock_t * clock, mtime_t no
                                                  mtime_t pts)
 {
     vlc_clock_main_t * main_clock = clock->owner;
+    assert(main_clock->pause_date == VLC_TS_INVALID);
     return vlc_clock_main_to_system_locked(main_clock, now, pts);
 }
 
