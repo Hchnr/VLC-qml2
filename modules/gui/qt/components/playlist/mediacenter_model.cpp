@@ -282,6 +282,7 @@ void MCModel::activateItem( const QModelIndex &index )
 void MCModel::activateItem( playlist_item_t *p_item )
 {
     if( !p_item ) return;
+    PL_ASSERT_LOCKED;
     playlist_item_t *p_parent = p_item;
     while( p_parent )
     {
@@ -737,6 +738,7 @@ void MCModel::removeItem( MCItem *item )
 /* This function must be entered WITH the playlist lock */
 void MCModel::updateChildren( MCItem *root )
 {
+    PL_ASSERT_LOCKED;
     playlist_item_t *p_node = playlist_ItemGetById( p_playlist, root->id() );
     updateChildren( p_node, root );
 }
@@ -744,6 +746,7 @@ void MCModel::updateChildren( MCItem *root )
 /* This function must be entered WITH the playlist lock */
 void MCModel::updateChildren( playlist_item_t *p_node, MCItem *root )
 {
+    PL_ASSERT_LOCKED;
     for( int i = 0; i < p_node->i_children ; i++ )
     {
         if( p_node->pp_children[i]->i_flags & PLAYLIST_DBL_FLAG ) continue;
