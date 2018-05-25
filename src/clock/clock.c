@@ -302,7 +302,7 @@ static mtime_t vlc_clock_slave_update(vlc_clock_t * clock, mtime_t timestamp,
     vlc_mutex_lock(&main_clock->lock);
     mtime_t computed = clock->to_system_locked(clock, system_now, timestamp);
     vlc_mutex_unlock(&main_clock->lock);
-    return (computed - system_now);
+    return (computed != INT64_MAX)?(computed - system_now):VLC_TS_INVALID;
 }
 
 static void vlc_clock_slave_reset(vlc_clock_t * clock)
