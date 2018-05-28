@@ -114,7 +114,7 @@ QString MLAlbumTrack::getPresInfo() const
 QList<MLAlbumTrack*> MLAlbumTrack::getPLTracks() const
 {
     QList<MLAlbumTrack*> result;
-    result.append( const_cast<MLAlbumTrack*>(this) );
+    result.append( new MLAlbumTrack(m_data, this->parent() ) );
     return result;
 }
 
