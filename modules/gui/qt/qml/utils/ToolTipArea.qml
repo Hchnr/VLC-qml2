@@ -23,6 +23,7 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.0
+import "qrc:///style/"
 
 MouseArea {
     property alias text: tip.text
@@ -37,7 +38,7 @@ MouseArea {
     ToolTip {
         id: tip
         text: "plop"
-        delay: vlc_style.delayToolTipAppear
+        delay: VLCStyle.delayToolTipAppear
         visible: activated && parent.containsMouse
     }
 }

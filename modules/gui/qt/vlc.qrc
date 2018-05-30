@@ -191,4 +191,8 @@
         <file alias="DraggableItem.qml">qml/utils/DraggableItem.qml</file>
         <file alias="DraggableItemDropArea.qml">qml/utils/DraggableItemDropArea.qml</file>
     </qresource>
+    <qresource prefix="/style">
+        <file alias="qmldir">qml/style/qmldir</file>
+        <file alias="VLCStyle.qml">qml/style/VLCStyle.qml</file>
+    </qresource>
 </RCC>

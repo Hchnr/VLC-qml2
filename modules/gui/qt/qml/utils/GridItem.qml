@@ -22,6 +22,7 @@
  *****************************************************************************/
 
 import QtQuick 2.0
+import "qrc:///style/"
 
 MLItem {
     id: root
@@ -38,10 +39,10 @@ MLItem {
 
     Column {
         id: column
-        x: vlc_style.margin_xxxsmall
-        y: vlc_style.margin_xxxsmall
+        x: VLCStyle.margin_xxxsmall
+        y: VLCStyle.margin_xxxsmall
 
-        spacing: vlc_style.margin_xsmall
+        spacing: VLCStyle.margin_xsmall
 
         /* The full cover component with all added elements */
         Item {
@@ -59,10 +60,10 @@ MLItem {
             Rectangle {
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
-                height: dur_disp.implicitHeight + vlc_style.margin_xsmall
-                width: infos === "" ? 0 : dur_disp.implicitWidth + vlc_style.margin_xsmall
+                height: dur_disp.implicitHeight + VLCStyle.margin_xsmall
+                width: infos === "" ? 0 : dur_disp.implicitWidth + VLCStyle.margin_xsmall
 
-                color: medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode
+                color: VLCStyle.bgColor
 
                 Text {
                     id: dur_disp
@@ -70,31 +71,31 @@ MLItem {
                     anchors.centerIn: parent
 
                     text: infos
-                    font.pixelSize: vlc_style.fontSize_small
-                    color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                    font.pixelSize: VLCStyle.fontSize_small
+                    color: VLCStyle.textColor
                 }
             }
 
             Rectangle {
                 anchors.fill: parent
-
                 visible: root.active()
+
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#00"+vlc_style.vlc_orange.slice(1) }
-                    GradientStop { position: 0.5; color: "#A0"+vlc_style.vlc_orange.slice(1) }
-                    GradientStop { position: 1.0; color: "#FF"+vlc_style.vlc_orange.slice(1) }
+                    GradientStop { position: 0.0; color: "transparent" }
+                    GradientStop { position: 0.5; color: Qt.rgba(VLCStyle.vlc_orange.r,VLCStyle.vlc_orange.g,VLCStyle.vlc_orange.b, 0.6) }
+                    GradientStop { position: 1.0; color: VLCStyle.vlc_orange }
                 }
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
-                    anchors.bottomMargin: vlc_style.margin_xsmall
-                    spacing: vlc_style.margin_xsmall
+                    anchors.bottomMargin: VLCStyle.margin_xsmall
+                    spacing: VLCStyle.margin_xsmall
 
                     /* A addToPlaylist button visible when hovered */
                     Image {
-                        height: vlc_style.icon_normal
-                        width: vlc_style.icon_normal
+                        height: VLCStyle.icon_normal
+                        width: VLCStyle.icon_normal
                         fillMode: Image.PreserveAspectFit
 
                         visible: root.active()
@@ -108,8 +109,8 @@ MLItem {
 
                     /* A play button visible when hovered */
                     Image {
-                        height: vlc_style.icon_normal
-                        width: vlc_style.icon_normal
+                        height: VLCStyle.icon_normal
+                        width: VLCStyle.icon_normal
                         fillMode: Image.PreserveAspectFit
 
                         visible: root.active()
@@ -142,8 +143,8 @@ MLItem {
                 height: implicitHeight
 
                 text: date
-                font.pixelSize: vlc_style.fontSize_normal
-                color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                font.pixelSize: VLCStyle.fontSize_normal
+                color: VLCStyle.textColor
             }
 
             /* The title of the album elided */
@@ -156,8 +157,8 @@ MLItem {
                 elide: Text.ElideRight
                 font.bold: true
                 text: name
-                font.pixelSize: vlc_style.fontSize_normal
-                color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                font.pixelSize: VLCStyle.fontSize_normal
+                color: VLCStyle.textColor
 
                 ToolTipArea {
                     id: name_tooltip

@@ -24,6 +24,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
+import "qrc:///style/"
 
 Rectangle {
     // Notify the view has beeen changed
@@ -67,16 +68,7 @@ Rectangle {
        }
     }
 
-    // Force to recalculate the colors
-    function changedNightMode() {
-        color = medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode
-        if ( medialib.hasPresentation() ) {
-            presentationLoader_id.item.changedNightMode();
-        }
-        reloadData();
-    }
-
-    color: medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode
+    color: VLCStyle.bgColor
 
     ColumnLayout {
         anchors.fill : parent
@@ -99,7 +91,7 @@ Rectangle {
                 id: presentationComponent_id
 
                 Presentation {
-                    height: vlc_style.heightBar_xlarge
+                    height: VLCStyle.heightBar_xlarge
                     Layout.preferredHeight: height
                     Layout.minimumHeight: height
                     Layout.maximumHeight: height

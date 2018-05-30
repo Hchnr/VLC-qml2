@@ -22,6 +22,7 @@
  *****************************************************************************/
 
 import QtQuick 2.0
+import "qrc:///style/"
 
 MLItem {
     id: root
@@ -38,7 +39,7 @@ MLItem {
 
         anchors.fill: parent
 
-        spacing: vlc_style.margin_small
+        spacing: VLCStyle.margin_small
 
         /* The cover */
         Loader {
@@ -71,9 +72,9 @@ MLItem {
             id: add_to_playlist_icon
 
             anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: vlc_style.margin_small
-            width: vlc_style.icon_small
-            height: vlc_style.icon_small
+            anchors.rightMargin: VLCStyle.margin_small
+            width: VLCStyle.icon_small
+            height: VLCStyle.icon_small
 
             visible: root.active()
             source: "qrc:///buttons/playlist/playlist_add.svg"
@@ -90,9 +91,9 @@ MLItem {
             id: add_and_play_icon
 
             anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: vlc_style.margin_small
-            width: vlc_style.icon_small
-            height: vlc_style.icon_small
+            anchors.rightMargin: VLCStyle.margin_small
+            width: VLCStyle.icon_small
+            height: VLCStyle.icon_small
 
             visible: root.active()
             source: "qrc:///toolbar/play_b.svg"

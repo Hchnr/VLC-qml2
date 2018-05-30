@@ -25,6 +25,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.0
 
 import "qrc:///utils/" as Utils
+import "qrc:///style/"
 
 Loader {
     id: viewLoader
@@ -49,8 +50,8 @@ Loader {
         GridView {
             id: gridView_id
 
-            cellWidth: vlc_style.cover_normal
-            cellHeight: vlc_style.cover_normal + vlc_style.fontSize_small + vlc_style.margin_xsmall
+            cellWidth: VLCStyle.cover_normal
+            cellHeight: VLCStyle.cover_normal + VLCStyle.fontSize_small + VLCStyle.margin_xsmall
 
             model: medialib.getObjects()
             delegate : Utils.GridItem {
@@ -87,14 +88,14 @@ Loader {
 
             model: medialib.getObjects()
             delegate : Utils.ListItem {
-                height: vlc_style.heightBar_small
+                height: VLCStyle.heightBar_small
                 width: parent.width
 
                 line1: Text{
                     text: (model.genre_name || "Unknown genre")+" - "+model.genre_nb_tracks+" tracks"
                     font.bold: true
                     elide: Text.ElideRight
-                    color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                    color: VLCStyle.textColor
                 }
 
                 onItemClicked: {

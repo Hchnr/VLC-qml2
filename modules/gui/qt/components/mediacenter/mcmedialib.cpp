@@ -37,7 +37,6 @@ MCMediaLib::MCMediaLib(
         m_oldCat ( CAT_MUSIC_ALBUM ),
         m_currentSort( medialibrary::SortingCriteria::Default ),
         m_isDesc( false ),
-        m_isNightMode( false ),
         m_ml( NewMediaLibrary() ),
         m_cb( new medialibrary::ExCallback() ),
         m_gridView( true ),
@@ -143,19 +142,6 @@ void MCMediaLib::toogleView()
 {
     m_gridView = !m_gridView;
     invokeQML("changedView()");
-}
-
-// Is the night mode activated
-QVariant MCMediaLib::isNightMode()
-{
-    return QVariant( m_isNightMode );
-}
-
-// Toogle between nightmode and daymode
-void MCMediaLib::toogleNightMode()
-{
-    m_isNightMode = !m_isNightMode;
-    invokeQML("changedNightMode()");
 }
 
 // A specific item has been selected -> update the list of obejcts and the presentation

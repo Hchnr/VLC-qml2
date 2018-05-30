@@ -38,6 +38,7 @@
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.3
+import "qrc:///style"
 
 Item {
     property var albums: undefined
@@ -97,8 +98,8 @@ Item {
         anchors.fill: parent
 
         columns: 2
-        columnSpacing: vlc_style.margin_xxxsmall
-        rowSpacing: vlc_style.margin_xxxsmall
+        columnSpacing: VLCStyle.margin_xxxsmall
+        rowSpacing: VLCStyle.margin_xxxsmall
 
         Repeater {
             model: albums
@@ -111,7 +112,7 @@ Item {
                 Layout.preferredHeight: calc_height(index)
                 Layout.preferredWidth: calc_width(index)
 
-                source: model.album_cover || vlc_style.noartCover
+                source: model.album_cover || VLCStyle.noArtCover
                 fillMode: Image.PreserveAspectCrop
                 visible: index < 4
 
@@ -129,9 +130,9 @@ Item {
 
         text: "..."
         font.pixelSize: 30
-        color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+        color: VLCStyle.textColor
         style: Text.Outline
-        styleColor: medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode
+        styleColor: VLCStyle.bgColor
 
         visible: nb_albums > 4
     }

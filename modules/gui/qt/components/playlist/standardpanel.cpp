@@ -208,10 +208,7 @@ void StandardPLPanel::createMainView()
      * PROPERTIES
      *************************************************************/
 
-    VLCStyle* vlc_style = new VLCStyle();
-
     QQmlContext *rootCtx = mainView->rootContext();
-    rootCtx->setContextProperty( "vlc_style", vlc_style );
 
     std::shared_ptr<PLModel> plmodel = std::make_shared<PLModel>(p_intf);
     rootCtx->setContextProperty( "playlist", plmodel.get());

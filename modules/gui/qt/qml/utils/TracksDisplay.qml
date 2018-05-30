@@ -23,6 +23,7 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.0
+import "qrc:///style/"
 
 Item {
     property var tracks: []
@@ -31,22 +32,22 @@ Item {
     ListView {
         id: expand_track_id
 
-        x: vlc_style.margin_xlarge
+        x: VLCStyle.margin_xlarge
         height: parent.height
         width: parent.width - x
 
-        spacing: vlc_style.margin_xxxsmall
+        spacing: VLCStyle.margin_xxxsmall
         model: tracks
 
         delegate: ListItem {
-            height: vlc_style.fontSize_normal
+            height: VLCStyle.fontSize_normal
             width: parent.width
 
             line1: Text{
                 text: (model.track_title || "Unknown track")+" - "+model.track_duration
                 elide: Text.ElideRight
-                font.pixelSize: vlc_style.fontSize_normal
-                color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                font.pixelSize: VLCStyle.fontSize_normal
+                color: VLCStyle.textColor
             }
 
             onItemClicked: console.log("Clicked on : "+model.track_title)

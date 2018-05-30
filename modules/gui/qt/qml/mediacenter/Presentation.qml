@@ -23,31 +23,26 @@
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.3
+import "qrc:///style/"
 
 Rectangle {
     id: root
 
     property var obj: undefined
 
-    function changedNightMode() {
-        color = medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode;
-        title_id.color = medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode;
-        info_id.color = medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode;
-    }
-
-    color : medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode
+    color : VLCStyle.bgColor
 
     RowLayout {
         id: row_id
 
         anchors.fill: parent
-        anchors.margins: vlc_style.margin_normal
+        anchors.margins: VLCStyle.margin_normal
 
-        spacing: vlc_style.margin_normal
+        spacing: VLCStyle.margin_normal
 
         /* A button to go back one step */
         Image {
-            height: vlc_style.icon_normal
+            height: VLCStyle.icon_normal
             Layout.maximumHeight: height
             Layout.minimumHeight: height
             Layout.preferredHeight: height
@@ -67,12 +62,12 @@ Rectangle {
             id : image_id
 
             Layout.fillHeight: true
-            height: vlc_style.heightAlbumCover_large
+            height: VLCStyle.heightAlbumCover_large
             Layout.maximumWidth: height
             Layout.minimumWidth: height
             Layout.preferredWidth: height
 
-            source: obj.getPresImage() || vlc_style.noartCover
+            source: obj.getPresImage() || VLCStyle.noArtCover
             fillMode: Image.PreserveAspectFit
         }
 
@@ -82,7 +77,7 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            spacing: vlc_style.margin_normal
+            spacing: VLCStyle.margin_normal
 
             /* the title/main name of the item */
             Text {
@@ -95,7 +90,7 @@ Rectangle {
 
                 text: "<b>"+( obj.getPresName() || "Unknwon artist" )+"</b>"
                 elide: Text.ElideRight
-                color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                color: VLCStyle.textColor
             }
 
             /* A description for the item */
@@ -108,7 +103,7 @@ Rectangle {
                 text: obj.getPresInfo()
                 wrapMode: Text.WordWrap
                 elide: Text.ElideRight
-                color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                color: VLCStyle.textColor
             }
         }
     }
