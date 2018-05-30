@@ -141,6 +141,10 @@ static void ShowDialog   ( intf_thread_t *, int, int, intf_dialog_args_t * );
 #define UPDATER_LONGTEXT N_( "Activate the automatic notification of new " \
                             "versions of the software. It runs once every " \
                             "two weeks." )
+
+#define QT_QML_DEBUG_TEXT N_( "set the local port for qml debugger" )
+#define QT_QML_DEBUG_LONGTEXT N_( "set the local port for qml debugger (-1 for disabled)" )
+
 #define UPDATER_DAYS_TEXT N_("Number of days between two update checks")
 
 #define PRIVACY_TEXT N_( "Ask for network policy at start" )
@@ -278,6 +282,11 @@ vlc_module_begin ()
               UPDATER_LONGTEXT, false )
     add_integer_with_range( "qt-updates-days", 3, 0, 180,
               UPDATER_DAYS_TEXT, UPDATER_DAYS_TEXT, false )
+#endif
+
+#ifdef QT_QML_DEBUG
+    add_string( "qt-qml-debug-port", NULL,
+                QT_QML_DEBUG_TEXT, QT_QML_DEBUG_LONGTEXT, false )
 #endif
 
 #ifdef _WIN32
@@ -494,7 +503,21 @@ static void *Thread( void *obj )
     char *argv[2];
     int argc = 0;
 
-    argv[argc++] = vlc_name;
+    argv[argc++] = strdup(vlc_name);
+
+#ifdef QT_QML_DEBUG
+    msg_Err(p_intf, "get option qt-qml-debug-port");
+    char* qmlJsDebugOpt = var_CreateGetString(p_intf, "qt-qml-debug-port");
+    if (qmlJsDebugOpt)
+    {
+        msg_Err(p_intf, "option qt-qml-debug-port is %s", qmlJsDebugOpt);
+        if (! asprintf(&argv[argc++], "-qmljsdebugger=%s", qmlJsDebugOpt))
+            return NULL;
+        free(qmlJsDebugOpt);
+    }
+    else
+        msg_Err(p_intf, "option qt-qml-debug-port is NULL");
+#endif
     argv[argc] = NULL;
 
     Q_INIT_RESOURCE( vlc );
@@ -506,6 +529,9 @@ static void *Thread( void *obj )
 
     /* Start the QApplication here */
     QVLCApp app( argc, argv );
+
+    for (int i = 0; i < argc; i++)
+        free(argv[i]);
 
     app.setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
 
