@@ -24,6 +24,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
+import "qrc:///style/"
 
 Rectangle {
     id: root_id
@@ -45,11 +46,7 @@ Rectangle {
         medialib.sort(criteria);
         return ;
     }
-    // Force to recalculate the colors
-    function changedNightMode() {
-        color = medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode
-        update();
-    }
+
     // Choose the color of the text depending on the fact the
     // sub-source is the current one (red) or not (black/white)
     function chooseColor(index) {
@@ -60,8 +57,8 @@ Rectangle {
              (c === 3 && index === 3) ||
              (c === 4 && index === 0) ||
              (c === 5 && index === 0)    )
-            return vlc_style.textColor_activeSource;
-        return medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+            return VLCStyle.textColor_activeSource;
+        return VLCStyle.textColor
     }
     // Force the sub-source to be recalculated (used when category has been changed)
     function update() {
@@ -76,7 +73,7 @@ Rectangle {
 
     anchors.left: parent.left
     anchors.right: parent.right
-    color: medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode
+    color:  VLCStyle.bannerColor
 
     RowLayout {
         anchors.fill: parent
@@ -110,8 +107,8 @@ Rectangle {
                     /* A single button for a sub-source */
                     Rectangle {
                         height: parent.height
-                        width: subsource_name_id.implicitWidth+vlc_style.margin_small*2
-                        color: medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode
+                        width: subsource_name_id.implicitWidth+VLCStyle.margin_small*2
+                        color: VLCStyle.bannerColor
 
                         Text {
                             id: subsource_name_id
@@ -120,8 +117,8 @@ Rectangle {
                                 left: parent.left
                                 right: parent.right
                                 verticalCenter: parent.verticalCenter
-                                rightMargin: vlc_style.margin_small
-                                leftMargin: vlc_style.margin_small
+                                rightMargin: VLCStyle.margin_small
+                                leftMargin: VLCStyle.margin_small
                             }
                             text: model.displayText
                             color: chooseColor(index)
@@ -132,8 +129,8 @@ Rectangle {
                             anchors.fill: parent
                             onClicked: selectSource( model.name )
                             hoverEnabled: true
-                            onEntered: { parent.color = medialib.isNightMode() ? vlc_style.hoverBannerColor_nightmode : vlc_style.hoverBannerColor_daymode; }
-                            onExited: { parent.color = medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode; }
+                            onEntered: { parent.color = VLCStyle.hoverBannerColor; }
+                            onExited: { parent.color = VLCStyle.bannerColor; }
                         }
                     }
                 }
@@ -161,9 +158,9 @@ Rectangle {
                     /* A single button for a sub-source */
                     Rectangle {
                         height: parent.height
-                        width: subsource_name_id.implicitWidth+vlc_style.margin_small*2
+                        width: subsource_name_id.implicitWidth+VLCStyle.margin_small*2
 
-                        color: medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode
+                        color: VLCStyle.bannerColor
 
                         Text {
                             id: subsource_name_id
@@ -172,8 +169,8 @@ Rectangle {
                                 left: parent.left
                                 right: parent.right
                                 verticalCenter: parent.verticalCenter
-                                rightMargin: vlc_style.margin_small
-                                leftMargin: vlc_style.margin_small
+                                rightMargin: VLCStyle.margin_small
+                                leftMargin: VLCStyle.margin_small
                             }
 
                             text: model.displayText
@@ -185,8 +182,8 @@ Rectangle {
 
                             onClicked: selectSource( model.name )
                             hoverEnabled: true
-                            onEntered: { parent.color = medialib.isNightMode() ? vlc_style.hoverBannerColor_nightmode : vlc_style.hoverBannerColor_daymode; }
-                            onExited: { parent.color = medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode; }
+                            onEntered: { parent.color = VLCStyle.hoverBannerColor; }
+                            onExited: { parent.color = VLCStyle.bannerColor; }
                         }
                     }
                 }
@@ -210,9 +207,9 @@ Rectangle {
                     /* A single button for a sub-source */
                     Rectangle {
                         height: parent.height
-                        width: subsource_name_id.implicitWidth+vlc_style.margin_small*2
+                        width: subsource_name_id.implicitWidth+VLCStyle.margin_small*2
 
-                        color: medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode
+                        color: VLCStyle.bannerColor
 
                         Text {
                             id: subsource_name_id
@@ -221,8 +218,8 @@ Rectangle {
                                 left: parent.left
                                 right: parent.right
                                 verticalCenter: parent.verticalCenter
-                                rightMargin: vlc_style.margin_small
-                                leftMargin: vlc_style.margin_small
+                                rightMargin: VLCStyle.margin_small
+                                leftMargin: VLCStyle.margin_small
                             }
 
                             text: model.displayText
@@ -234,8 +231,8 @@ Rectangle {
 
                             onClicked: selectSource( model.name )
                             hoverEnabled: true
-                            onEntered: { parent.color = medialib.isNightMode() ? vlc_style.hoverBannerColor_nightmode : vlc_style.hoverBannerColor_daymode; }
-                            onExited: { parent.color = medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode; }
+                            onEntered: { parent.color = VLCStyle.hoverBannerColor; }
+                            onExited: { parent.color = VLCStyle.bannerColor; }
                         }
                     }
                 }
@@ -249,7 +246,7 @@ Rectangle {
             Layout.fillHeight: true
             Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
             Layout.preferredWidth: width
-            width: vlc_style.widthSortBox
+            width: VLCStyle.widthSortBox
 
             model: sortModel
             onActivated: sort( sortModel.get(index).text )

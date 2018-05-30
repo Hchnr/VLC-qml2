@@ -25,21 +25,17 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 1.4
+import "qrc:///style/"
 
 import "qrc:///mediacenter/" as MC
 import "qrc:///playlist/" as PL
+
 
 Item {
     // The functions the C++ part can call
     function reloadData() { mcDisplay.reloadData();}
     function changedCategory() { mcDisplay.changedCategory(); }
     function changedView() { mcDisplay.changedView(); }
-    function changedNightMode() {
-        sourcesBanner.changedNightMode();
-        subSourcesBanner.changedNightMode();
-        mcDisplay.changedNightMode();
-        plDisplay.changedNightMode();
-    }
     function reloadPresentation() { mcDisplay.reloadPresentation(); }
 
     SplitView {
@@ -52,7 +48,7 @@ Item {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             Layout.fillWidth: true
-            Layout.minimumWidth: vlc_style.minWidthMediacenter
+            Layout.minimumWidth: VLCStyle.minWidthMediacenter
             spacing: 0
 
             /* Source selection*/
@@ -66,7 +62,7 @@ Item {
                 }
 
                 z : 10
-                height: vlc_style.heightBar_normal
+                height: VLCStyle.heightBar_normal
                 Layout.preferredHeight: height
                 Layout.minimumHeight: height
                 Layout.maximumHeight: height
@@ -86,7 +82,7 @@ Item {
                 }
 
                 z : 10
-                height: vlc_style.heightBar_normal
+                height: VLCStyle.heightBar_normal
                 Layout.preferredHeight: height
                 Layout.minimumHeight: height
                 Layout.maximumHeight: height
@@ -111,9 +107,9 @@ Item {
             z: 20
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            Layout.maximumWidth: vlc_style.maxWidthPlaylist
+            Layout.maximumWidth: VLCStyle.maxWidthPlaylist
 
-            default_width: vlc_style.defaultWidthPlaylist
+            default_width: VLCStyle.defaultWidthPlaylist
         }
     }
 

@@ -22,6 +22,7 @@
  *****************************************************************************/
 
 import QtQuick 2.0
+import "qrc:///style/"
 
 Rectangle {
     id: pLBannerSources
@@ -34,13 +35,9 @@ Rectangle {
     }
     // Triggered when the toogleView button is selected
     function toogleNightmode () {
-        medialib.toogleNightMode();
+        VLCStyle.toggleNightMode();
     }
-    // Force to recalculate the colors
-    function changedNightMode() {
-        color = medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode;
-        update();
-    }
+
     // Force the source to be redrawn
     function update() {
         sourcesButtons.model = undefined;
@@ -52,7 +49,7 @@ Rectangle {
         return ;
     }
 
-    color: medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode
+    color: VLCStyle.bannerColor
 
     Row {
         anchors.fill: parent
@@ -96,9 +93,9 @@ Rectangle {
                 id: rect
 
                 height: parent.height
-                width: txt.implicitWidth + icon.width + vlc_style.margin_small*3
+                width: txt.implicitWidth + icon.width + VLCStyle.margin_small*3
 
-                color: medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode
+                color: VLCStyle.bannerColor
 
                 /* Icon for this source */
                 Image {
@@ -107,11 +104,11 @@ Rectangle {
                     anchors {
                         left: parent.left
                         verticalCenter: parent.verticalCenter
-                        rightMargin: vlc_style.margin_xsmall
-                        leftMargin: vlc_style.margin_small
+                        rightMargin: VLCStyle.margin_xsmall
+                        leftMargin: VLCStyle.margin_small
                     }
-                    height: vlc_style.icon_normal
-                    width: vlc_style.icon_normal
+                    height: VLCStyle.icon_normal
+                    width: VLCStyle.icon_normal
 
                     source: model.pic
                     fillMode: Image.PreserveAspectFit
@@ -124,13 +121,13 @@ Rectangle {
                     anchors {
                         left: icon.right
                         verticalCenter: parent.verticalCenter
-                        rightMargin: vlc_style.margin_small
-                        leftMargin: vlc_style.margin_xsmall
+                        rightMargin: VLCStyle.margin_small
+                        leftMargin: VLCStyle.margin_xsmall
                     }
 
                     text: model.displayText
-                    font.pixelSize: vlc_style.fontSize_normal
-                    color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                    font.pixelSize: VLCStyle.fontSize_normal
+                    color: VLCStyle.textColor
                 }
 
                 MouseArea {
@@ -138,8 +135,8 @@ Rectangle {
 
                     onClicked: selectSource( model.name )
                     hoverEnabled: true
-                    onEntered: { rect.color = medialib.isNightMode() ? vlc_style.hoverBannerColor_nightmode : vlc_style.hoverBannerColor_daymode; }
-                    onExited: { rect.color = medialib.isNightMode() ? vlc_style.bannerColor_nightmode : vlc_style.bannerColor_daymode; }
+                    onEntered: { rect.color = VLCStyle.hoverBannerColor; }
+                    onExited: { rect.color = VLCStyle.bannerColor; }
                 }
             }
         }
@@ -150,10 +147,10 @@ Rectangle {
         id: view_selector
 
         anchors.right: parent.right
-        anchors.rightMargin: vlc_style.margin_normal
+        anchors.rightMargin: VLCStyle.margin_normal
         anchors.verticalCenter: parent.verticalCenter
-        height: vlc_style.icon_normal
-        width: vlc_style.icon_normal
+        height: VLCStyle.icon_normal
+        width: VLCStyle.icon_normal
 
         fillMode: Image.PreserveAspectFit
         source: "qrc:///toolbar/tv.svg"
@@ -172,10 +169,10 @@ Rectangle {
     /* button to toogle between night and day mode */
     Image {
         anchors.right: view_selector.left
-        anchors.rightMargin: vlc_style.margin_small
+        anchors.rightMargin: VLCStyle.margin_small
         anchors.verticalCenter: parent.verticalCenter
-        height: vlc_style.icon_normal
-        width: vlc_style.icon_normal
+        height: VLCStyle.icon_normal
+        width: VLCStyle.icon_normal
 
         fillMode: Image.PreserveAspectFit
         source: "qrc:///prefsmenu/advanced/intf.svg"

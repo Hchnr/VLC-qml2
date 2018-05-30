@@ -22,6 +22,7 @@
  *****************************************************************************/
 
 import QtQuick 2.0
+import "qrc:///style/"
 
 Rectangle {
     id: root
@@ -36,11 +37,7 @@ Rectangle {
     signal itemClicked
 
 
-    color : medialib.isNightMode() ? (
-                active() ? vlc_style.hoverBgColor_nightmode : vlc_style.bgColor_nightmode
-            ) : (
-                active() ? vlc_style.hoverBgColor_daymode : vlc_style.bgColor_daymode
-            )
+    color : active() ? VLCStyle.hoverBgColor : VLCStyle.bgColor
 
     MouseArea {
         id: mouseArea

@@ -25,6 +25,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.0
 
 import "qrc:///utils/" as Utils
+import "qrc:///style/"
 
 Loader {
     id: viewLoader
@@ -51,22 +52,22 @@ Loader {
 
             model: medialib.getObjects()
 
-            cellWidth: vlc_style.cover_normal
-            cellHeight: vlc_style.cover_normal + vlc_style.fontSize_small + vlc_style.margin_xsmall
-            expandHeight: vlc_style.heightBar_xxlarge
+            cellWidth: VLCStyle.cover_normal
+            cellHeight: VLCStyle.cover_normal + VLCStyle.fontSize_small + VLCStyle.margin_xsmall
+            expandHeight: VLCStyle.heightBar_xxlarge
 
-            rowSpacing: vlc_style.margin_xxxsmall
-            colSpacing: vlc_style.margin_xxxsmall
-            expandSpacing: vlc_style.margin_xxxsmall
+            rowSpacing: VLCStyle.margin_xxxsmall
+            colSpacing: VLCStyle.margin_xxxsmall
+            expandSpacing: VLCStyle.margin_xxxsmall
             expandCompact: true
 
-            expandDuration: vlc_style.timingGridExpandOpen
+            expandDuration: VLCStyle.timingGridExpandOpen
 
             delegate : Utils.GridItem {
                 width: gridView_id.cellWidth
                 height: gridView_id.cellHeight
 
-                cover : Image { source: model.album_cover || vlc_style.noartCover }
+                cover : Image { source: model.album_cover || VLCStyle.noArtCover }
                 name : model.album_title || "Unknown title"
                 date : model.album_release_year !== "0" ? model.album_release_year : ""
                 infos : model.album_duration + " - " + model.album_nb_tracks + " tracks"
@@ -95,43 +96,43 @@ Loader {
         id: listViewComponent_id
 
         ListView {
-            spacing: vlc_style.margin_xxxsmall
+            spacing: VLCStyle.margin_xxxsmall
 
             model: medialib.getObjects()
             delegate : Utils.ListExpandItem {
-                height: vlc_style.icon_normal
+                height: VLCStyle.icon_normal
                 width: parent.width
 
                 cover: Image {
                     id: cover_obj
 
-                    width: vlc_style.icon_normal
-                    height: vlc_style.icon_normal
+                    width: VLCStyle.icon_normal
+                    height: VLCStyle.icon_normal
 
-                    source: model.album_cover || vlc_style.noartCover
+                    source: model.album_cover || VLCStyle.noArtCover
 
                     states: State {
                         name: "expanded"
-                        PropertyChanges {target: cover_obj; width: vlc_style.icon_xlarge; height: vlc_style.icon_xlarge}
+                        PropertyChanges {target: cover_obj; width: VLCStyle.icon_xlarge; height: VLCStyle.icon_xlarge}
                     }
-                    Behavior on height { PropertyAnimation { duration: vlc_style.timingListExpandOpen } }
-                    Behavior on width { PropertyAnimation { duration: vlc_style.timingListExpandOpen } }
+                    Behavior on height { PropertyAnimation { duration: VLCStyle.timingListExpandOpen } }
+                    Behavior on width { PropertyAnimation { duration: VLCStyle.timingListExpandOpen } }
                 }
                 line1: Text{
                     text: (model.album_title || "Unknown title")+" ["+model.album_duration+"]"
                     font.bold: true
                     elide: Text.ElideRight
-                    color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
-                    font.pixelSize: vlc_style.fontSize_normal
+                    color: VLCStyle.textColor
+                    font.pixelSize: VLCStyle.fontSize_normal
                 }
                 line2: Text{
                     text: model.album_main_artist || "Unknown artist"
                     elide: Text.ElideRight
-                    color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
-                    font.pixelSize: vlc_style.fontSize_xsmall
+                    color: VLCStyle.textColor
+                    font.pixelSize: VLCStyle.fontSize_xsmall
                 }
                 expand: Utils.TracksDisplay {
-                    height: album_nb_tracks * (vlc_style.fontSize_normal + vlc_style.margin_xxxsmall) - vlc_style.margin_xxxsmall
+                    height: album_nb_tracks * (VLCStyle.fontSize_normal + VLCStyle.margin_xxxsmall) - VLCStyle.margin_xxxsmall
                     width: parent.width
 
                     tracks: album_tracks

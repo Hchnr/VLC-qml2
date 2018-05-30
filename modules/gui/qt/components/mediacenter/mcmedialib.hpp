@@ -97,8 +97,6 @@ public:
     Q_INVOKABLE QVariant getObjects();
     Q_INVOKABLE QVariant isGridView();
     Q_INVOKABLE void toogleView();
-    Q_INVOKABLE QVariant isNightMode();
-    Q_INVOKABLE void toogleNightMode();
     Q_INVOKABLE void select(const int &item_id);
     Q_INVOKABLE void addToPlaylist(const int &item_id);
     Q_INVOKABLE void addToPlaylist(const int &item_id, const int &subitem_id);
@@ -126,7 +124,6 @@ private:
     MCMediaLibCategory m_oldCat;
     medialibrary::SortingCriteria m_currentSort;
     bool m_isDesc;
-    bool m_isNightMode;
     QList<std::shared_ptr<MLItem>> m_currentObj;
     std::shared_ptr<MLItem> m_currentMainObj;
 

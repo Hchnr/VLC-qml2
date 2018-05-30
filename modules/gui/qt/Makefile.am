@@ -106,8 +106,6 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/epg/EPGWidget.cpp \
 	gui/qt/components/epg/EPGWidget.hpp \
 	gui/qt/components/mediacenter/excallback.hpp \
-	gui/qt/components/mediacenter/vlcstyle.cpp \
-	gui/qt/components/mediacenter/vlcstyle.hpp \
 	gui/qt/components/mediacenter/mcmedialib.cpp \
 	gui/qt/components/mediacenter/mcmedialib.hpp \
 	gui/qt/components/mediacenter/mlalbum.cpp \
@@ -504,7 +502,9 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/playlist/PLItem.qml \
 	gui/qt/qml/playlist/PlaylistGrouped.qml \
 	gui/qt/qml/playlist/PlaylistListView.qml \
-	gui/qt/qml/playlist/PLDisplay.qml
+	gui/qt/qml/playlist/PLDisplay.qml \
+	gui/qt/qml/style/qmldir \
+	gui/qt/qml/style/VLCStyle.qml
 EXTRA_DIST += gui/qt/vlc.qrc $(libqt_plugin_la_RES)
 
 nodist_libqt_plugin_la_SOURCES += gui/qt/resources.cpp

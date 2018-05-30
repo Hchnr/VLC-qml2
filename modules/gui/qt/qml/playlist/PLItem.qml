@@ -24,6 +24,7 @@
 import QtQuick 2.0
 
 import "qrc:///utils/" as Utils
+import "qrc:///style/"
 
 Row {
     id: root
@@ -52,15 +53,12 @@ Row {
 
     // Calculate the correct color for the background
     function calc_bgColor() {
-        if (delete_mouseArea.containsMouse) return vlc_style.bgColor_removeFromPlaylist;
-        else if (medialib.isNightMode()) {
-            if (draggable_item.containsMouse) return vlc_style.hoverBgColor_nightmode;
-            else return vlc_style.bgColor_nightmode;
-        }
-        else {
-            if (draggable_item.containsMouse) return vlc_style.hoverBgColor_daymode;
-            else return vlc_style.bgColor_daymode;
-        }
+        if (delete_mouseArea.containsMouse)
+            return VLCStyle.bgColor_removeFromPlaylist;
+        else if (draggable_item.containsMouse)
+            return VLCStyle.hoverBgColor;
+        else return VLCStyle.bgColor;
+
     }
     // Calculate the text to display
     function calc_text() {
@@ -75,9 +73,9 @@ Row {
     }
     // Calculate the correct color for the text to display
     function calc_textColor() {
-        if (delete_mouseArea.containsMouse) return vlc_style.textColor_removeFromPlaylist
-        else if (medialib.isNightMode()) return vlc_style.textColor_nightmode
-        else return vlc_style.textColor_daymode;
+        if (delete_mouseArea.containsMouse)
+            return VLCStyle.textColor_removeFromPlaylist
+        return VLCStyle.textColor
     }
 
     height: bg.height
@@ -88,19 +86,19 @@ Row {
     Image {
         id: cover
 
-        width: visible ? vlc_style.icon_normal : 0
-        height: visible ? vlc_style.icon_normal : 0
+        width: visible ? VLCStyle.icon_normal : 0
+        height: visible ? VLCStyle.icon_normal : 0
 
         fillMode: Image.PreserveAspectFit
-        source: model !== undefined ? (model.cover || vlc_style.noartCover) : vlc_style.noartCover
+        source: model !== undefined ? (model.cover || VLCStyle.noArtCover) : VLCStyle.noArtCover
     }
 
     /* Button to remove this item from playlist */
     Image {
         id: removeButton
 
-        height: vlc_style.icon_small
-        width: vlc_style.icon_small
+        height: VLCStyle.icon_small
+        width: VLCStyle.icon_small
 
         source: "qrc:///toolbar/clear.svg"
         fillMode: Image.PreserveAspectFit
@@ -133,7 +131,7 @@ Row {
             Text {
                 id: textInfo
 
-                x: vlc_style.margin_small
+                x: VLCStyle.margin_small
 
                 text: calc_text()
                 color: calc_textColor()

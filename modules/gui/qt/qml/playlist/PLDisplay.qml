@@ -23,17 +23,12 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.0
+import "qrc:///style/"
 
 Rectangle {
     id: plDisplay
 
-    property int default_width: vlc_style.defaultWidthPlaylist
-
-    // Force to recalculate the colors
-    function changedNightMode() {
-        color = medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode
-        reloadData();
-    }
+    property int default_width: VLCStyle.defaultWidthPlaylist
 
     // Force the data inside the listview to de reloaded
     function reloadData() {
@@ -42,23 +37,23 @@ Rectangle {
     }
 
     width: default_width
-    color: medialib.isNightMode() ? vlc_style.bgColor_nightmode : vlc_style.bgColor_daymode
+    color: VLCStyle.bgColor
 
     /* Button to show/hide the playlist */
     Image {
         id: toogleBar
 
         x: -width
-        width: vlc_style.icon_small
-        height: vlc_style.icon_small
+        width: VLCStyle.icon_small
+        height: VLCStyle.icon_small
 
         fillMode: Image.PreserveAspectFit
         source: "qrc:///toolbar/playlist.svg"
-        mirror: plDisplay.width <= vlc_style.closedWidthPlaylist ? true : false
+        mirror: plDisplay.width <= VLCStyle.closedWidthPlaylist ? true : false
 
         MouseArea {
             anchors.fill: parent
-            onClicked: { plDisplay.width <= vlc_style.closedWidthPlaylist ? openAnimation.running = true : closeAnimation.running = true }
+            onClicked: { plDisplay.width <= VLCStyle.closedWidthPlaylist ? openAnimation.running = true : closeAnimation.running = true }
         }
     }
 
@@ -76,8 +71,8 @@ Rectangle {
             height: parent.height
             width: parent.width
 
-            vertSpace: vlc_style.margin_xxxsmall
-            horiSpace: vlc_style.margin_xxsmall
+            vertSpace: VLCStyle.margin_xxxsmall
+            horiSpace: VLCStyle.margin_xxsmall
             model: playlist
             dataFunc: function( elt ) { return elt.album_title; }
             delegate: PLItem {
@@ -88,11 +83,11 @@ Rectangle {
                 draggedItemParent: plDisplay
             }
             commonGrouped: Image {
-                width: vlc_style.cover_xsmall
-                height: vlc_style.cover_xsmall
+                width: VLCStyle.cover_xsmall
+                height: VLCStyle.cover_xsmall
 
                 fillMode: Image.PreserveAspectFit
-                source: model !== undefined ? (model.cover || vlc_style.noartCover) : vlc_style.noartCover
+                source: model !== undefined ? (model.cover || VLCStyle.noArtCover) : VLCStyle.noArtCover
             }
 
             ScrollBar.vertical: ScrollBar { }
@@ -106,7 +101,7 @@ Rectangle {
 
         target: plDisplay
         properties: "width"
-        duration: vlc_style.timingPlaylistClose
+        duration: VLCStyle.timingPlaylistClose
         to: 0
         easing.type: Easing.InOutCubic
     }
@@ -117,7 +112,7 @@ Rectangle {
 
         target: plDisplay
         properties: "width"
-        duration: vlc_style.timingPlaylistOpen
+        duration: VLCStyle.timingPlaylistOpen
         to: default_width
         easing.type: Easing.InOutCubic
     }

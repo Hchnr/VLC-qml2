@@ -25,6 +25,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.0
 
 import "qrc:///utils/" as Utils
+import "qrc:///style/"
 
 Loader {
     id: viewLoader
@@ -49,15 +50,15 @@ Loader {
         GridView {
             id: gridView_id
 
-            cellWidth: vlc_style.cover_normal
-            cellHeight: vlc_style.cover_normal + vlc_style.fontSize_small + vlc_style.margin_xsmall
+            cellWidth: VLCStyle.cover_normal
+            cellHeight: VLCStyle.cover_normal + VLCStyle.fontSize_small + VLCStyle.margin_xsmall
 
             model: medialib.getObjects()
             delegate : Utils.GridItem {
                 width: gridView_id.cellWidth
                 height: gridView_id.cellHeight
 
-                cover: Image { source: model.track_cover || vlc_style.noartCover }
+                cover: Image { source: model.track_cover || VLCStyle.noArtCover }
                 name: model.track_title || "Unknown track"
 
                 onItemClicked: console.log('Clicked on details : '+model.track_title)
@@ -79,18 +80,18 @@ Loader {
     Component {
         id: listViewComponent_id
         ListView {
-            spacing: vlc_style.margin_xxxsmall
+            spacing: VLCStyle.margin_xxxsmall
 
             model: medialib.getObjects()
             delegate : Utils.ListItem {
-                height: vlc_style.heightBar_small
+                height: VLCStyle.heightBar_small
                 width: parent.width
 
                 line1: Text{
                     text: (model.track_title || "Unknown track")+" - "+model.track_duration
                     font.bold: true
                     elide: Text.ElideRight
-                    color: medialib.isNightMode() ? vlc_style.textColor_nightmode : vlc_style.textColor_daymode
+                    color: VLCStyle.textColor
                 }
 
                 onItemClicked: console.log("Clicked on : "+model.track_title)
