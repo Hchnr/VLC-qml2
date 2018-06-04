@@ -38,11 +38,11 @@ MLAlbum::MLAlbum(medialibrary::AlbumPtr _data , QObject *_parent) :
     MLItem( _parent )
 {
     // Fill m_tracks
-    std::vector<medialibrary::MediaPtr> t = _data->tracks();
+    std::vector<medialibrary::MediaPtr> t = _data->tracks()->all();
     for (int i=0 ; i<t.size() ; i++ )
         m_tracks.append( std::make_shared<MLAlbumTrack>( t[i] ) );
     // Fill m_otherArtists
-    std::vector<medialibrary::ArtistPtr> a = _data->artists( false );
+    std::vector<medialibrary::ArtistPtr> a = _data->artists( false )->all();
     for (int i=0 ; i<a.size() ; i++ )
         m_otherArtists.append( QString::fromStdString( a[i]->name() ) );
 }
@@ -134,7 +134,7 @@ QString MLAlbum::getPresInfo() const
 QList<MLAlbumTrack*> MLAlbum::getPLTracks() const
 {
     QList<MLAlbumTrack*> result;
-    std::vector<medialibrary::MediaPtr> t = m_data->tracks();
+    std::vector<medialibrary::MediaPtr> t = m_data->tracks()->all();
     for (int i=0 ; i<t.size() ; i++ )
         result.append( new MLAlbumTrack( t[i] ) );
     return result;

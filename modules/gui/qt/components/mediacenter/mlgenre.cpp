@@ -34,15 +34,15 @@ MLGenre::MLGenre(medialibrary::GenrePtr _data, QObject *_parent ) :
     MLItem(_parent)
 {
     // Fill m_artists
-    std::vector<medialibrary::ArtistPtr> a = _data->artists();
+    std::vector<medialibrary::ArtistPtr> a = _data->artists()->all();
     for (int i=0 ; i<a.size() ; i++ )
         m_artists.append( std::make_shared<MLArtist>( a[i] ) );
     // Fill m_tracks
-    std::vector<medialibrary::MediaPtr> t = _data->tracks();
+    std::vector<medialibrary::MediaPtr> t = _data->tracks()->all();
     for (int i=0 ; i<t.size() ; i++ )
         m_tracks.append( std::make_shared<MLAlbumTrack>( t[i] ) );
     // Fill m_albums
-    std::vector<medialibrary::AlbumPtr> a2 = _data->albums();
+    std::vector<medialibrary::AlbumPtr> a2 = _data->albums()->all();
     for (int i=0 ; i<a2.size() ; i++ )
         m_albums.append( std::make_shared<MLAlbum>( a2[i] ) );
 }
@@ -95,7 +95,7 @@ QString MLGenre::getPresInfo() const
 QList<MLAlbumTrack*> MLGenre::getPLTracks() const
 {
     QList<MLAlbumTrack*> result;
-    std::vector<medialibrary::MediaPtr> t = m_data->tracks();
+    std::vector<medialibrary::MediaPtr> t = m_data->tracks()->all();
     for (int i=0 ; i<t.size() ; i++ )
         result.append( new MLAlbumTrack( t[i] ) );
     return result;
