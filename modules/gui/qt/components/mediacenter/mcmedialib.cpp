@@ -425,7 +425,7 @@ void MCMediaLib::sortCurrent()
 void MCMediaLib::retrieveAlbums()
 {
     m_currentObj = QList<std::shared_ptr<MLItem>>();
-    std::vector<medialibrary::AlbumPtr> a = m_ml->albums(m_currentSort, m_isDesc);
+    std::vector<medialibrary::AlbumPtr> a = m_ml->albums(m_currentSort, m_isDesc)->all();
     for ( int i=0 ; i<a.size() ; i++ )
     {
         std::shared_ptr<MLAlbum> item = std::make_shared<MLAlbum>( a[i] );
@@ -436,7 +436,7 @@ void MCMediaLib::retrieveAlbums()
 void MCMediaLib::retrieveArtists()
 {
     m_currentObj = QList<std::shared_ptr<MLItem>>();
-    std::vector<medialibrary::ArtistPtr> a = m_ml->artists(true, m_currentSort, m_isDesc);
+    std::vector<medialibrary::ArtistPtr> a = m_ml->artists(true, m_currentSort, m_isDesc)->all();
     for ( int i=0 ; i<a.size() ; i++ )
     {
         std::shared_ptr<MLArtist> item = std::make_shared<MLArtist>( a[i] );
@@ -447,7 +447,7 @@ void MCMediaLib::retrieveArtists()
 void MCMediaLib::retrieveGenres()
 {
     m_currentObj = QList<std::shared_ptr<MLItem>>();
-    std::vector<medialibrary::GenrePtr> g = m_ml->genres(m_currentSort, m_isDesc);
+    std::vector<medialibrary::GenrePtr> g = m_ml->genres(m_currentSort, m_isDesc)->all();
     for ( int i=0 ; i<g.size() ; i++ )
     {
         std::shared_ptr<MLGenre> item = std::make_shared<MLGenre>( g[i] );
@@ -458,7 +458,7 @@ void MCMediaLib::retrieveGenres()
 void MCMediaLib::retrieveTracks()
 {
     m_currentObj = QList<std::shared_ptr<MLItem>>();
-    std::vector<medialibrary::MediaPtr> t = m_ml->audioFiles(m_currentSort, m_isDesc);
+    std::vector<medialibrary::MediaPtr> t = m_ml->audioFiles(m_currentSort, m_isDesc)->all();
     for ( int i=0 ; i<t.size() ; i++ )
     {
         std::shared_ptr<MLAlbumTrack> item = std::make_shared<MLAlbumTrack>( t[i] );
