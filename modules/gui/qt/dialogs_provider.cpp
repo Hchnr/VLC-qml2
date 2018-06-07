@@ -677,7 +677,7 @@ void DialogsProvider::savePlayingToPlaylist()
 
     if ( psz_selected_module )
     {
-        playlist_Export( THEPL, qtu( toNativeSeparators( file ) ),
+        playlist_Export( THEPL, qtu( toNativeSeparators( file ) ), true,
                          psz_selected_module );
         getSettings()->setValue( "last-playlist-ext", psz_last_playlist_ext );
     }
