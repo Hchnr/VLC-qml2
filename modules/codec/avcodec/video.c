@@ -762,7 +762,7 @@ static void update_late_frame_count( decoder_t *p_dec, block_t *p_block,
    /* Update frame late count (except when doing preroll) */
    mtime_t i_display_date = VLC_TS_INVALID;
    if( !p_block || !(p_block->i_flags & BLOCK_FLAG_PREROLL) )
-       i_display_date = decoder_GetDisplayDate( p_dec, i_pts );
+       i_display_date = decoder_GetDisplayDate( p_dec, current_time, i_pts );
 
    if( i_display_date != VLC_TS_INVALID && i_display_date <= current_time )
    {
