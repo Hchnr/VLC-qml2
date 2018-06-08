@@ -77,8 +77,8 @@ void vlc_clock_Delete(vlc_clock_t * clock);
 /**
  * This function will update the clock drift and returns the drift
  */
-mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t pts,
-                         mtime_t system_now, float rate);
+mtime_t vlc_clock_Update(vlc_clock_t * clock, mtime_t system_now,
+                         mtime_t pts, float rate);
 
 /**
  * This function resets the clock drift
@@ -88,8 +88,7 @@ void vlc_clock_Reset(vlc_clock_t * clock);
 /**
  * This function allows changing the pause status.
  */
-void vlc_clock_ChangePause(vlc_clock_t * clock, bool paused,
-                           mtime_t sysem_now);
+void vlc_clock_ChangePause(vlc_clock_t * clock, mtime_t system_now, bool paused);
 
 mtime_t vlc_clock_SetDelay(vlc_clock_t * clock, mtime_t pts_delay);
 
@@ -106,7 +105,8 @@ int vlc_clock_Wait(vlc_clock_t * clock, mtime_t pts, mtime_t max_duration);
 /**
  * This function converts a timestamp from stream to system
  */
-mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t pts);
+mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t system_now,
+                                  mtime_t pts);
 
 /**
  * This function converts a timestamp from system to stream time

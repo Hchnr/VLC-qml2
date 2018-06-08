@@ -71,10 +71,10 @@ static int var_CopyDevice (vlc_object_t *src, const char *name,
     return var_Set (dst, "audio-device", value);
 }
 
-static void aout_TimingNotify(audio_output_t *aout, mtime_t audio_ts,
-                              mtime_t system_ts)
+static void aout_TimingNotify(audio_output_t *aout, mtime_t system_ts,
+                              mtime_t audio_ts)
 {
-    aout_RequestRetiming(aout, audio_ts, system_ts);
+    aout_RequestRetiming(aout, system_ts, audio_ts);
 }
 
 /**

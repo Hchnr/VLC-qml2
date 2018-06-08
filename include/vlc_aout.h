@@ -112,7 +112,7 @@
 #include <vlc_block.h>
 
 struct vlc_audio_output_events {
-    void (*timing_report)(audio_output_t *, mtime_t, mtime_t);
+    void (*timing_report)(audio_output_t *, mtime_t system_now, mtime_t pts);
     void (*volume_report)(audio_output_t *, float);
     void (*mute_report)(audio_output_t *, bool);
     void (*policy_report)(audio_output_t *, bool);
