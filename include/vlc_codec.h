@@ -61,7 +61,7 @@ struct decoder_owner_callbacks
 
             /* Display date
              * cf. decoder_GetDisplayDate */
-            vlc_tick_t  (*get_display_date)( decoder_t *, vlc_tick_t );
+            vlc_tick_t     (*get_display_date)( decoder_t *, vlc_tick_t, vlc_tick_t );
             /* Display rate
              * cf. decoder_GetDisplayRate */
             float       (*get_display_rate)( decoder_t * );
@@ -434,13 +434,14 @@ static inline int decoder_GetInputAttachments( decoder_t *dec,
  * You MUST use it *only* for gathering statistics about speed.
  */
 VLC_USED
-static inline vlc_tick_t decoder_GetDisplayDate( decoder_t *dec, vlc_tick_t i_ts )
+static inline vlc_tick_t decoder_GetDisplayDate( decoder_t *dec, vlc_tick_t system_now,
+                                              vlc_tick_t i_ts )
 {
     assert( dec->fmt_in.i_cat == VIDEO_ES && dec->cbs != NULL );
     if( !dec->cbs->video.get_display_date )
         return VLC_TS_INVALID;
 
-    return dec->cbs->video.get_display_date( dec, i_ts );
+    return dec->cbs->video.get_display_date( dec,system_now, i_ts );
 }
 
 /**
