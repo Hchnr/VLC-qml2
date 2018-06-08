@@ -894,7 +894,8 @@ static int ThreadDisplayPreparePicture(vout_thread_t *vout, bool reuse, bool fra
                 if (is_late_dropped && !decoded->b_force) {
                     const mtime_t date = mdate();
                     const mtime_t system_pts =
-                        vlc_clock_ConvertToSystem(vout->p->clock, decoded->date);
+                        vlc_clock_ConvertToSystem(vout->p->clock, date,
+                                                  decoded->date);
                     const mtime_t late = date - system_pts;
                     mtime_t late_threshold;
                     if (decoded->format.i_frame_rate && decoded->format.i_frame_rate_base)
@@ -1173,7 +1174,9 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
         return VLC_EGENERIC;
     }
 
-    mtime_t system_pts = vlc_clock_ConvertToSystem(vout->p->clock, todisplay->date);
+    system_now = mdate(); /* XXX update it or use last one ? */
+    mtime_t system_pts = vlc_clock_ConvertToSystem(vout->p->clock, system_now,
+                                                   todisplay->date);
 
     if (sys->display.use_dr) {
         vout_display_Prepare(vd, todisplay, subpic, system_pts);
@@ -1213,7 +1216,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
     vout_display_Display(vd, todisplay, subpic);
 
     const mtime_t now = mdate();
-    const mtime_t drift = vlc_clock_Update(vout->p->clock, todisplay->date, now,
+    const mtime_t drift = vlc_clock_Update(vout->p->clock, now, todisplay->date,
                                            vout->p->rate);
     vout->p->displayed.date = now + (drift != VLC_TS_INVALID ? drift : 0);
 
@@ -1247,7 +1250,8 @@ static int ThreadDisplayPicture(vout_thread_t *vout, mtime_t *deadline)
 
     if (!paused && vout->p->displayed.next) {
         const mtime_t next_system_pts =
-            vlc_clock_ConvertToSystem(vout->p->clock, vout->p->displayed.next->date);
+            vlc_clock_ConvertToSystem(vout->p->clock, date,
+                                      vout->p->displayed.next->date);
 
         date_next = next_system_pts - render_delay;
         if (date_next <= date)
@@ -1351,7 +1355,7 @@ static void ThreadChangePause(vout_thread_t *vout, bool is_paused, mtime_t date)
         vout_window_SetInhibition(window, !is_paused);
 
     if (vout->p->clock)
-        vlc_clock_ChangePause(vout->p->clock, is_paused, date);
+        vlc_clock_ChangePause(vout->p->clock, date, is_paused);
 }
 
 static void ThreadChangeRate(vout_thread_t *vout, float rate)
