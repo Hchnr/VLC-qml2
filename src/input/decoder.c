@@ -620,7 +620,8 @@ static int DecoderGetInputAttachments( decoder_t *p_dec,
                           ppp_attachment, pi_attachment );
 }
 
-static vlc_tick_t DecoderGetDisplayDate( decoder_t *p_dec, vlc_tick_t i_ts )
+static vlc_tick_t DecoderGetDisplayDate( decoder_t *p_dec, vlc_tick_t system_now,
+                                      vlc_tick_t i_ts )
 {
     struct decoder_owner *p_owner = dec_get_owner( p_dec );
 
@@ -632,7 +633,7 @@ static vlc_tick_t DecoderGetDisplayDate( decoder_t *p_dec, vlc_tick_t i_ts )
     if( !p_owner->p_clock || i_ts == VLC_TS_INVALID )
         return i_ts;
 
-    return vlc_clock_ConvertToSystem( p_owner->p_clock, i_ts );
+    return vlc_clock_ConvertToSystem( p_owner->p_clock, system_now, i_ts );
 }
 
 static float DecoderGetDisplayRate( decoder_t *p_dec )

@@ -226,24 +226,12 @@ static void aout_DecSilence (audio_output_t *aout, vlc_tick_t length, vlc_tick_t
     block->i_dts = pts;
     block->i_length = length;
     aout->play(aout, block,
-               vlc_clock_ConvertToSystem(owner->sync.clock, pts));
+               vlc_clock_ConvertToSystem(owner->sync.clock, vlc_tick_now(), pts));
 }
 
-static void aout_DecSynchronize(audio_output_t *aout, vlc_tick_t dec_pts)
+static void aout_DecSynchronize(audio_output_t *aout, vlc_tick_t system_now,
+                                vlc_tick_t dec_pts)
 {
-    aout_owner_t *owner = aout_owner (aout);
-
-    if (owner->sync.request_delay != owner->sync.delay)
-    {
-        owner->sync.delay = owner->sync.request_delay;
-        vlc_tick_t delta = vlc_clock_SetDelay(owner->sync.clock, owner->sync.delay);
-        if (delta > 0)
-            aout_DecSilence (aout, delta, dec_pts);
-    }
-
-    vlc_tick_t now = vlc_tick_now();
-    vlc_tick_t delay;
-
     /**
      * Depending on the drift between the actual and intended playback times,
      * the audio core may ignore the drift, trigger upsampling or downsampling,
@@ -260,18 +248,19 @@ static void aout_DecSynchronize(audio_output_t *aout, vlc_tick_t dec_pts)
      * all samples in the buffer will have been played. Then:
      *    pts = vlc_tick_now() + delay
      */
+    vlc_tick_t delay;
     if (aout->time_get(aout, &delay) != 0)
         return; /* nothing can be done if timing is unknown */
 
-    aout_RequestRetiming(aout, dec_pts - delay, now);
+    aout_RequestRetiming(aout, system_now, dec_pts - delay);
 }
 
-void aout_RequestRetiming(audio_output_t *aout, vlc_tick_t audio_ts,
-                          vlc_tick_t system_ts)
+void aout_RequestRetiming(audio_output_t *aout, vlc_tick_t system_ts,
+                          vlc_tick_t audio_ts)
 {
     aout_owner_t *owner = aout_owner (aout);
     const float rate = owner->sync.rate;
-    vlc_tick_t drift = -vlc_clock_Update(owner->sync.clock, audio_ts, system_ts,
+    vlc_tick_t drift = -vlc_clock_Update(owner->sync.clock, system_ts, audio_ts,
                                       owner->sync.rate);
 
     /* Late audio output.
@@ -398,8 +387,18 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     /* Software volume */
     aout_volume_Amplify (owner->volume, block);
 
+    /* Update delay */
+    if (owner->sync.request_delay != owner->sync.delay)
+    {
+        owner->sync.delay = owner->sync.request_delay;
+        vlc_tick_t delta = vlc_clock_SetDelay(owner->sync.clock, owner->sync.delay);
+        if (delta > 0)
+            aout_DecSilence (aout, delta, block->i_pts);
+    }
+
     /* Drift correction */
-    aout_DecSynchronize(aout, block->i_pts);
+    vlc_tick_t system_now = vlc_tick_now();
+    aout_DecSynchronize(aout, system_now, block->i_pts);
 
     if (owner->sync.delay != 0)
     {
@@ -410,7 +409,7 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     /* Output */
     owner->sync.end = block->i_pts + block->i_length + 1;
     owner->sync.discontinuity = false;
-    aout->play(aout, block, vlc_clock_ConvertToSystem(owner->sync.clock,
+    aout->play(aout, block, vlc_clock_ConvertToSystem(owner->sync.clock, system_now,
                                                       block->i_pts));
     atomic_fetch_add_explicit(&owner->buffers_played, 1, memory_order_relaxed);
     return ret;
@@ -453,7 +452,7 @@ void aout_DecChangePause (audio_output_t *aout, bool paused, vlc_tick_t date)
             aout->flush(aout, false);
     }
 
-    vlc_clock_ChangePause(owner->sync.clock, paused, date);
+    vlc_clock_ChangePause(owner->sync.clock, date, paused);
 }
 
 void aout_DecChangeRate(audio_output_t *aout, float rate)
@@ -483,7 +482,7 @@ void aout_DecFlush (audio_output_t *aout, bool wait)
             if (block)
             {
                 vlc_tick_t date = vlc_clock_ConvertToSystem(owner->sync.clock,
-                                                         block->i_pts);
+                                                         vlc_tick_now(), block->i_pts);
                 aout->play(aout, block, date);
             }
         }

@@ -154,8 +154,8 @@ void aout_DecChangeRate(audio_output_t *aout, float rate);
 void aout_DecChangeDelay(audio_output_t *aout, vlc_tick_t delay);
 void aout_DecFlush(audio_output_t *, bool wait);
 void aout_RequestRestart (audio_output_t *, unsigned);
-void aout_RequestRetiming(audio_output_t *aout, vlc_tick_t audio_ts,
-                          vlc_tick_t system_ts);
+void aout_RequestRetiming(audio_output_t *aout, vlc_tick_t system_ts,
+                          vlc_tick_t audio_ts);
 
 static inline void aout_InputRequestRestart(audio_output_t *aout)
 {

@@ -234,11 +234,11 @@ bool decoder_SynchroChoose( decoder_synchro_t * p_synchro, int i_coding_type,
     case I_CODING_TYPE:
         if( b_low_delay )
         {
-            pts = decoder_GetDisplayDate( p_synchro->p_dec, S.current_pts );
+            pts = decoder_GetDisplayDate( p_synchro->p_dec, now, S.current_pts );
         }
         else if( S.backward_pts )
         {
-            pts = decoder_GetDisplayDate( p_synchro->p_dec, S.backward_pts );
+            pts = decoder_GetDisplayDate( p_synchro->p_dec, now, S.backward_pts );
         }
         else
         {
@@ -247,7 +247,7 @@ bool decoder_SynchroChoose( decoder_synchro_t * p_synchro, int i_coding_type,
              *                      |       +- current picture
              *                      +- current PTS
              */
-            pts = decoder_GetDisplayDate( p_synchro->p_dec, S.current_pts ) + period * (S.i_n_b + 2);
+            pts = decoder_GetDisplayDate( p_synchro->p_dec, now, S.current_pts ) + period * (S.i_n_b + 2);
         }
 
         if( (1 + S.i_n_p * (S.i_n_b + 1)) * period > S.p_tau[I_CODING_TYPE] )
@@ -271,15 +271,15 @@ bool decoder_SynchroChoose( decoder_synchro_t * p_synchro, int i_coding_type,
     case P_CODING_TYPE:
         if( b_low_delay )
         {
-            pts = decoder_GetDisplayDate( p_synchro->p_dec, S.current_pts );
+            pts = decoder_GetDisplayDate( p_synchro->p_dec, now, S.current_pts );
         }
         else if( S.backward_pts )
         {
-            pts = decoder_GetDisplayDate( p_synchro->p_dec, S.backward_pts );
+            pts = decoder_GetDisplayDate( p_synchro->p_dec, now, S.backward_pts );
         }
         else
         {
-            pts = decoder_GetDisplayDate( p_synchro->p_dec, S.current_pts + period * (S.i_n_b + 1) );
+            pts = decoder_GetDisplayDate( p_synchro->p_dec, now, S.current_pts + period * (S.i_n_b + 1) );
         }
 
         if( p_synchro->i_nb_ref < 1 )
@@ -314,7 +314,7 @@ bool decoder_SynchroChoose( decoder_synchro_t * p_synchro, int i_coding_type,
         break;
 
     case B_CODING_TYPE:
-        pts = decoder_GetDisplayDate( p_synchro->p_dec, S.current_pts );
+        pts = decoder_GetDisplayDate( p_synchro->p_dec, now, S.current_pts );
 
         if( p_synchro->i_nb_ref < 2 )
         {
