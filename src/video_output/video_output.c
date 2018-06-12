@@ -338,17 +338,6 @@ void vout_ChangeRate(vout_thread_t *vout, float rate)
     vout_control_WaitEmpty(&vout->p->control);
 }
 
-void vout_ChangeSpuRate(vout_thread_t *vout, int channel, float rate)
-{
-    vout_control_cmd_t cmd;
-    vout_control_cmd_Init(&cmd, VOUT_CONTROL_CHANGE_SPU_RATE);
-    cmd.spu_rate.channel = channel;
-    cmd.spu_rate.value = rate;
-    vout_control_Push(&vout->p->control, &cmd);
-
-    vout_control_WaitEmpty(&vout->p->control);
-}
-
 void vout_ChangeDelay(vout_thread_t *vout, vlc_tick_t delay)
 {
     vout_control_cmd_t cmd;
@@ -435,6 +424,13 @@ int vout_RegisterSubpictureChannel( vout_thread_t *vout )
     vlc_mutex_unlock(&vout->p->spu_lock);
 
     return channel;
+}
+void vout_SetSubpictureClock( vout_thread_t *vout, vlc_clock_t *clock )
+{
+    vlc_mutex_lock(&vout->p->spu_lock);
+    if (vout->p->spu)
+        spu_SetClock(vout->p->spu, clock);
+    vlc_mutex_unlock(&vout->p->spu_lock);
 }
 void vout_FlushSubpictureChannel( vout_thread_t *vout, int channel )
 {
@@ -1021,12 +1017,15 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
      * Get the subpicture to be displayed
      */
     const bool do_snapshot = vout_snapshot_IsRequested(&vout->p->snapshot);
+    /* FIXME: avoid one extra vlc_clock_ConvertToSystem in this function ? */
+    vlc_tick_t system_now = vlc_tick_now();
+    vlc_tick_t render_osd_date = system_now; /* FIXME wrong */
     vlc_tick_t render_subtitle_date;
     if (vout->p->pause.is_on)
         render_subtitle_date = vout->p->pause.date;
     else
-        render_subtitle_date = filtered->date > 1 ? filtered->date : vlc_tick_now();
-    vlc_tick_t render_osd_date = vlc_tick_now(); /* FIXME wrong */
+        render_subtitle_date =
+            vlc_clock_ConvertToSystem(vout->p->clock, system_now, filtered->date);
 
     /*
      * Get the subpicture to be displayed
@@ -1358,24 +1357,18 @@ static void ThreadChangePause(vout_thread_t *vout, bool is_paused, vlc_tick_t da
         vlc_clock_ChangePause(vout->p->clock, date, is_paused);
 }
 
-static void ThreadChangeSpuRate(vout_thread_t *vout, int channel, float rate)
-{
-    /* TODO */
-}
-
 static void ThreadChangeDelay(vout_thread_t *vout, vlc_tick_t delay)
 {
     if (vout->p->clock)
-    {
-        vlc_tick_t drift = vlc_clock_SetDelay(vout->p->clock, delay);
-        /* TODO handle drift if master */
-    }
-
+        vlc_clock_SetDelay(vout->p->clock, delay);
 }
 
 static void ThreadChangeSpuDelay(vout_thread_t *vout, int channel, vlc_tick_t delay)
 {
-    /* TODO */
+    vlc_mutex_lock(&vout->p->spu_lock);
+    if (vout->p->spu)
+        spu_SetClockDelay(vout->p->spu, delay);
+    vlc_mutex_unlock(&vout->p->spu_lock);
 }
 
 static void ThreadFlush(vout_thread_t *vout, bool below, vlc_tick_t date)
@@ -1803,9 +1796,6 @@ static int ThreadControl(vout_thread_t *vout, vout_control_cmd_t cmd)
         break;
     case VOUT_CONTROL_CHANGE_RATE:
         ThreadChangeRate(vout, cmd.rate);
-        break;
-    case VOUT_CONTROL_CHANGE_SPU_RATE:
-        ThreadChangeSpuRate(vout, cmd.spu_rate.channel, cmd.spu_rate.value);
         break;
     case VOUT_CONTROL_CHANGE_DELAY:
         ThreadChangeDelay(vout, cmd.delay);
