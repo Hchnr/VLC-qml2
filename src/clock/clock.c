@@ -117,7 +117,11 @@ static vlc_tick_t vlc_clock_master_update(vlc_clock_t * clock, vlc_tick_t system
         main_clock->reset_date = VLC_TS_INVALID;
         vlc_clock_main_reset(main_clock);
     }
-    main_clock->rate = rate;
+    if (main_clock->rate != rate)
+    {
+        vlc_clock_main_reset(main_clock);
+        main_clock->rate = rate;
+    }
 
     if (unlikely(pts == VLC_TS_INVALID || system_now == VLC_TS_INVALID))
     {
@@ -301,6 +305,11 @@ static vlc_tick_t vlc_clock_slave_update(vlc_clock_t * clock, vlc_tick_t system_
     VLC_UNUSED(rate);
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
+    if (!main_clock->master && main_clock->rate != rate)
+    {
+        vlc_clock_main_reset(main_clock);
+        main_clock->rate = 1 / rate;
+    }
     vlc_tick_t computed = clock->to_system_locked(clock, system_now, pts);
     vlc_mutex_unlock(&main_clock->lock);
     return (computed != INT64_MAX)?(computed - system_now):VLC_TS_INVALID;
