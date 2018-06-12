@@ -1519,7 +1519,7 @@ static void *DecoderThread( void *p_data )
             rate = p_owner->rate;
             vlc_fifo_Unlock( p_owner->p_fifo );
 
-            OutputChangeRate( p_dec, rate );
+            OutputChangeRate( p_dec, 1.f /rate );
 
             vlc_restorecancel( canc );
             vlc_fifo_Lock( p_owner->p_fifo );

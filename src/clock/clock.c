@@ -117,7 +117,6 @@ static vlc_tick_t vlc_clock_master_update(vlc_clock_t * clock, vlc_tick_t system
         main_clock->reset_date = VLC_TS_INVALID;
         vlc_clock_main_reset(main_clock);
     }
-    main_clock->rate = rate;
 
     if (unlikely(pts == VLC_TS_INVALID || system_now == VLC_TS_INVALID))
     {
@@ -130,9 +129,12 @@ static vlc_tick_t vlc_clock_master_update(vlc_clock_t * clock, vlc_tick_t system
         /* We have a reference so we can update coeff */
         float instant_coeff =
             ((float) (system_now - main_clock->last.system))/(pts - main_clock->last.stream);
-        AvgUpdate(&main_clock->coeff_avg, instant_coeff);
-        main_clock->coeff = AvgGet(&main_clock->coeff_avg);
-        /* TODO handle rate change?*/
+        if (rate == main_clock->rate)
+        {
+          instant_coeff *= rate;
+          AvgUpdate(&main_clock->coeff_avg, instant_coeff);
+          main_clock->coeff = AvgGet(&main_clock->coeff_avg);
+        }
     }
     else
         main_clock->wait_sync_ref =
@@ -143,6 +145,7 @@ static vlc_tick_t vlc_clock_master_update(vlc_clock_t * clock, vlc_tick_t system
     if (pts != VLC_TS_INVALID && system_now != VLC_TS_INVALID)
         main_clock->last = clock_point_Create(pts, system_now);
 
+    main_clock->rate = rate;
     vlc_cond_broadcast(&main_clock->cond);
     vlc_mutex_unlock(&main_clock->lock);
     return 0;
@@ -299,6 +302,9 @@ static vlc_tick_t vlc_clock_slave_update(vlc_clock_t * clock, vlc_tick_t system_
     VLC_UNUSED(rate);
     vlc_clock_main_t * main_clock = clock->owner;
     vlc_mutex_lock(&main_clock->lock);
+    if (!main_clock->master && main_clock->rate != rate)
+        main_clock->rate = rate;
+
     vlc_tick_t computed = clock->to_system_locked(clock, system_now, pts);
     vlc_mutex_unlock(&main_clock->lock);
     return (computed != INT64_MAX)?(computed - system_now):VLC_TS_INVALID;
