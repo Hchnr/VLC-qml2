@@ -1019,7 +1019,6 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
     const bool do_snapshot = vout_snapshot_IsRequested(&vout->p->snapshot);
     /* FIXME: avoid one extra vlc_clock_ConvertToSystem in this function ? */
     mtime_t system_now = mdate();
-    mtime_t render_osd_date = system_now; /* FIXME wrong */
     mtime_t render_subtitle_date;
     if (vout->p->pause.is_on)
         render_subtitle_date = vout->p->pause.date;
@@ -1090,7 +1089,7 @@ static int ThreadDisplayRenderPicture(vout_thread_t *vout, bool is_forced)
     subpicture_t *subpic = spu_Render(vout->p->spu,
                                       subpicture_chromas, &fmt_spu_rot,
                                       &vd->source,
-                                      render_subtitle_date, render_osd_date,
+                                      render_subtitle_date, system_now,
                                       do_snapshot);
     /*
      * Perform rendering

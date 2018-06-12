@@ -472,6 +472,16 @@ mtime_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, mtime_t system_now,
     return system;
 }
 
+void vlc_clock_ConvertArrayToSystem(vlc_clock_t * clock, mtime_t system_now,
+                                    mtime_t *pts_array, size_t pts_count)
+{
+    vlc_clock_main_t * main_clock = clock->owner;
+    vlc_mutex_lock(&main_clock->lock);
+    for (size_t i = 0; i < pts_count; ++i)
+        pts_array[i] = clock->to_system_locked(clock, system_now, pts_array[i]);
+    vlc_mutex_unlock(&main_clock->lock);
+}
+
 mtime_t vlc_clock_ConvertToStream(vlc_clock_t * clock, mtime_t system)
 {
     return vlc_clock_to_stream(clock, system);
