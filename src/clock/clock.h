@@ -108,6 +108,9 @@ int vlc_clock_Wait(vlc_clock_t * clock, vlc_tick_t pts, vlc_tick_t max_duration)
 vlc_tick_t vlc_clock_ConvertToSystem(vlc_clock_t * clock, vlc_tick_t system_now,
                                   vlc_tick_t pts);
 
+void vlc_clock_ConvertArrayToSystem(vlc_clock_t * clock, vlc_tick_t system_now,
+                                    vlc_tick_t *pts_array, size_t pts_count);
+
 /**
  * This function converts a timestamp from system to stream time
  */
