@@ -133,7 +133,7 @@ static vout_thread_t *VoutCreate(vlc_object_t *object,
     /* */
     vout->p = (vout_thread_sys_t*)&vout[1];
 
-    vout->p->rate = 1;
+    vout->p->rate = 1.f;
     vout->p->clock = cfg->clock;
     vout->p->original = original;
     vout->p->dpb_size = cfg->dpb_size;
@@ -1357,11 +1357,6 @@ static void ThreadChangePause(vout_thread_t *vout, bool is_paused, mtime_t date)
         vlc_clock_ChangePause(vout->p->clock, date, is_paused);
 }
 
-static void ThreadChangeRate(vout_thread_t *vout, float rate)
-{
-    vout->p->rate = rate;
-}
-
 static void ThreadChangeSpuRate(vout_thread_t *vout, int channel, float rate)
 {
     /* TODO */
@@ -1405,6 +1400,13 @@ static void ThreadFlush(vout_thread_t *vout, bool below, mtime_t date)
     vout_FilterFlush(vout->p->display.vd);
     if (vout->p->clock)
         vlc_clock_Reset(vout->p->clock);
+}
+
+static void ThreadChangeRate(vout_thread_t *vout, float rate)
+{
+    if (rate != vout->p->rate)
+        ThreadFlush(vout, false, 0);
+    vout->p->rate = rate;
 }
 
 static void ThreadStep(vout_thread_t *vout, mtime_t *duration)
