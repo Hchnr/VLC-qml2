@@ -65,6 +65,8 @@ struct spu_private_t {
     vlc_mutex_t  lock;            /* lock to protect all followings fields */
     vlc_object_t *input;
 
+    vlc_clock_t *clock;
+
     spu_heap_t   heap;
 
     int channel;             /**< number of subpicture channels registered */
@@ -1303,6 +1305,7 @@ spu_t *spu_Create(vlc_object_t *object, vout_thread_t *vout)
 
     SpuHeapInit(&sys->heap);
 
+    sys->clock = NULL;
     sys->text = NULL;
     sys->scale = NULL;
     sys->scale_yuvp = NULL;
@@ -1411,6 +1414,17 @@ void spu_Attach(spu_t *spu, vlc_object_t *input, bool attach)
         var_DelCallback(input, "highlight", CropCallback, spu);
         var_Destroy(input, "highlight");
     }
+}
+
+void spu_SetClock(spu_t *spu, vlc_clock_t *clock)
+{
+    spu->p->clock = clock;
+}
+
+void spu_SetClockDelay(spu_t *spu, mtime_t delay)
+{
+    if (spu->p->clock)
+        vlc_clock_SetDelay(spu->p->clock, delay);
 }
 
 /**
