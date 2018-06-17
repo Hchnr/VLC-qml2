@@ -252,7 +252,7 @@ static void aout_DecSynchronize(audio_output_t *aout, mtime_t system_now,
     if (aout->time_get(aout, &delay) != 0)
         return; /* nothing can be done if timing is unknown */
 
-    aout_RequestRetiming(aout, system_now, dec_pts - delay);
+    aout_RequestRetiming(aout, system_now + delay, dec_pts);
 }
 
 void aout_RequestRetiming(audio_output_t *aout, mtime_t system_ts,
@@ -414,6 +414,7 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     owner->sync.discontinuity = false;
     aout->play(aout, block, vlc_clock_ConvertToSystem(owner->sync.clock, system_now,
                                                       block->i_pts));
+    vlc_clock_Wait(owner->sync.clock, block->i_pts, block->i_length);
     atomic_fetch_add_explicit(&owner->buffers_played, 1, memory_order_relaxed);
     return ret;
 drop:
