@@ -645,7 +645,7 @@ static inline size_t ml_count_media_labels( vlc_medialibrary_t* p_ml, ml_query_p
     return count;
 }
 
-#define vlc_ml_release( obj ) (obj)->pf_release( ( obj ) )
+#define vlc_ml_object_release( obj ) (obj)->pf_release( ( obj ) )
 
 VLC_API void vlc_ml_entrypoints_release( ml_entrypoint_t* p_list, size_t i_nb_items );
 
