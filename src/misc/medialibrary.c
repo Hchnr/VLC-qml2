@@ -24,6 +24,10 @@
 
 #include <vlc_common.h>
 #include <vlc_media_library.h>
+#include <vlc_modules.h>
+#include <libvlc.h>
+
+#include <assert.h>
 
 void vlc_ml_entrypoints_release( ml_entrypoint_t* p_list, size_t i_nb_items )
 {
@@ -32,4 +36,26 @@ void vlc_ml_entrypoints_release( ml_entrypoint_t* p_list, size_t i_nb_items )
         free( p_list[i].psz_mrl );
     }
     free( p_list );
+}
+
+#undef vlc_ml_create
+vlc_medialibrary_t* vlc_ml_create( vlc_object_t* p_obj )
+{
+    vlc_medialibrary_t *p_ml = vlc_custom_create( p_obj, sizeof( *p_ml ), "medialibrary" );
+    if ( unlikely( p_ml == NULL ) )
+        return NULL;
+    p_ml->p_module = module_need( p_ml, "medialibrary", NULL, false );
+    if ( p_ml->p_module == NULL )
+    {
+        vlc_object_release( p_ml );
+        return NULL;
+    }
+    return p_ml;
+}
+
+void vlc_ml_release( vlc_medialibrary_t* p_ml )
+{
+    assert( p_ml != NULL );
+    module_unneed( p_ml, p_ml->p_module );
+    vlc_object_release( p_ml );
 }

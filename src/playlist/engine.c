@@ -35,11 +35,9 @@
 #include <vlc_interface.h>
 #include <vlc_http.h>
 #include <vlc_renderer_discovery.h>
+#include <vlc_media_library.h>
 #include "playlist_internal.h"
 #include "input/resource.h"
-
-//DEBUG
-#include <vlc_modules.h>
 
 /*****************************************************************************
  * Local prototypes
@@ -231,8 +229,7 @@ playlist_t *playlist_Create( vlc_object_t *p_parent )
 
     if( var_InheritBool( p_parent, "media-library") )
     {
-        p_playlist->p_media_library = module_need( p_playlist, "medialibrary",
-                                                   NULL, false );
+        p_playlist->p_media_library = vlc_ml_create( p_playlist );
         if ( p_playlist->p_media_library == NULL )
             abort();
     }
@@ -317,7 +314,7 @@ void playlist_Destroy( playlist_t *p_playlist )
         vlc_renderer_item_release( p_sys->p_renderer );
 
     if ( p_playlist->p_media_library )
-        module_unneed( p_playlist, p_playlist->p_media_library );
+        vlc_ml_release( p_playlist->p_media_library );
 
     PL_LOCK;
     /* Release the current node */

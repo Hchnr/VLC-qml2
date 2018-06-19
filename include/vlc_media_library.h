@@ -277,6 +277,9 @@ typedef struct vlc_medialibrary_t vlc_medialibrary_t;
 struct vlc_medialibrary_t
 {
     struct vlc_common_members obj;
+
+    module_t *p_module;
+
     void* p_sys;
 
     int (*pf_control)( vlc_medialibrary_t* p_ml, int i_query, ... );
@@ -647,6 +650,9 @@ static inline size_t ml_count_media_labels( vlc_medialibrary_t* p_ml, ml_query_p
 
 #define vlc_ml_object_release( obj ) (obj)->pf_release( ( obj ) )
 
+VLC_API vlc_medialibrary_t* vlc_ml_create( vlc_object_t* p_obj );
+#define vlc_ml_create(x) vlc_ml_create( VLC_OBJECT( x ) )
+VLC_API void vlc_ml_release( vlc_medialibrary_t* p_ml );
 VLC_API void vlc_ml_entrypoints_release( ml_entrypoint_t* p_list, size_t i_nb_items );
 
 /*****************************************************************************
