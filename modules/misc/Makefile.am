@@ -101,3 +101,11 @@ libxml_plugin_la_LIBADD = $(LIBXML2_LIBS)
 libxml_plugin_la_LDFLAGS = $(AM_LDFLAGS) -rpath '$(miscdir)' $(LDFLAGS_xml)
 EXTRA_LTLIBRARIES += libxml_plugin.la
 misc_LTLIBRARIES += $(LTLIBxml)
+
+libmedialibrary_plugin_la_SOURCES = misc/medialibrary/medialib.cpp misc/medialibrary/MetadataExtractor.cpp misc/medialibrary/entities.cpp
+libmedialibrary_plugin_la_CPPFLAGS = $(AM_CPPFLAGS) $(MEDIALIBRARY_CPPFLAGS)
+libmedialibrary_plugin_la_LIBADD = $(MEDIALIBRARY_LIBS)
+libmedialibrary_plugin_la_LDFLAGS = $(AM_LDFLAGS) -rpath '$(miscdir)'
+EXTRA_LTLIBRARIES += libmedialibrary_plugin.la
+misc_LTLIBRARIES += $(LTLIBmedialibrary)
+
