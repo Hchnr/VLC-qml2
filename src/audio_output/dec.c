@@ -102,6 +102,7 @@ error:
         return -1;
     }
 
+    owner->sync.is_first = true;
     owner->sync.rate = 1.f;
     owner->sync.end = VLC_TS_INVALID;
     owner->sync.resamp_type = AOUT_RESAMPLING_NONE;
@@ -229,8 +230,8 @@ static void aout_DecSilence (audio_output_t *aout, vlc_tick_t length, vlc_tick_t
                vlc_clock_ConvertToSystem(owner->sync.clock, vlc_tick_now(), pts));
 }
 
-static void aout_DecSynchronize(audio_output_t *aout, vlc_tick_t system_now,
-                                vlc_tick_t dec_pts)
+static vlc_tick_t aout_DecSynchronize(audio_output_t *aout, vlc_tick_t system_now,
+                                   block_t *block)
 {
     /**
      * Depending on the drift between the actual and intended playback times,
@@ -248,11 +249,39 @@ static void aout_DecSynchronize(audio_output_t *aout, vlc_tick_t system_now,
      * all samples in the buffer will have been played. Then:
      *    pts = vlc_tick_now() + delay
      */
+    aout_owner_t *owner = aout_owner (aout);
     vlc_tick_t delay;
-    if (aout->time_get(aout, &delay) != 0)
-        return; /* nothing can be done if timing is unknown */
+    if (aout->time_get(aout, &delay) == 0)
+    {
+        if (owner->sync.is_first)
+        {
+            vlc_tick_t system_pts =
+                vlc_clock_ConvertToSystem(owner->sync.clock, system_now + delay,
+                                          block->i_pts);
+            vlc_tick_t silence_delay = system_pts - system_now;
+            if (silence_delay > 0)
+                aout_DecSilence (aout, silence_delay, block->i_pts);
+            if (aout->time_get(aout, &delay) == 0)
+                aout_RequestRetiming(aout, system_now + delay, block->i_pts);
+        }
+        else
+            aout_RequestRetiming(aout, system_now + delay, block->i_pts);
+    }
 
-    aout_RequestRetiming(aout, system_now, dec_pts - delay);
+    if (owner->sync.delay != 0)
+    {
+        block->i_pts += owner->sync.delay;
+        block->i_dts += owner->sync.delay;
+    }
+
+    vlc_tick_t system_pts = vlc_clock_ConvertToSystem(owner->sync.clock, system_now,
+                                                   block->i_pts);
+
+    owner->sync.end = block->i_pts + block->i_length + 1;
+    owner->sync.discontinuity = false;
+    owner->sync.is_first = false;
+
+    return system_pts;
 }
 
 void aout_RequestRetiming(audio_output_t *aout, vlc_tick_t system_ts,
@@ -397,20 +426,10 @@ int aout_DecPlay(audio_output_t *aout, block_t *block)
     }
 
     /* Drift correction */
-    vlc_tick_t system_now = vlc_tick_now();
-    aout_DecSynchronize(aout, system_now, block->i_pts);
-
-    if (owner->sync.delay != 0)
-    {
-        block->i_pts += owner->sync.delay;
-        block->i_dts += owner->sync.delay;
-    }
+    vlc_tick_t system_pts = aout_DecSynchronize(aout, vlc_tick_now(), block);
 
     /* Output */
-    owner->sync.end = block->i_pts + block->i_length + 1;
-    owner->sync.discontinuity = false;
-    aout->play(aout, block, vlc_clock_ConvertToSystem(owner->sync.clock, system_now,
-                                                      block->i_pts));
+    aout->play(aout, block, system_pts);
     atomic_fetch_add_explicit(&owner->buffers_played, 1, memory_order_relaxed);
     return ret;
 drop:
@@ -473,6 +492,7 @@ void aout_DecFlush (audio_output_t *aout, bool wait)
 {
     aout_owner_t *owner = aout_owner (aout);
 
+    owner->sync.is_first = true;
     owner->sync.end = VLC_TS_INVALID;
     if (owner->mixer_format.i_format)
     {

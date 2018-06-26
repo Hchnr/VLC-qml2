@@ -72,6 +72,7 @@ typedef struct
 
     struct
     {
+        bool is_first;
         vlc_tick_t end; /**< Last seen PTS */
         struct vlc_clock_t *clock;
         float rate; /**< Play-out speed rate */
