@@ -1485,6 +1485,12 @@ void spu_SetClock(spu_t *spu, vlc_clock_t *clock)
     spu->p->clock = clock;
 }
 
+void spu_SetClockDelay(spu_t *spu, vlc_tick_t delay)
+{
+    if (spu->p->clock)
+        vlc_clock_SetDelay(spu->p->clock, delay);
+}
+
 /**
  * Inform the SPU filters of mouse event
  */

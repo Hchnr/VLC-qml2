@@ -92,6 +92,13 @@ void vlc_clock_ChangePause(vlc_clock_t * clock, bool paused,
                            vlc_tick_t sysem_now);
 
 /**
+ * This functions change the clock delay.
+ * It returns the amount of time the clock owner need to wait in order to reach
+ * the time introduced by the new positive delay.
+ */
+vlc_tick_t vlc_clock_SetDelay(vlc_clock_t * clock, vlc_tick_t pts_delay);
+
+/**
  * This function returns the current rate.
  */
 float vlc_clock_GetRate(vlc_clock_t * clock);

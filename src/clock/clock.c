@@ -62,6 +62,7 @@ struct vlc_clock_t
                       vlc_tick_t system_now, float rate);
     void (*reset)(vlc_clock_t * clock);
     void (*pause)(vlc_clock_t * clock, bool paused, vlc_tick_t now);
+    vlc_tick_t (*set_delay)(vlc_clock_t * clock, vlc_tick_t delay);
     void (*set_dejitter)(vlc_clock_t * clock, vlc_tick_t delay, int cr_avg);
     vlc_tick_t (*to_system_locked)(vlc_clock_t * clock, vlc_tick_t now, vlc_tick_t pts);
 
@@ -183,6 +184,28 @@ static void vlc_clock_master_pause(vlc_clock_t * clock, bool paused, vlc_tick_t 
     vlc_mutex_unlock(&main_clock->lock);
 }
 
+static vlc_tick_t vlc_clock_master_set_delay(vlc_clock_t * clock, vlc_tick_t delay)
+{
+    vlc_clock_main_t * main_clock = clock->owner;
+    vlc_mutex_lock(&main_clock->lock);
+
+    vlc_tick_t delta = delay - main_clock->delay;
+    main_clock->delay = delay;
+    if (delta > 0)
+    {
+        if (main_clock->reset_date == VLC_TS_INVALID)
+            main_clock->reset_date = vlc_tick_now() + delta;
+        else
+            main_clock->reset_date += delta;
+    }
+    else
+        delta = 0;
+
+    vlc_cond_broadcast(&main_clock->cond);
+    vlc_mutex_unlock(&main_clock->lock);
+    return delta;
+}
+
 static float vlc_clock_get_rate(vlc_clock_t * clock)
 {
     float rate;
@@ -295,6 +318,18 @@ static void vlc_clock_slave_pause(vlc_clock_t * clock, bool paused, vlc_tick_t n
     VLC_UNUSED(now);
 }
 
+static vlc_tick_t vlc_clock_slave_set_delay(vlc_clock_t * clock, vlc_tick_t delay)
+{
+    vlc_clock_main_t * main_clock = clock->owner;
+    vlc_mutex_lock(&main_clock->lock);
+
+    clock->delay = delay;
+
+    vlc_cond_broadcast(&main_clock->cond);
+    vlc_mutex_unlock(&main_clock->lock);
+    return 0;
+}
+
 int vlc_clock_Wait(vlc_clock_t * clock, vlc_tick_t pts, vlc_tick_t max_duration)
 {
     vlc_clock_main_t * main_clock = clock->owner;
@@ -404,6 +439,11 @@ void vlc_clock_ChangePause(vlc_clock_t * clock, bool paused, vlc_tick_t system_n
     clock->pause(clock, paused, system_now);
 }
 
+vlc_tick_t vlc_clock_SetDelay(vlc_clock_t * clock, vlc_tick_t delay)
+{
+    return clock->set_delay(clock, delay);
+}
+
 float vlc_clock_GetRate(vlc_clock_t * clock)
 {
     return vlc_clock_get_rate(clock);
@@ -449,6 +489,7 @@ static void vlc_clock_set_master_cbk(vlc_clock_t * clk)
     clk->update = vlc_clock_master_update;
     clk->reset = vlc_clock_master_reset;
     clk->pause = vlc_clock_master_pause;
+    clk->set_delay = vlc_clock_master_set_delay;
     clk->set_dejitter = vlc_clock_master_set_dejitter;
     clk->to_system_locked = vlc_clock_master_to_system_locked;
 }
@@ -458,6 +499,7 @@ static void vlc_clock_set_slave_cbk(vlc_clock_t * clk)
     clk->update = vlc_clock_slave_update;
     clk->reset = vlc_clock_slave_reset;
     clk->pause = vlc_clock_slave_pause;
+    clk->set_delay = vlc_clock_slave_set_delay;
     clk->set_dejitter = vlc_clock_slave_set_dejitter;
     clk->to_system_locked = vlc_clock_slave_to_system_locked;
 }
