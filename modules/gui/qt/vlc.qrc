@@ -195,4 +195,20 @@
         <file alias="qmldir">qml/style/qmldir</file>
         <file alias="VLCStyle.qml">qml/style/VLCStyle.qml</file>
     </qresource>
+    <qresource prefix="/controlbar">
+        <file alias="main.qml">qml/controlbar/main.qml</file>
+        <file alias="VideoWidget.qml">qml/controlbar/VideoWidget.qml</file>
+    </qresource>
+    <qresource prefix="/controlbar/Menu">
+        <file alias="ContextMenu.qml">qml/controlbar/Menu/ContextMenu.qml</file>
+        <file alias="SubtitleMenu.qml">qml/controlbar/Menu/SubtitleMenu.qml</file>
+    </qresource>
+    <qresource prefix="/controlbar/Toolbar">
+        <file alias="BottomToolbar.qml">qml/controlbar/Toolbar/BottomToolbar.qml</file>
+        <file alias="CenterToolbar.qml">qml/controlbar/Toolbar/CenterToolbar.qml</file>
+        <file alias="LeftToolbar.qml">qml/controlbar/Toolbar/LeftToolbar.qml</file>
+        <file alias="RightToolbar.qml">qml/controlbar/Toolbar/RightToolbar.qml</file>
+        <file alias="SliderBar.qml">qml/controlbar/Toolbar/SliderBar.qml</file>
+        <file alias="Subtitle.qml">qml/controlbar/Toolbar/Subtitle.qml</file>
+    </qresource>
 </RCC>

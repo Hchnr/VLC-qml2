@@ -31,6 +31,7 @@
 
 #include <QSystemTrayIcon>
 #include <QStackedWidget>
+#include <QtQuickWidgets/QQuickWidget>
 
 #ifdef _WIN32
 # include <shobjidl.h>
@@ -143,6 +144,7 @@ protected:
     QString              input_name;
     QVBoxLayout         *mainLayout;
     ControlsWidget      *controls;
+    QQuickWidget        *controlsBar;
     InputControlsWidget *inputC;
     FullscreenControllerWidget *fullscreenControls;
 
@@ -284,6 +286,20 @@ signals:
     void askBoss();
     void askRaise();
     void kc_pressed(); /* easter eggs */
+};
+
+/* model for qml-controlbar */
+class ModelObject : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString widgetName READ widgetName NOTIFY widgetNameChanged)
+public:
+    ModelObject(QString name) { m_widgetName = name; }
+    QString widgetName() {return m_widgetName;}
+signals:
+    void  widgetNameChanged();
+private:
+    QString m_widgetName;
 };
 
 #endif

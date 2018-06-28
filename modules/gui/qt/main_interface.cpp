@@ -59,10 +59,13 @@
 #include <QWindow>
 #include <QMenu>
 #include <QMenuBar>
+#include <QSignalMapper>
 #include <QStatusBar>
 #include <QLabel>
 #include <QStackedWidget>
 #include <QScreen>
+#include <QQmlContext>
+#include <QtQuickWidgets/QQuickWidget>
 #ifdef _WIN32
 #include <QFileInfo>
 #endif
@@ -497,11 +500,58 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     controls = new ControlsWidget( p_intf,
         creationSettings->value( "MainWindow/adv-controls", false ).toBool(), this );
     inputC = new InputControlsWidget( p_intf, this );
+    controls->setVisible(false);
+    inputC->setVisible(false);
 
+     /* Add models for qml-ControlBar, hechenrui 20180620*/
+    QStringList leftbar, centerbar, rightbar;
+    if ( settings->value("MainWindow/qmlcontrolbar", false).toBool() ){
+        settings->beginGroup("MainWindow");
+        settings->beginGroup("Controlbar");
+        leftbar << "Bookmark" << "Subtitle" << "Random" << "Loop";
+        centerbar << "Slower" << "Previous" << "Play" << "Next" << "Faster";
+        rightbar << "Fullscreen" << "Playlist" << "TBD";
+        settings->setValue( "lefttoolbar", leftbar);
+        settings->setValue( "centertoolbar", centerbar);
+        settings->setValue( "righttoolbar", rightbar);
+        settings->endGroup();
+        settings->endGroup();
+    }
+
+    /* get models for qml-controlbar */
+    leftbar = settings->value("MainWindow/Controlbar/lefttoolbar").toStringList();
+    centerbar = settings->value("MainWindow/Controlbar/centertoolbar").toStringList();
+    rightbar = settings->value("MainWindow/Controlbar/righttoolbar").toStringList();
+    QList<QObject*> leftList, centerList, rightList;
+    for (int i = 0; i < leftbar.size(); i ++) {
+        leftList.append(new ModelObject(leftbar[i]));
+    }
+    for (int i = 0; i < centerbar.size(); i ++) {
+         centerList.append(new ModelObject(centerbar[i]));
+    }
+    for (int i = 0; i < rightbar.size(); i ++) {
+         rightList.append(new ModelObject(rightbar[i]));
+    }
+
+    /* add qml toolbar here */
+    controlsBar = new QQuickWidget();
+    QQmlContext *rootCtx = controlsBar->rootContext();
+    rootCtx->setContextProperty("leftbarList", QVariant::fromValue(leftList));
+    rootCtx->setContextProperty("centerbarList", QVariant::fromValue(centerList));
+    rootCtx->setContextProperty("rightbarList", QVariant::fromValue(rightList));
+    controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/Toolbar/BottomToolbar.qml") ) );
+    controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+    QObject *item = (QObject*) controlsBar->rootObject();
+    CONNECT(item, testStop(), (QObject*) controls->toolbarActionsMapper, map());
+    controls->toolbarActionsMapper->setMapping(item, STOP_ACTION);
+    /*
     mainLayout->insertWidget( 2, inputC );
     mainLayout->insertWidget(
         creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3,
         controls );
+    */
+    mainLayout->insertWidget(creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3, controlsBar );
 
     /* Visualisation, disabled for now, they SUCK */
     #if 0
