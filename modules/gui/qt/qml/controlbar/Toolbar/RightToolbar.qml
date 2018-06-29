@@ -17,7 +17,9 @@ ToolBar{
 
                 onClicked: {
                     if (widgetName === "TBD") {
-                        emit: controlbar.testStop()
+                        // 1 for stop
+                        controls.doAction2(1);
+                        console.log(controls)
                     }
                 }
 

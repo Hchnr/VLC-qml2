@@ -9,7 +9,7 @@ Rectangle {
     height: sliderBar.height + toolBar.height
     property alias sliderBar: sliderBar
     property alias toolBar: toolBar
-    signal testStop()
+    // signal testStop()
 
     // get the icon path of widgets
     function getIconFromName(name) {
@@ -27,6 +27,10 @@ Rectangle {
               "TBD": "qrc:///toolbar/extended.svg",
         }
         return m[name]
+    }
+    Component.onCompleted: {
+        controls.doAction2(1)
+        console.log("do this at root node.")
     }
 
     Column{

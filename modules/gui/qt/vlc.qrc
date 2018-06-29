@@ -196,7 +196,6 @@
         <file alias="VLCStyle.qml">qml/style/VLCStyle.qml</file>
     </qresource>
     <qresource prefix="/controlbar">
-        <file alias="main.qml">qml/controlbar/main.qml</file>
         <file alias="VideoWidget.qml">qml/controlbar/VideoWidget.qml</file>
     </qresource>
     <qresource prefix="/controlbar/Menu">

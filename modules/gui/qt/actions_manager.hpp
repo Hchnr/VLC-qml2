@@ -82,6 +82,7 @@ public slots:
     void record();
     void skipForward();
     void skipBackward();
+    virtual void doAction( int );
 
 protected slots:
     void fullscreen();
@@ -89,7 +90,8 @@ protected slots:
     void playlist();
     void frame();
 
-    virtual void doAction( int );
+    /* need to call it from QML side
+     * virtual void doAction( int ); */
 };
 
 #endif
