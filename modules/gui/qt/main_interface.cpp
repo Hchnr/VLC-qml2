@@ -539,7 +539,8 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     rootCtx->setContextProperty("leftbarList", QVariant::fromValue(leftList));
     rootCtx->setContextProperty("centerbarList", QVariant::fromValue(centerList));
     rootCtx->setContextProperty("rightbarList", QVariant::fromValue(rightList));
-    rootCtx->setContextProperty("controls", controls);
+    ActionsManager *actionsManager = ActionsManager::getInstance(p_intf);
+    rootCtx->setContextProperty("actionsManager", actionsManager);
     controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/Toolbar/BottomToolbar.qml") ) );
     controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
 

@@ -21,10 +21,12 @@ ToolBar{
                     y: 110
                 }
                 onClicked: {
-                    console.log(model.modelData.widgetName + " clicked.")
-                    if (model.modelData.widgetName === "Subtitle" ) {
-                        // console.log("subtile options:")
-                        subtitleMenu.open()
+                    console.log(widgetName + " clicked.")
+                    switch ( widgetName ) {
+                        case "Bookmark": actionsManager.doAction(controlbar.getActionFromName("SNAPSHOT_ACTION")); break;
+                        case "Subtitle": actionsManager.doAction(controlbar.getActionFromName("OPEN_SUB_ACTION")); break;
+                        case "Random": actionsManager.doAction(controlbar.getActionFromName("RANDOM_ACTION")); break;
+                        case "Loop": actionsManager.doAction(controlbar.getActionFromName("LOOP_ACTION")); break;
                     }
                 }
             }

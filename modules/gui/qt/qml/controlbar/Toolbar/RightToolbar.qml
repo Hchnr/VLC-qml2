@@ -16,10 +16,12 @@ ToolBar{
                 }
 
                 onClicked: {
-                    if (widgetName === "TBD") {
-                        // 1 for stop
-                        controls.doAction2(1);
-                        console.log(controls)
+                    console.log(widgetName + " clicked.")
+                    switch ( widgetName )
+                    {
+                    case "TBD": actionsManager.doAction(controlbar.getActionFromName("STOP_ACTION")); break;
+                    case "Playlist": actionsManager.doAction(controlbar.getActionFromName("PLAYLIST_ACTION")); break;
+                    case "Fullsreen": actionsManager.doAction(controlbar.getActionFromName("FULLSCREEN_ACTION")); break;
                     }
                 }
 

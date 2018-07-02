@@ -82,7 +82,7 @@ public slots:
     void record();
     void skipForward();
     void skipBackward();
-    virtual void doAction( int );
+    Q_INVOKABLE virtual void doAction( int );
 
 protected slots:
     void fullscreen();
