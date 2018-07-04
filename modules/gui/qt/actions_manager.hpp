@@ -32,8 +32,9 @@
 #include "util/singleton.hpp"
 
 #include <QObject>
+#include <QQmlEngine>
 
-typedef enum actionType_e
+enum actionType_e
 {
     PLAY_ACTION,
     STOP_ACTION,
@@ -58,15 +59,20 @@ typedef enum actionType_e
     LOOP_ACTION,
     INFO_ACTION,
     OPEN_SUB_ACTION,
-} actionType_e;
+};
 
 class ActionsManager : public QObject, public Singleton<ActionsManager>
 {
 
     Q_OBJECT
+    /* Q_PROPERTY(ActionType actionType READ actionType WRITE setActionType NOTIFY actionTypeChanged) */
+
     friend class Singleton<ActionsManager>;
 
 public:
+
+signals:
+    void actionTypeChanged();
 
 private:
     ActionsManager( intf_thread_t  *_p_i );
@@ -92,6 +98,43 @@ protected slots:
 
     /* need to call it from QML side
      * virtual void doAction( int ); */
+};
+
+class ActionType_e : public QObject
+{
+    Q_OBJECT
+
+public:
+    enum ActionType
+    {
+        PLAY_ACTION,
+        STOP_ACTION,
+        OPEN_ACTION,
+        PREVIOUS_ACTION,
+        NEXT_ACTION,
+        SLOWER_ACTION,
+        FASTER_ACTION,
+        FULLSCREEN_ACTION,
+        FULLWIDTH_ACTION,
+        EXTENDED_ACTION,
+        PLAYLIST_ACTION,
+        SNAPSHOT_ACTION,
+        RECORD_ACTION,
+        FRAME_ACTION,
+        ATOB_ACTION,
+        REVERSE_ACTION,
+        SKIP_BACK_ACTION,
+        SKIP_FW_ACTION,
+        QUIT_ACTION,
+        RANDOM_ACTION,
+        LOOP_ACTION,
+        INFO_ACTION,
+        OPEN_SUB_ACTION,
+    };
+    Q_ENUMS(ActionType)
+    static void declareQML() {
+        qmlRegisterType<ActionType_e>("CommonParameter",1,0,"CommonParameter");
+    }
 };
 
 #endif
