@@ -220,6 +220,9 @@ private slots:
     void setDisplayPosition( float pos );
 signals:
     void broadcastRemainingTime( bool );
+    /* for QML time label */
+    // void settimelabel( TimeLabel::Display dis, QString tm);
+    void settimelabel( QString tm);
 };
 
 class SpeedLabel : public QLabel

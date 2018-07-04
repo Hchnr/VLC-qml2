@@ -7,6 +7,7 @@ import CommonParameter 1.0
 ToolBar{
     id: centerToolbar
     height: parent.height
+
     property alias centerToolbarRp: centerToolbarRp
     property bool isPlay: true
     RowLayout{

@@ -3,7 +3,6 @@ import QtQuick 2.0
 Item {
     id: slider
     height: 26
-    width: 100
 
     property real min: 0
     property real max: 1

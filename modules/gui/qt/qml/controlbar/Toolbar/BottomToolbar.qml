@@ -52,13 +52,12 @@ Rectangle {
     Column{
         anchors.bottom: parent.bottom
         width: parent.width
-        SliderBar{
+
+        InputController {
             id: sliderBar
-            width: parent.width
-            height: 10
-            value: 0
-            init : 0
+            height:15
         }
+
         RowLayout{
             id: toolBar
             width: parent.width

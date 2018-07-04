@@ -209,5 +209,6 @@
         <file alias="RightToolbar.qml">qml/controlbar/Toolbar/RightToolbar.qml</file>
         <file alias="SliderBar.qml">qml/controlbar/Toolbar/SliderBar.qml</file>
         <file alias="Subtitle.qml">qml/controlbar/Toolbar/Subtitle.qml</file>
+        <file alias="InputController.qml">qml/controlbar/Toolbar/InputController.qml</file>
     </qresource>
 </RCC>

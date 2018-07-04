@@ -1023,17 +1023,20 @@ void TimeLabel::setDisplayPosition( float pos, int64_t t, int length )
         case TimeLabel::Elapsed:
             setMinimumSize( minsize );
             setText( QString( psz_time ) );
+            emit settimelabel( QString( psz_time ) );
             break;
         case TimeLabel::Remaining:
             if( b_remainingTime )
             {
                 setMinimumSize( minsize );
                 setText( QString("-") + QString( psz_time ) );
+                emit settimelabel( QString("-") + QString( psz_time ) );
             }
             else
             {
                 setMinimumSize( QSize( 0, 0 ) );
                 setText( QString( psz_length ) );
+                emit settimelabel( QString( psz_length ) );
             }
             break;
         case TimeLabel::Both:
@@ -1044,6 +1047,7 @@ void TimeLabel::setDisplayPosition( float pos, int64_t t, int length )
             .arg( QString( ( !length && time ) ? "--:--" : psz_length ) );
 
             setText( timestr );
+            emit settimelabel( timestr );
             break;
     }
     cachedLength = length;
