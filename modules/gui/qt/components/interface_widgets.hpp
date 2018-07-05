@@ -222,7 +222,58 @@ signals:
     void broadcastRemainingTime( bool );
     /* for QML time label */
     // void settimelabel( TimeLabel::Display dis, QString tm);
-    void settimelabel( QString tm);
+    void settimelabel( QString display, QString name);
+};
+
+class TimeLabelModel : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString strElapsed READ strElapsed WRITE setStrElapsed NOTIFY strElapsedChanged)
+    Q_PROPERTY(QString strRemaining READ strRemaining WRITE setStrRemaining NOTIFY strRemainingChanged)
+    Q_PROPERTY(QString strBoth READ strBoth WRITE setStrBoth NOTIFY strBothChanged)
+public:
+    enum Display
+    {
+        Elapsed,
+        Remaining,
+        Both
+    };
+    Q_ENUMS(Display)
+    static void declareQML() {
+        qmlRegisterType<TimeLabelModel>("CommonParameter",1,0,"CommonParameter");
+    }
+    TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType = TimeLabelModel::Both );
+    TimeLabelModel() {}
+    QString strElapsed() const { return _strElapsed; }
+    void setStrElapsed(QString l) { _strElapsed = l; emit strElapsedChanged(); }
+    QString strRemaining() const { return _strRemaining; }
+    void setStrRemaining(QString t) { _strRemaining = t; emit strRemainingChanged(); }
+    QString strBoth() const { return _strBoth; }
+    void setStrBoth(QString t) { _strBoth = t; emit strBothChanged(); }
+
+signals:
+    void strElapsedChanged();
+    void strRemainingChanged();
+    void strBothChanged();
+
+private:
+    intf_thread_t *p_intf;
+    bool b_remainingTime;
+    float cachedPos;
+    int64_t cachedTime;
+    int cachedLength;
+    TimeLabelModel::Display displayType;
+
+    char psz_length[MSTRTIME_MAX_SIZE];
+    char psz_time[MSTRTIME_MAX_SIZE];
+    QString _strElapsed;
+    QString _strRemaining;
+    QString _strBoth;
+
+private slots:
+    void setDisplayPosition( float pos, int64_t time, int length );
+    void setDisplayPosition( float pos );
+
 };
 
 class SpeedLabel : public QLabel

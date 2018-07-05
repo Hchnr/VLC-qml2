@@ -921,6 +921,75 @@ void CoverArtLabel::clear()
     showArtUpdate( "" );
 }
 
+TimeLabelModel::TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType  )
+    : QObject()
+    , p_intf( _p_intf )
+    , cachedPos( -1 )
+    , cachedTime( 0 )
+    , cachedLength( 0 )
+    , displayType( _displayType )
+{
+    b_remainingTime = false;
+    if( _displayType != TimeLabel::Elapsed )
+        b_remainingTime = getSettings()->value( "MainWindow/ShowRemainingTime", false ).toBool();
+
+    _strElapsed = QString("--:--");
+    _strRemaining = QString("--:--");
+    _strBoth = QString("--:--");
+
+    CONNECT( THEMIM->getIM(), seekRequested( float ),
+             this, setDisplayPosition( float ) );
+
+    CONNECT( THEMIM->getIM(), positionUpdated( float, int64_t, int ),
+              this, setDisplayPosition( float, int64_t, int ) );
+}
+
+void TimeLabelModel::setDisplayPosition( float pos, int64_t t, int length )
+{
+    cachedPos = pos;
+    if( pos == -1.f ) return;
+
+    int time = t / 1000000;
+
+    secstotimestr( psz_length, length );
+    secstotimestr( psz_time, ( b_remainingTime && length ) ? length - time
+                                                           : time );
+
+    switch( displayType )
+    {
+        case TimeLabelModel::Elapsed:
+            setStrElapsed( QString( psz_time ) );
+            break;
+        case TimeLabel::Remaining:
+            if( b_remainingTime )
+            {
+                setStrRemaining( QString("-") + QString( psz_time ) );
+            }
+            else
+            {
+                setStrRemaining( QString( psz_length ) );
+            }
+            break;
+        case TimeLabel::Both:
+        default:
+            QString timestr = QString( "%1%2/%3" )
+            .arg( QString( (b_remainingTime && length) ? "-" : "" ) )
+            .arg( QString( psz_time ) )
+            .arg( QString( ( !length && time ) ? "--:--" : psz_length ) );
+
+            setStrBoth( timestr );
+            break;
+    }
+    cachedLength = length;
+    cachedTime = t;
+}
+
+void TimeLabelModel::setDisplayPosition( float pos )
+{
+    int64_t time = pos * cachedLength * 1000000;
+    setDisplayPosition( pos, time, cachedLength );
+}
+
 TimeLabel::TimeLabel( intf_thread_t *_p_intf, TimeLabel::Display _displayType  )
     : ClickableQLabel()
     , p_intf( _p_intf )
@@ -1023,20 +1092,20 @@ void TimeLabel::setDisplayPosition( float pos, int64_t t, int length )
         case TimeLabel::Elapsed:
             setMinimumSize( minsize );
             setText( QString( psz_time ) );
-            emit settimelabel( QString( psz_time ) );
+            emit settimelabel( QString( psz_time ), QString("Elapsed") );
             break;
         case TimeLabel::Remaining:
             if( b_remainingTime )
             {
                 setMinimumSize( minsize );
                 setText( QString("-") + QString( psz_time ) );
-                emit settimelabel( QString("-") + QString( psz_time ) );
+                emit settimelabel( QString("-") + QString( psz_time ), QString("Remaining") );
             }
             else
             {
                 setMinimumSize( QSize( 0, 0 ) );
                 setText( QString( psz_length ) );
-                emit settimelabel( QString( psz_length ) );
+                emit settimelabel( QString( psz_length ), QString("Remaining") );
             }
             break;
         case TimeLabel::Both:
@@ -1047,7 +1116,7 @@ void TimeLabel::setDisplayPosition( float pos, int64_t t, int length )
             .arg( QString( ( !length && time ) ? "--:--" : psz_length ) );
 
             setText( timestr );
-            emit settimelabel( timestr );
+            emit settimelabel( timestr, QString("Both") );
             break;
     }
     cachedLength = length;

@@ -544,6 +544,10 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     TimeLabel *timeLabel = new TimeLabel( p_intf, TimeLabel::Elapsed );
     rootCtx->setContextProperty("timeLabel", timeLabel);
     ActionType_e::declareQML();
+    TimeLabelModel *elapsed = new TimeLabelModel(p_intf, TimeLabelModel::Elapsed);
+    TimeLabelModel *remaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
+    rootCtx->setContextProperty("elapsedTimeLabel", elapsed);
+    rootCtx->setContextProperty("remainingTimeLabel", remaining);
     controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/Toolbar/BottomToolbar.qml") ) );
     controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
 

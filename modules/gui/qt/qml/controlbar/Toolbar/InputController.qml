@@ -4,23 +4,11 @@ import QtQuick.Layouts 1.3
 Rectangle {
     id: inputControl
     width: parent.width
-
-    Connections {
-        target: timeLabel
-        onSettimelabel: {
-            console.log(tm);
-            timeElapsed.text = tm ;
-        }
-
-        Component.onCompleted: {
-            console.log(timeLabel)
-        }
-    }
     Text{
         id: timeElapsed
         width: 40
         anchors.left: parent.left
-        text: "--:--"
+        text: elapsedTimeLabel.strElapsed
     }
     SliderBar{
         id: sliderBar
@@ -34,7 +22,12 @@ Rectangle {
         id: timeRemaining
         width: 40
         anchors.right: parent.right
-        text: "--:--"
+        text: remainingTimeLabel.strRemaining
     }
-
+    Component.onCompleted: {
+        console.log(elapsedTimeLabel)
+        console.log(remainingTimeLabel)
+        console.log(elapsedTimeLabel.strElapsed)
+        console.log(remainingTimeLabel.strRemaining)
+    }
 }
