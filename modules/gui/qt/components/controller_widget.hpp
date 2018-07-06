@@ -124,4 +124,39 @@ signals:
     void valueReallyChanged( int );
 };
 
+class SoundWidgetModel : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(float volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(long i_volume READ i_volume WRITE setI_volume NOTIFY i_volumeChanged)
+
+public:
+    SoundWidgetModel(intf_thread_t  *_p_i);
+    SoundWidgetModel() {}
+    Q_INVOKABLE void setMuted( bool );
+
+    float volume(){ return _volume; }
+    void setVolume(float v) { _volume = v; emit volumeChanged(); }
+    long i_volume(){ return _i_volume; }
+    void setI_volume(long v) { _i_volume = v; emit i_volumeChanged(); }
+
+signals:
+    void volumeChanged();
+    void i_volumeChanged();
+
+public slots:
+    Q_INVOKABLE void onVolumeChanged(float v);
+    Q_INVOKABLE void onI_volumeChanged(long v);
+
+private:
+    bool                _b_is_muted;
+    bool                _b_ignore_valuechanged;
+    float               _volume;
+    long                _i_volume;
+    intf_thread_t*      p_intf;
+protected slots:
+    void libUpdateVolume( float );
+    void updateMuteStatus( bool );
+};
+
 #endif

@@ -228,6 +228,65 @@ bool SoundWidget::eventFilter( QObject *obj, QEvent *e )
 }
 
 /**
+ * SoundWidgetModel
+ **/
+SoundWidgetModel::SoundWidgetModel( intf_thread_t * _p_intf ) : p_intf(_p_intf)
+{
+    /* Set the volume from the config */
+    _volume = playlist_VolumeGet( THEPL );
+    libUpdateVolume( (_volume >= 0.f) ? _volume : 1.f );
+    /* Sync mute status */
+    if( playlist_MuteGet( THEPL ) > 0 )
+        updateMuteStatus( true );
+
+    /* Volume control connection */
+    CONNECT( THEMIM, volumeChanged( float ), this, libUpdateVolume( float ) );
+    CONNECT( THEMIM, soundMuteChanged( bool ), this, updateMuteStatus( bool ) );
+
+    /*  it seems that, after binding a Q_PROPERTY to QML,
+     *  value on QML side chagned will not call emit signal, so I call it manully
+     *
+    CONNECT( this, volumeChanged(), this, onVolumeChanged() );
+    CONNECT( this, i_volumeChanged(), this, onI_volumeChanged() );
+    */
+}
+
+/* libvlc changed value event slot */
+void SoundWidgetModel::libUpdateVolume( float v )
+{
+    _i_volume = lroundf(v * 100.f);
+}
+
+/* libvlc mute/unmute event slot */
+void SoundWidgetModel::updateMuteStatus( bool mute )
+{
+    _b_is_muted = mute;
+}
+
+void SoundWidgetModel::onI_volumeChanged(long v)
+{
+    _i_volume = v;
+    setVolume(v / 100.f);
+    setMuted(false);
+    playlist_VolumeSet(THEPL, _volume);
+}
+
+void SoundWidgetModel::onVolumeChanged(float v)
+{
+    _volume = v;
+    setI_volume( lround(v * 100.f) );
+    setMuted(false);
+    playlist_VolumeSet(THEPL, _volume);
+}
+
+void SoundWidgetModel::setMuted( bool mute )
+{
+    _b_is_muted = mute;
+    playlist_t *p_playlist = THEPL;
+    playlist_MuteSet( p_playlist, mute );
+}
+
+/**
  * Play Button
  **/
 void PlayButton::updateButtonIcons( bool b_playing )

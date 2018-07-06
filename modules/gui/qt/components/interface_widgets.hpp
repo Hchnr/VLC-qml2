@@ -297,13 +297,14 @@ class ToolbarInformation : public QObject
 {
     Q_OBJECT
 public:
-    intf_thread_t*  p_intf;
-    TimeLabelModel* labelElapsed;
-    TimeLabelModel* labelRemaining;
-    ActionsManager* actionsManager;
-    QList<QObject*> leftToolbarList;
-    QList<QObject*> centerToolbarList;
-    QList<QObject*> rightToolbarList;
+    intf_thread_t*      p_intf;
+    TimeLabelModel*     labelElapsed;
+    TimeLabelModel*     labelRemaining;
+    ActionsManager*     actionsManager;
+    SoundWidgetModel*   volumeModel;
+    QList<QObject*>     leftToolbarList;
+    QList<QObject*>     centerToolbarList;
+    QList<QObject*>     rightToolbarList;
 
     ToolbarInformation(intf_thread_t* _p_intf);
     Q_INVOKABLE QVariant getLabelElapsed() { return QVariant::fromValue( labelElapsed ); }
@@ -311,6 +312,7 @@ public:
     Q_INVOKABLE QVariant getLeftList() { return QVariant::fromValue( leftToolbarList ); }
     Q_INVOKABLE QVariant getCenterList() { return QVariant::fromValue( centerToolbarList ); }
     Q_INVOKABLE QVariant getRightList() { return QVariant::fromValue( rightToolbarList ); }
+    Q_INVOKABLE QVariant getVolumeModel() { return QVariant::fromValue( volumeModel ); }
     Q_INVOKABLE void doAction(int a) { actionsManager->doAction(a); }
 };
 

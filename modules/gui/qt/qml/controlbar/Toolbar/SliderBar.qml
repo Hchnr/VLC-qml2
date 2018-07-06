@@ -12,24 +12,12 @@ Item {
     property color color: "#c62f2f"
     property real minLabelWidth: 44
 
-    Component.onCompleted: setValue(init)
-    function setValue(v) {
-       if (min < max)
-          handle.x = Math.round( v / (max - min) *
-                                (mousearea.drag.maximumX - mousearea.drag.minimumX)
-                                + mousearea.drag.minimumX);
-    }
-
     Timer{
-        interval: 1000;
+        interval: 5000;
         repeat: true;
         running: true;
         onTriggered: {
-            if(parent.value < 0.991){
-                parent.setValue(parent.value+=0.01)
-            }else{
-                // stop();
-            }
+            console.log(slider.value)
         }
     }
 
@@ -60,6 +48,8 @@ Item {
         }
         Rectangle {
             id: handle
+            x: slider.value * (mousearea.drag.maximumX - mousearea.drag.minimumX)
+                             + mousearea.drag.minimumX;
             width: 14;
             height: 14;
             radius: 10;
@@ -80,7 +70,8 @@ Item {
                 drag.maximumX: foo.width - handle.width / 2;
                 property real value: (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX)
                 onReleased: {
-                    slider.value = (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX)
+                    slider.value = (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX);
+                    toolbarInformation.getVolumeModel().onVolumeChanged(slider.value)
                 }
             }
         }

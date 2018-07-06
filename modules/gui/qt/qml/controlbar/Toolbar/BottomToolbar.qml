@@ -48,12 +48,12 @@ Rectangle {
         }
         return m[name]
     }
-
+    /*
     Component.onCompleted: {
-        console.log(toolbarInformation);
-        console.log(toolbarInformation );
+        console.log(toolbarInformation.getVolumeModel());
+        console.log(toolbarInformation.getVolumeModel().volume );
     }
-
+    */
     Column{
         anchors.bottom: parent.bottom
         width: parent.width
@@ -80,7 +80,10 @@ Rectangle {
             RowLayout {
                 anchors.right: parent.right
                 SliderBar{
+                    id: soundSlider
+                    width:100
                     anchors.right: rightToolbar.left
+                    value: toolbarInformation.getVolumeModel().volume
                 }
                 RightToolbar{
                     id: rightToolbar
