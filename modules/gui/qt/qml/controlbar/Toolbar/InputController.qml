@@ -8,7 +8,7 @@ Rectangle {
         id: timeElapsed
         width: 40
         anchors.left: parent.left
-        text: elapsedTimeLabel.strElapsed
+        text: toolbarInformation.getLabelElapsed().strElapsed
     }
     SliderBar{
         id: sliderBar
@@ -22,12 +22,7 @@ Rectangle {
         id: timeRemaining
         width: 40
         anchors.right: parent.right
-        text: remainingTimeLabel.strRemaining
+        text: toolbarInformation.getLabelRemaining().strRemaining
     }
-    Component.onCompleted: {
-        console.log(elapsedTimeLabel)
-        console.log(remainingTimeLabel)
-        console.log(elapsedTimeLabel.strElapsed)
-        console.log(remainingTimeLabel.strRemaining)
-    }
+
 }

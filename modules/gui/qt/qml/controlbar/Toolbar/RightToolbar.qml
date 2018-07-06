@@ -3,27 +3,27 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.0
 import QtQuick.Window 2.2
 
-import CommonParameter 1.0
+import ActionType_e 1.0
 
 ToolBar{
     height: parent.height
     RowLayout{
         height: parent.height
         Repeater {
-            model: rightbarList
+            model: toolbarInformation.getRightList()
             delegate: ToolButton {
                 // Text { text: model.modelData.widgetName }
                 Image {
-                    source: controlbar.getIconFromName(widgetName)
+                    source: controlbar.getIconFromName(model.modelData.widgetName)
                 }
 
                 onClicked: {
-                    console.log(widgetName + " clicked.")
-                    switch ( widgetName )
+                    console.log(model.modelData.widgetName + " clicked.")
+                    switch ( model.modelData.widgetName )
                     {
-                    case "TBD": actionsManager.doAction(CommonParameter.STOP_ACTION); break;
-                    case "Playlist": actionsManager.doAction(CommonParameter.PLAYLIST_ACTION); break;
-                    case "Fullsreen": actionsManager.doAction(CommonParameter.FULLSCREEN_ACTION); break;
+                    case "TBD": toolbarInformation.doAction(ActionType_e.STOP_ACTION); break;
+                    case "Playlist": toolbarInformation.doAction(ActionType_e.PLAYLIST_ACTION); break;
+                    case "Fullsreen": toolbarInformation.doAction(ActionType_e.FULLSCREEN_ACTION); break;
                     }
                 }
 

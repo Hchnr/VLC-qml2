@@ -503,51 +503,11 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     controls->setVisible(false);
     inputC->setVisible(false);
 
-     /* Add models for qml-ControlBar, hechenrui 20180620*/
-    QStringList leftbar, centerbar, rightbar;
-    if ( settings->value("MainWindow/qmlcontrolbar", false).toBool() ){
-        settings->beginGroup("MainWindow");
-        settings->beginGroup("Controlbar");
-        leftbar << "Bookmark" << "Subtitle" << "Random" << "Loop";
-        centerbar << "Slower" << "Previous" << "Play" << "Next" << "Faster";
-        rightbar << "Fullscreen" << "Playlist" << "TBD";
-        settings->setValue( "lefttoolbar", leftbar);
-        settings->setValue( "centertoolbar", centerbar);
-        settings->setValue( "righttoolbar", rightbar);
-        settings->endGroup();
-        settings->endGroup();
-    }
-
-    /* get models for qml-controlbar */
-    leftbar = settings->value("MainWindow/Controlbar/lefttoolbar").toStringList();
-    centerbar = settings->value("MainWindow/Controlbar/centertoolbar").toStringList();
-    rightbar = settings->value("MainWindow/Controlbar/righttoolbar").toStringList();
-    QList<QObject*> leftList, centerList, rightList;
-    for (int i = 0; i < leftbar.size(); i ++) {
-        leftList.append(new ModelObject(leftbar[i]));
-    }
-    for (int i = 0; i < centerbar.size(); i ++) {
-         centerList.append(new ModelObject(centerbar[i]));
-    }
-    for (int i = 0; i < rightbar.size(); i ++) {
-         rightList.append(new ModelObject(rightbar[i]));
-    }
-
     /* add qml toolbar here */
     controlsBar = new QQuickWidget();
     QQmlContext *rootCtx = controlsBar->rootContext();
-    rootCtx->setContextProperty("leftbarList", QVariant::fromValue(leftList));
-    rootCtx->setContextProperty("centerbarList", QVariant::fromValue(centerList));
-    rootCtx->setContextProperty("rightbarList", QVariant::fromValue(rightList));
-    ActionsManager *actionsManager = ActionsManager::getInstance(p_intf);
-    rootCtx->setContextProperty("actionsManager", actionsManager);
-    TimeLabel *timeLabel = new TimeLabel( p_intf, TimeLabel::Elapsed );
-    rootCtx->setContextProperty("timeLabel", timeLabel);
-    ActionType_e::declareQML();
-    TimeLabelModel *elapsed = new TimeLabelModel(p_intf, TimeLabelModel::Elapsed);
-    TimeLabelModel *remaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
-    rootCtx->setContextProperty("elapsedTimeLabel", elapsed);
-    rootCtx->setContextProperty("remainingTimeLabel", remaining);
+    ToolbarInformation *toolbarInformation = new ToolbarInformation(p_intf);
+    rootCtx->setContextProperty("toolbarInformation", toolbarInformation);
     controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/Toolbar/BottomToolbar.qml") ) );
     controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
 

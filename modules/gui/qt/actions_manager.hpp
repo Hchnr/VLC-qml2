@@ -133,7 +133,7 @@ public:
     };
     Q_ENUMS(ActionType)
     static void declareQML() {
-        qmlRegisterType<ActionType_e>("CommonParameter",1,0,"CommonParameter");
+        qmlRegisterType<ActionType_e>("ActionType_e",1,0,"ActionType_e");
     }
 };
 

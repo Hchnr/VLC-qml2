@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.0
 
-import CommonParameter 1.0
+import ActionType_e 1.0
 
 ToolBar{
     id: centerToolbar
@@ -16,7 +16,7 @@ ToolBar{
         property alias centerToolbarRp: centerToolbarRp
         Repeater {
             id: centerToolbarRp
-            model: centerbarList
+            model: toolbarInformation.getCenterList()
             delegate: ToolButton {
                 // Text { text: model.modelData.widgetName }
                 property string imgsrc: ""
@@ -25,16 +25,17 @@ ToolBar{
                     source: imgsrc
                 }
                 Component.onCompleted: {
-                    imgsrc = controlbar.getIconFromName(widgetName)
+                    imgsrc = controlbar.getIconFromName(model.modelData.widgetName)
                 }
 
                 onClicked: {
-                    switch ( widgetName ) {
-                        case "Slower": actionsManager.doAction(CommonParameter.SLOWER_ACTION); break;
-                        case "Previous": actionsManager.doAction(CommonParameter.PREVIOUS_ACTION); break;
-                        case "Play": actionsManager.doAction(CommonParameter.PLAY_ACTION); break;
-                        case "Next": actionsManager.doAction(CommonParameter.NEXT_ACTION); break;
-                        case "Faster": actionsManager.doAction(CommonParameter.FASTER_ACTION); break;
+                    console.log(model.modelData.widgetName + " clicked.")
+                    switch ( model.modelData.widgetName ) {
+                        case "Slower": toolbarInformation.doAction(ActionType_e.SLOWER_ACTION); break;
+                        case "Previous": toolbarInformation.doAction(ActionType_e.PREVIOUS_ACTION); break;
+                        case "Play": toolbarInformation.doAction(ActionType_e.PLAY_ACTION); togglePlay(); break;
+                        case "Next": toolbarInformation.doAction(ActionType_e.NEXT_ACTION); break;
+                        case "Faster": toolbarInformation.doAction(ActionType_e.FASTER_ACTION); break;
                     }
                 }
                 function togglePlay()

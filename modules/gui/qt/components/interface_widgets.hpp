@@ -43,6 +43,7 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPropertyAnimation>
+#include <QQmlContext>
 #include <QLinkedList>
 
 class QMenu;
@@ -225,6 +226,21 @@ signals:
     void settimelabel( QString display, QString name);
 };
 
+/* model for toolbutton of qml-controlbar */
+class ToolButtonModel : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString widgetName READ widgetName NOTIFY widgetNameChanged)
+public:
+    ToolButtonModel(QString name) { m_widgetName = name; }
+    QString widgetName() {return m_widgetName;}
+signals:
+    void  widgetNameChanged();
+private:
+    QString m_widgetName;
+};
+
+/* model for time label of qml-controlbar */
 class TimeLabelModel : public QObject
 {
     Q_OBJECT
@@ -274,6 +290,28 @@ private slots:
     void setDisplayPosition( float pos, int64_t time, int length );
     void setDisplayPosition( float pos );
 
+};
+
+/* all models needed in QML context */
+class ToolbarInformation : public QObject
+{
+    Q_OBJECT
+public:
+    intf_thread_t*  p_intf;
+    TimeLabelModel* labelElapsed;
+    TimeLabelModel* labelRemaining;
+    ActionsManager* actionsManager;
+    QList<QObject*> leftToolbarList;
+    QList<QObject*> centerToolbarList;
+    QList<QObject*> rightToolbarList;
+
+    ToolbarInformation(intf_thread_t* _p_intf);
+    Q_INVOKABLE QVariant getLabelElapsed() { return QVariant::fromValue( labelElapsed ); }
+    Q_INVOKABLE QVariant getLabelRemaining() { return QVariant::fromValue( labelRemaining ); }
+    Q_INVOKABLE QVariant getLeftList() { return QVariant::fromValue( leftToolbarList ); }
+    Q_INVOKABLE QVariant getCenterList() { return QVariant::fromValue( centerToolbarList ); }
+    Q_INVOKABLE QVariant getRightList() { return QVariant::fromValue( rightToolbarList ); }
+    Q_INVOKABLE void doAction(int a) { actionsManager->doAction(a); }
 };
 
 class SpeedLabel : public QLabel

@@ -49,6 +49,11 @@ Rectangle {
         return m[name]
     }
 
+    Component.onCompleted: {
+        console.log(toolbarInformation);
+        console.log(toolbarInformation );
+    }
+
     Column{
         anchors.bottom: parent.bottom
         width: parent.width

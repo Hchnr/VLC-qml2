@@ -921,6 +921,49 @@ void CoverArtLabel::clear()
     showArtUpdate( "" );
 }
 
+ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
+    : QObject()
+    ,p_intf(_p_intf)
+{
+    QSettings *settings = getSettings();
+
+    /* Add models for buttons of qml-ControlBar, hechenrui 20180620*/
+    QStringList leftbar, centerbar, rightbar;
+    if ( settings->value("MainWindow/qmlcontrolbar", false).toBool() ){
+       settings->beginGroup("MainWindow");
+       settings->beginGroup("Controlbar");
+       leftbar << "Bookmark" << "Subtitle" << "Random" << "Loop";
+       centerbar << "Slower" << "Previous" << "Play" << "Next" << "Faster";
+       rightbar << "Fullscreen" << "Playlist" << "TBD";
+       settings->setValue( "lefttoolbar", leftbar);
+       settings->setValue( "centertoolbar", centerbar);
+       settings->setValue( "righttoolbar", rightbar);
+       settings->endGroup();
+       settings->endGroup();
+    }
+
+    /* get models for qml-controlbar */
+    leftbar = settings->value("MainWindow/Controlbar/lefttoolbar").toStringList();
+    centerbar = settings->value("MainWindow/Controlbar/centertoolbar").toStringList();
+    rightbar = settings->value("MainWindow/Controlbar/righttoolbar").toStringList();
+    for (int i = 0; i < leftbar.size(); i ++) {
+       leftToolbarList.append(new ToolButtonModel(leftbar[i]));
+    }
+    for (int i = 0; i < centerbar.size(); i ++) {
+        centerToolbarList.append(new ToolButtonModel(centerbar[i]));
+    }
+    for (int i = 0; i < rightbar.size(); i ++) {
+        rightToolbarList.append(new ToolButtonModel(rightbar[i]));
+    }
+
+    actionsManager = ActionsManager::getInstance();
+    labelElapsed = new TimeLabelModel(p_intf, TimeLabelModel::Elapsed);
+    labelRemaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
+
+    /* register the ENUM type, for the parameter of doAction(int) */
+    ActionType_e::declareQML();
+}
+
 TimeLabelModel::TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType  )
     : QObject()
     , p_intf( _p_intf )
