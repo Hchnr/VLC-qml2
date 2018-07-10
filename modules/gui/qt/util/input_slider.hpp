@@ -54,6 +54,8 @@ class SeekSliderModel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(float sliderPos READ sliderPos WRITE setSliderPos NOTIFY sliderPosChanged)
+    Q_PROPERTY(bool isSlidingNow READ isSlidingNow WRITE setIsSlidingNow)
+
 public:
     SeekSliderModel( intf_thread_t *p_intf);
     void setChapters( SeekPoints * );
@@ -61,6 +63,8 @@ public:
 protected:
     float sliderPos() const { return mSliderPos; }
     void setSliderPos(float p) { mSliderPos = p; emit sliderPosChanged(); }
+    bool isSlidingNow() const { return isSliding; }
+    void setIsSlidingNow(bool b) { isSliding = b; }
 
     float getValuePercentageFromXPos( int );
     int   getValueFromXPos( int );

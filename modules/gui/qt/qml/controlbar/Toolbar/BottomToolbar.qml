@@ -84,9 +84,10 @@ Rectangle {
                     width:100
                     anchors.right: rightToolbar.left
                     value: toolbarInformation.getVolumeModel().volume
-                    handle.onReleased: {
-                        handle.onReleasedSliderBar()
-                        toolbarInformation.getVolumeModel().onVolumeChanged(slider.value)
+                    init: 0.7
+                    handleMousearea.onReleased: {
+                        handleMousearea.onReleasedSliderBar()
+                        toolbarInformation.getVolumeModel().onVolumeChanged(value)
                     }
                 }
                 RightToolbar{

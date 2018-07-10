@@ -11,7 +11,7 @@ Item {
     property string name: "Slider"
     property color color: "#c62f2f"
     property real minLabelWidth: 44
-    property alias handle: mousearea
+    property alias handleMousearea: mousearea
 
 
     Timer{
@@ -19,8 +19,8 @@ Item {
         repeat: true;
         running: true;
         onTriggered: {
-            console.log(slider.value)
-        }
+                console.log(slider.value)
+            }
     }
 
     Rectangle{

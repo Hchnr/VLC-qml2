@@ -18,9 +18,16 @@ Rectangle {
 
         value: toolbarInformation.getSeekSlider().sliderPos
         init : 0
-        handle.onReleased: {
-            handle.onReleasedSliderBar()
+
+        handleMousearea.onPressed: {
+            toolbarInformation.getSeekSlider().isSlidingNow = true
+            console.log(toolbarInformation.getSeekSlider().isSlidingNow)
+        }
+        handleMousearea.onReleased: {
+            handleMousearea.onReleasedSliderBar()
             toolbarInformation.getSeekSlider().onSliderPosChanged(value)
+            toolbarInformation.getSeekSlider().isSlidingNow = false
+            console.log(toolbarInformation.getSeekSlider().isSlidingNow)
         }
     }
     Text{
