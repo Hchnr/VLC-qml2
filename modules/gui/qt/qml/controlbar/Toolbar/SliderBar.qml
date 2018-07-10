@@ -11,6 +11,8 @@ Item {
     property string name: "Slider"
     property color color: "#c62f2f"
     property real minLabelWidth: 44
+    property alias handle: mousearea
+
 
     Timer{
         interval: 5000;
@@ -69,9 +71,9 @@ Item {
                 drag.minimumX: -handle.width / 2;
                 drag.maximumX: foo.width - handle.width / 2;
                 property real value: (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX)
-                onReleased: {
+                onReleased: onReleasedSliderBar()
+                function onReleasedSliderBar() {
                     slider.value = (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX);
-                    toolbarInformation.getVolumeModel().onVolumeChanged(slider.value)
                 }
             }
         }

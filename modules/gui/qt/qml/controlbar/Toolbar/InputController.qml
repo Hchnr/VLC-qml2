@@ -15,8 +15,13 @@ Rectangle {
         height: 10
         width: parent.width - timeElapsed.width - timeRemaining.width
         anchors.horizontalCenter: parent.horizontalCenter
-        value: 0
+
+        value: toolbarInformation.getSeekSlider().sliderPos
         init : 0
+        handle.onReleased: {
+            handle.onReleasedSliderBar()
+            toolbarInformation.getSeekSlider().onSliderPosChanged(value)
+        }
     }
     Text{
         id: timeRemaining

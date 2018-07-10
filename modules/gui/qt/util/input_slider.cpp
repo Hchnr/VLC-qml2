@@ -781,3 +781,100 @@ void SoundSlider::paintEvent( QPaintEvent *e )
     painter.end();
     e->accept();
 }
+
+/* Model for QML side */
+SeekSliderModel::SeekSliderModel( intf_thread_t *p_intf )
+          : QObject(), p_intf( p_intf )
+{
+    isSliding = false;
+    isJumping = false;
+    f_buffering = 0.0;
+    chapters = NULL;
+    mHandleLength = -1;
+    b_seekable = true;
+
+    SeekPoints *chapters = new SeekPoints( this, p_intf );
+    CONNECT( THEMIM->getIM(), chapterChanged( bool ), chapters, update() );
+    this->setChapters( chapters );
+
+    /* Update the position when the IM has changed */
+    CONNECT( THEMIM->getIM(), positionUpdated( float, int64_t, int ),
+            this, setPosition( float, int64_t, int ) );
+    /* And update the IM, when the position has changed */
+    CONNECT( this, sliderDragged( float ),
+             THEMIM->getIM(), sliderUpdate( float ) );
+    CONNECT( THEMIM->getIM(), cachingChanged( float ),
+             this, updateBuffering( float ) );
+    /* Give hint to disable slider's interactivity when useless */
+    CONNECT( THEMIM->getIM(), inputCanSeek( bool ),
+             this, setSeekable( bool ) );
+
+    /* Timer used to fire intermediate updatePos() when sliding */
+    seekLimitTimer = new QTimer( this );
+    seekLimitTimer->setSingleShot( true );
+
+    /* Init to 0 */
+    /* setPosition( -1.0, 0, 0 ); */
+    setSliderPos(0);
+    secstotimestr( psz_length, 0 );
+
+    CONNECT( MainInputManager::getInstance(), inputChanged( bool ), this , inputUpdated( bool ) );
+    CONNECT( this, sliderPosChanged(), this, startSeekTimer() );
+    CONNECT( seekLimitTimer, timeout(), this, updatePos() );
+}
+
+void SeekSliderModel::onSliderPosChanged(float sliderPos)
+{
+    setSliderPos(sliderPos);
+}
+
+void SeekSliderModel::updateBuffering( float f_buffering_ )
+{
+    if ( f_buffering_ < f_buffering )
+        bufferingStart = QTime::currentTime();
+    f_buffering = f_buffering_;
+}
+
+void SeekSliderModel::setPosition( float pos, int64_t time, int length )
+{
+    VLC_UNUSED(time);
+    if( pos == -1.0  || ! b_seekable )
+    {
+        isSliding = false;
+        /* setValue( 0 ); */
+        setSliderPos( 0 );
+        return;
+    }
+
+    if( !isSliding )
+    {
+        /* setValue( pos * static_cast<float>( maximum() ) ); */
+        setSliderPos( pos );
+    }
+    inputLength = length;
+}
+
+void SeekSliderModel::setChapters( SeekPoints *chapters_ )
+{
+    delete chapters;
+    chapters = chapters_;
+    chapters->setParent( this );
+}
+
+void SeekSliderModel::updatePos()
+{
+    float f_pos = sliderPos();
+    emit sliderDragged( f_pos ); /* Send new position to VLC's core */
+}
+
+void SeekSliderModel::startSeekTimer()
+{
+    /* Only fire one update, when sliding, every 150ms */
+    if( isSliding && !seekLimitTimer->isActive() )
+        seekLimitTimer->start( 150 );
+}
+
+void SeekSliderModel::inputUpdated( bool b_has_input )
+{
+
+}

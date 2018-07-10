@@ -48,6 +48,55 @@ class QCommonStyle;
 class TimeTooltip;
 class QSequentialAnimationGroup;
 
+
+/* Input Slider model for QML side */
+class SeekSliderModel : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(float sliderPos READ sliderPos WRITE setSliderPos NOTIFY sliderPosChanged)
+public:
+    SeekSliderModel( intf_thread_t *p_intf);
+    void setChapters( SeekPoints * );
+
+protected:
+    float sliderPos() const { return mSliderPos; }
+    void setSliderPos(float p) { mSliderPos = p; emit sliderPosChanged(); }
+
+    float getValuePercentageFromXPos( int );
+    int   getValueFromXPos( int );
+
+private:
+    intf_thread_t *p_intf;
+    float mSliderPos;
+    bool isSliding;        /* Whether we are currently sliding by user action */
+    bool isJumping;              /* if we requested a jump to another chapter */
+    int inputLength;                           /* InputLength that can change */
+    char psz_length[MSTRTIME_MAX_SIZE];               /* Used for the ToolTip */
+    QTimer *seekLimitTimer;
+    TimeTooltip *mTimeTooltip;
+    float f_buffering;
+    QTime bufferingStart;
+    SeekPoints* chapters;
+    bool b_seekable;
+    int mHandleLength;
+
+
+public slots:
+    void setPosition( float, int64_t, int );
+    void setSeekable( bool b ) { b_seekable = b ; }
+    void updateBuffering( float );
+    Q_INVOKABLE void onSliderPosChanged(float sliderPos);
+
+private slots:
+    void startSeekTimer();
+    void updatePos();
+    void inputUpdated( bool );
+
+signals:
+    void sliderDragged( float );
+    void sliderPosChanged();
+};
+
 /* Input Slider derived from QSlider */
 class SeekSlider : public QSlider
 {

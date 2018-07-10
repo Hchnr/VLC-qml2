@@ -960,6 +960,7 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     labelElapsed = new TimeLabelModel(p_intf, TimeLabelModel::Elapsed);
     labelRemaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
     volumeModel = new SoundWidgetModel(p_intf);
+    seekSlider = new SeekSliderModel(p_intf);
     /* register the ENUM type, for the parameter of doAction(int) */
     ActionType_e::declareQML();
 }

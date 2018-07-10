@@ -37,6 +37,7 @@
 #include "components/controller_widget.hpp"
 #include "dialogs_provider.hpp"
 #include "components/info_panels.hpp"
+#include "util/input_slider.hpp"
 
 #include <QWidget>
 #include <QFrame>
@@ -302,6 +303,7 @@ public:
     TimeLabelModel*     labelRemaining;
     ActionsManager*     actionsManager;
     SoundWidgetModel*   volumeModel;
+    SeekSliderModel*    seekSlider;
     QList<QObject*>     leftToolbarList;
     QList<QObject*>     centerToolbarList;
     QList<QObject*>     rightToolbarList;
@@ -313,6 +315,7 @@ public:
     Q_INVOKABLE QVariant getCenterList() { return QVariant::fromValue( centerToolbarList ); }
     Q_INVOKABLE QVariant getRightList() { return QVariant::fromValue( rightToolbarList ); }
     Q_INVOKABLE QVariant getVolumeModel() { return QVariant::fromValue( volumeModel ); }
+    Q_INVOKABLE QVariant getSeekSlider() { return QVariant::fromValue( seekSlider ); }
     Q_INVOKABLE void doAction(int a) { actionsManager->doAction(a); }
 };
 
