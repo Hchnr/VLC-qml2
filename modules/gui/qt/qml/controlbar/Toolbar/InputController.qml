@@ -21,13 +21,18 @@ Rectangle {
 
         handleMousearea.onPressed: {
             toolbarInformation.getSeekSlider().isSlidingNow = true
-            console.log(toolbarInformation.getSeekSlider().isSlidingNow)
         }
         handleMousearea.onReleased: {
-            handleMousearea.onReleasedSliderBar()
-            toolbarInformation.getSeekSlider().onSliderPosChanged(value)
             toolbarInformation.getSeekSlider().isSlidingNow = false
-            console.log(toolbarInformation.getSeekSlider().isSlidingNow)
+        }
+        Timer{
+            interval: 150;
+            repeat: true;
+            running: true;
+            onTriggered: {
+                if ( toolbarInformation.getSeekSlider().isSlidingNow )
+                    toolbarInformation.getSeekSlider().sliderPos = sliderBar.handleMousearea.getPosSliderBar()
+                }
         }
     }
     Text{

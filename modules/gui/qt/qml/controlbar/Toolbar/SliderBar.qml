@@ -13,14 +13,11 @@ Item {
     property real minLabelWidth: 44
     property alias handleMousearea: mousearea
 
-
-    Timer{
-        interval: 5000;
-        repeat: true;
-        running: true;
-        onTriggered: {
-                console.log(slider.value)
-            }
+    function setValue(v) {
+       if (min < max)
+          handle.x = Math.round( v / (max - min) *
+                                (mousearea.drag.maximumX - mousearea.drag.minimumX)
+                                + mousearea.drag.minimumX);
     }
 
     Rectangle{
@@ -71,9 +68,12 @@ Item {
                 drag.minimumX: -handle.width / 2;
                 drag.maximumX: foo.width - handle.width / 2;
                 property real value: (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX)
-                onReleased: onReleasedSliderBar()
+
                 function onReleasedSliderBar() {
-                    slider.value = (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX);
+                    slider.value = getPosSliderBar();
+                }
+                function getPosSliderBar() {
+                    return (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX);
                 }
             }
         }
