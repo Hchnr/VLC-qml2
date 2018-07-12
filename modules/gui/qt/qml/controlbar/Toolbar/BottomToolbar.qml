@@ -84,13 +84,18 @@ Rectangle {
                     width:100
                     anchors.right: rightToolbar.left
                     value: toolbarInformation.VolumeModel.volume
-                    init: 0.8
-                    Component.onCompleted: setValue(init)
-
-                    handleMousearea.onReleased: {
-                        handleMousearea.onReleasedSliderBar()
+                    onMoved: {
                         toolbarInformation.VolumeModel.onVolumeChanged(value)
                     }
+                    Timer{
+                        interval: 3000;
+                        repeat: true;
+                        running: true;
+                        onTriggered: {
+                            console.log(toolbarInformation.VolumeModel.volume)
+                        }
+                    }
+
                 }
                 RightToolbar{
                     id: rightToolbar

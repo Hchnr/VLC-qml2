@@ -17,22 +17,11 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
 
         value: toolbarInformation.SeekSlider.sliderPos
-        init : 0
 
-        handleMousearea.onPressed: {
+        onMoved: {
             toolbarInformation.SeekSlider.isSlidingNow = true
-        }
-        handleMousearea.onReleased: {
+            toolbarInformation.SeekSlider.sliderPos = value
             toolbarInformation.SeekSlider.isSlidingNow = false
-        }
-        Timer{
-            interval: 150;
-            repeat: true;
-            running: true;
-            onTriggered: {
-                if ( toolbarInformation.SeekSlider.isSlidingNow )
-                    toolbarInformation.SeekSlider.sliderPos = sliderBar.handleMousearea.getPosSliderBar()
-                }
         }
     }
     Text{

@@ -1,81 +1,35 @@
 import QtQuick 2.0
+import QtQuick.Controls 2.2
 
-Item {
-    id: slider
-    height: 26
+Slider {
+    id: control
+    value: 0.0
 
-    property real min: 0
-    property real max: 1
-    property real value: min + (max - min) * mousearea.value
-    property real init: min+(max-min)/2
-    property string name: "Slider"
-    property color color: "#c62f2f"
-    property real minLabelWidth: 44
-    property alias handleMousearea: mousearea
+    background: Rectangle {
+        x: control.leftPadding
+        y: control.topPadding + control.availableHeight / 2 - height / 2
+        implicitWidth: 200
+        implicitHeight: 4
+        width: control.availableWidth
+        height: implicitHeight
+        radius: 2
+        color: "#bdbebf"
 
-    function setValue(v) {
-       if (min < max)
-          handle.x = Math.round( v / (max - min) *
-                                (mousearea.drag.maximumX - mousearea.drag.minimumX)
-                                + mousearea.drag.minimumX);
+        Rectangle {
+            width: control.visualPosition * parent.width
+            height: parent.height
+            color: "#c62f2f"
+            radius: 2
+        }
     }
 
-    Rectangle{
-        id: foo
-        width: parent.width - 8
-               // - sliderName.width
-        color: "#eee"
-        height: 7
-        radius: 3
-        antialiasing: true
-        border.color: Qt.darker(color, 1.2)
-        anchors.left: parent.left;
-        anchors.right: parent.right
-        anchors.leftMargin: 10
-        anchors.rightMargin: 24
-        anchors.verticalCenter: parent.verticalCenter
-
-        Rectangle {
-            height: parent.height
-            anchors.left: parent.left
-            anchors.right: handle.horizontalCenter
-            color: slider.color
-            radius: 3
-            border.width: 1
-            border.color: Qt.darker(color, 1.3)
-            opacity: 0.8
-        }
-        Rectangle {
-            id: handle
-            x: slider.value * (mousearea.drag.maximumX - mousearea.drag.minimumX)
-                             + mousearea.drag.minimumX;
-            width: 14;
-            height: 14;
-            radius: 10;
-            color: "#FAFAFA"
-            border{
-                width: 1;
-                color: "gray";
-            }
-
-            anchors.verticalCenter: parent.verticalCenter
-            MouseArea {
-                id: mousearea
-                anchors.fill: parent
-                anchors.margins: -4
-                drag.target: parent
-                drag.axis: Drag.XAxis
-                drag.minimumX: -handle.width / 2;
-                drag.maximumX: foo.width - handle.width / 2;
-                property real value: (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX)
-
-                function onReleasedSliderBar() {
-                    slider.value = getPosSliderBar();
-                }
-                function getPosSliderBar() {
-                    return (handle.x - drag.minimumX) / (drag.maximumX - drag.minimumX);
-                }
-            }
-        }
+    handle: Rectangle {
+        x: control.leftPadding + control.visualPosition * (control.availableWidth - width)
+        y: control.topPadding + control.availableHeight / 2 - height / 2
+        implicitWidth: 15
+        implicitHeight: 15
+        radius: 5
+        color: control.pressed ? "#f0f0f0" : "#f6f6f6"
+        border.color: "#bdbebf"
     }
 }
