@@ -297,18 +297,43 @@ private slots:
 class ToolbarInformation : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(TimeLabelModel* LabelElapsed READ getLabelElapsed WRITE setLabelElapsed NOTIFY LabelElapsedChanged)
+    Q_PROPERTY(TimeLabelModel* LabelRemaining READ getLabelRemaining WRITE setLabelRemaining NOTIFY LabelRemainingChanged)
+    Q_PROPERTY(QList<QObject*> LeftList READ getLeftList WRITE setLeftList NOTIFY LeftListChanged)
+    Q_PROPERTY(QList<QObject*> CenterList READ getCenterList WRITE setCenterList NOTIFY CenterListChanged)
+    Q_PROPERTY(QList<QObject*> RightList READ getRightList WRITE setRightList NOTIFY RightListChanged)
+    Q_PROPERTY(SoundWidgetModel* VolumeModel READ getVolumeModel WRITE setVolumeModel NOTIFY VolumeModelChanged)
+    Q_PROPERTY(SeekSliderModel* SeekSlider READ getSeekSlider WRITE setSeekSlider NOTIFY SeekSliderChanged)
+
 public:
     intf_thread_t*      p_intf;
-    TimeLabelModel*     labelElapsed;
-    TimeLabelModel*     labelRemaining;
-    ActionsManager*     actionsManager;
-    SoundWidgetModel*   volumeModel;
-    SeekSliderModel*    seekSlider;
-    QList<QObject*>     leftToolbarList;
-    QList<QObject*>     centerToolbarList;
-    QList<QObject*>     rightToolbarList;
+    TimeLabelModel*     m_labelElapsed;
+    TimeLabelModel*     m_labelRemaining;
+    ActionsManager*     m_actionsManager;
+    SoundWidgetModel*   m_volumeModel;
+    SeekSliderModel*    m_seekSlider;
+    QList<QObject*>     m_leftToolbarList;
+    QList<QObject*>     m_centerToolbarList;
+    QList<QObject*>     m_rightToolbarList;
+
+    TimeLabelModel* getLabelElapsed() const { return m_labelElapsed; }
+    TimeLabelModel* getLabelRemaining() const { return m_labelRemaining; }
+    QList<QObject*> getLeftList() const { return m_leftToolbarList; }
+    QList<QObject*> getCenterList() const { return m_centerToolbarList; }
+    QList<QObject*> getRightList() const { return m_rightToolbarList; }
+    SoundWidgetModel* getVolumeModel() const { return m_volumeModel; }
+    SeekSliderModel*  getSeekSlider() const { return m_seekSlider; }
+
+    void setLabelElapsed( TimeLabelModel* t) {}
+    void setLabelRemaining( TimeLabelModel* t) {}
+    void setLeftList( QList<QObject*> l ) {}
+    void setCenterList( QList<QObject*> l ) {}
+    void setRightList( QList<QObject*> l ) {}
+    void setVolumeModel( SoundWidgetModel* m) {}
+    void setSeekSlider( SeekSliderModel* m) {}
 
     ToolbarInformation(intf_thread_t* _p_intf);
+    /*
     Q_INVOKABLE QVariant getLabelElapsed() { return QVariant::fromValue( labelElapsed ); }
     Q_INVOKABLE QVariant getLabelRemaining() { return QVariant::fromValue( labelRemaining ); }
     Q_INVOKABLE QVariant getLeftList() { return QVariant::fromValue( leftToolbarList ); }
@@ -316,7 +341,17 @@ public:
     Q_INVOKABLE QVariant getRightList() { return QVariant::fromValue( rightToolbarList ); }
     Q_INVOKABLE QVariant getVolumeModel() { return QVariant::fromValue( volumeModel ); }
     Q_INVOKABLE QVariant getSeekSlider() { return QVariant::fromValue( seekSlider ); }
-    Q_INVOKABLE void doAction(int a) { actionsManager->doAction(a); }
+    */
+    Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
+
+signals:
+    void LabelElapsedChanged();
+    void LabelRemainingChanged();
+    void LeftListChanged();
+    void CenterListChanged();
+    void RightListChanged();
+    void VolumeModelChanged();
+    void SeekSliderChanged();
 };
 
 class SpeedLabel : public QLabel

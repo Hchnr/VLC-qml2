@@ -12,7 +12,7 @@ ToolBar{
     RowLayout{
         height: parent.height
         Repeater {
-            model: toolbarInformation.getLeftList()
+            model: toolbarInformation.LeftList
             delegate: ToolButton {
                 Image {
                     source: controlbar.getIconFromName(model.modelData.widgetName)

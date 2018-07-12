@@ -10,7 +10,7 @@ ToolBar{
     RowLayout{
         height: parent.height
         Repeater {
-            model: toolbarInformation.getRightList()
+            model: toolbarInformation.RightList
             delegate: ToolButton {
                 // Text { text: model.modelData.widgetName }
                 Image {

@@ -16,7 +16,7 @@ ToolBar{
         property alias centerToolbarRp: centerToolbarRp
         Repeater {
             id: centerToolbarRp
-            model: toolbarInformation.getCenterList()
+            model: toolbarInformation.CenterList
             delegate: ToolButton {
                 // Text { text: model.modelData.widgetName }
                 property string imgsrc: ""

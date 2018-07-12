@@ -83,13 +83,13 @@ Rectangle {
                     id: soundSlider
                     width:100
                     anchors.right: rightToolbar.left
-                    value: toolbarInformation.getVolumeModel().volume
+                    value: toolbarInformation.VolumeModel.volume
                     init: 0.8
                     Component.onCompleted: setValue(init)
 
                     handleMousearea.onReleased: {
                         handleMousearea.onReleasedSliderBar()
-                        toolbarInformation.getVolumeModel().onVolumeChanged(value)
+                        toolbarInformation.VolumeModel.onVolumeChanged(value)
                     }
                 }
                 RightToolbar{

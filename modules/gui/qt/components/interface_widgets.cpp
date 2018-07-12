@@ -947,20 +947,20 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     centerbar = settings->value("MainWindow/Controlbar/centertoolbar").toStringList();
     rightbar = settings->value("MainWindow/Controlbar/righttoolbar").toStringList();
     for (int i = 0; i < leftbar.size(); i ++) {
-       leftToolbarList.append(new ToolButtonModel(leftbar[i]));
+        m_leftToolbarList.append(new ToolButtonModel(leftbar[i]));
     }
     for (int i = 0; i < centerbar.size(); i ++) {
-        centerToolbarList.append(new ToolButtonModel(centerbar[i]));
+        m_centerToolbarList.append(new ToolButtonModel(centerbar[i]));
     }
     for (int i = 0; i < rightbar.size(); i ++) {
-        rightToolbarList.append(new ToolButtonModel(rightbar[i]));
+        m_rightToolbarList.append(new ToolButtonModel(rightbar[i]));
     }
 
-    actionsManager = ActionsManager::getInstance();
-    labelElapsed = new TimeLabelModel(p_intf, TimeLabelModel::Elapsed);
-    labelRemaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
-    volumeModel = new SoundWidgetModel(p_intf);
-    seekSlider = new SeekSliderModel(p_intf);
+    m_actionsManager = ActionsManager::getInstance();
+    m_labelElapsed = new TimeLabelModel(p_intf, TimeLabelModel::Elapsed);
+    m_labelRemaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
+    m_volumeModel = new SoundWidgetModel(p_intf);
+    m_seekSlider = new SeekSliderModel(p_intf);
     /* register the ENUM type, for the parameter of doAction(int) */
     ActionType_e::declareQML();
 }

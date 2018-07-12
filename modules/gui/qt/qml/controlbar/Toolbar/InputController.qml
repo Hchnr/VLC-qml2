@@ -8,7 +8,7 @@ Rectangle {
         id: timeElapsed
         width: 40
         anchors.left: parent.left
-        text: toolbarInformation.getLabelElapsed().strElapsed
+        text: toolbarInformation.LabelElapsed.strElapsed
     }
     SliderBar{
         id: sliderBar
@@ -16,22 +16,22 @@ Rectangle {
         width: parent.width - timeElapsed.width - timeRemaining.width
         anchors.horizontalCenter: parent.horizontalCenter
 
-        value: toolbarInformation.getSeekSlider().sliderPos
+        value: toolbarInformation.SeekSlider.sliderPos
         init : 0
 
         handleMousearea.onPressed: {
-            toolbarInformation.getSeekSlider().isSlidingNow = true
+            toolbarInformation.SeekSlider.isSlidingNow = true
         }
         handleMousearea.onReleased: {
-            toolbarInformation.getSeekSlider().isSlidingNow = false
+            toolbarInformation.SeekSlider.isSlidingNow = false
         }
         Timer{
             interval: 150;
             repeat: true;
             running: true;
             onTriggered: {
-                if ( toolbarInformation.getSeekSlider().isSlidingNow )
-                    toolbarInformation.getSeekSlider().sliderPos = sliderBar.handleMousearea.getPosSliderBar()
+                if ( toolbarInformation.SeekSlider.isSlidingNow )
+                    toolbarInformation.SeekSlider.sliderPos = sliderBar.handleMousearea.getPosSliderBar()
                 }
         }
     }
@@ -39,7 +39,7 @@ Rectangle {
         id: timeRemaining
         width: 40
         anchors.right: parent.right
-        text: toolbarInformation.getLabelRemaining().strRemaining
+        text: toolbarInformation.LabelRemaining.strRemaining
     }
 
 }
