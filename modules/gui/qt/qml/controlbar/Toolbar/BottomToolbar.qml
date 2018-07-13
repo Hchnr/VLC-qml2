@@ -2,6 +2,8 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls.Styles 1.3
 
+import "qrc:///style/"
+
 Rectangle {
     id: controlbar
     color: "white"
@@ -60,13 +62,13 @@ Rectangle {
 
         InputController {
             id: sliderBar
-            height:15
+            height: VLCStyle.heightSeekBar
         }
 
-        RowLayout{
+        RowLayout {
             id: toolBar
             width: parent.width
-            height: 50
+            height: VLCStyle.heightToolbar
             property alias centerToolbar: centerToolbar
             LeftToolbar{
                 anchors.left: parent.left
@@ -81,21 +83,12 @@ Rectangle {
                 anchors.right: parent.right
                 SliderBar{
                     id: soundSlider
-                    width:100
+                    width:VLCStyle.widthVolumeSlider
                     anchors.right: rightToolbar.left
                     value: toolbarInformation.VolumeModel.volume
                     onMoved: {
                         toolbarInformation.VolumeModel.onVolumeChanged(value)
                     }
-                    Timer{
-                        interval: 3000;
-                        repeat: true;
-                        running: true;
-                        onTriggered: {
-                            console.log(toolbarInformation.VolumeModel.volume)
-                        }
-                    }
-
                 }
                 RightToolbar{
                     id: rightToolbar

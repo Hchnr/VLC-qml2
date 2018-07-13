@@ -200,7 +200,6 @@
     </qresource>
     <qresource prefix="/controlbar/Menu">
         <file alias="ContextMenu.qml">qml/controlbar/Menu/ContextMenu.qml</file>
-        <file alias="SubtitleMenu.qml">qml/controlbar/Menu/SubtitleMenu.qml</file>
     </qresource>
     <qresource prefix="/controlbar/Toolbar">
         <file alias="BottomToolbar.qml">qml/controlbar/Toolbar/BottomToolbar.qml</file>
@@ -208,7 +207,6 @@
         <file alias="LeftToolbar.qml">qml/controlbar/Toolbar/LeftToolbar.qml</file>
         <file alias="RightToolbar.qml">qml/controlbar/Toolbar/RightToolbar.qml</file>
         <file alias="SliderBar.qml">qml/controlbar/Toolbar/SliderBar.qml</file>
-        <file alias="Subtitle.qml">qml/controlbar/Toolbar/Subtitle.qml</file>
         <file alias="InputController.qml">qml/controlbar/Toolbar/InputController.qml</file>
     </qresource>
 </RCC>

@@ -5,22 +5,18 @@ import QtQuick.Controls.Styles 1.4
 
 import ActionType_e 1.0
 
+import "qrc:///style/"
 import "qrc:///controlbar/Menu/"
 
 ToolBar{
-    height: parent.height
+    height: VLCStyle.icon_normal
     RowLayout{
-        height: parent.height
+        height: VLCStyle.icon_normal
         Repeater {
             model: toolbarInformation.LeftList
             delegate: ToolButton {
                 Image {
                     source: controlbar.getIconFromName(model.modelData.widgetName)
-                }
-
-                SubtitleMenu {
-                    id: subtitleMenu
-                    y: 110
                 }
                 onClicked: {
                     console.log(model.modelData.widgetName + " clicked.")

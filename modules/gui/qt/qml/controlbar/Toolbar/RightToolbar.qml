@@ -3,16 +3,17 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.0
 import QtQuick.Window 2.2
 
+import "qrc:///style/"
+
 import ActionType_e 1.0
 
 ToolBar{
-    height: parent.height
+    height: VLCStyle.icon_normal
     RowLayout{
-        height: parent.height
+        height: VLCStyle.icon_normal
         Repeater {
             model: toolbarInformation.RightList
             delegate: ToolButton {
-                // Text { text: model.modelData.widgetName }
                 Image {
                     source: controlbar.getIconFromName(model.modelData.widgetName)
                 }
