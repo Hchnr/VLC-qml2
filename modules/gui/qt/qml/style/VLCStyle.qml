@@ -79,6 +79,13 @@ Item {
     property double margin_large: 24;
     property double margin_xlarge: 32;
 
+    property int radius_xxxsmall: 1
+    property int radius_xxsmall: 2
+    property int radius_xsmall: 4
+    property int radius_small: 8
+    property int radius_normal: 16
+    property int radius_large: 32
+
     property int fontSize_xsmall: 8;
     property int fontSize_small: 10;
     property int fontSize_normal: 12;
@@ -90,6 +97,11 @@ Item {
     property int heightAlbumCover_normal: 128;
     property int heightAlbumCover_large: 255;
     property int heightAlbumCover_xlarge: 512;
+
+    property int heightSeekBar: 10;
+    property int heightSliderImplicit: 4;
+    property int heightToolbar: 50;
+    property int heightHandle: 16
 
     property int icon_xsmall: 8;
     property int icon_small: 16;
@@ -115,6 +127,11 @@ Item {
     property int defaultWidthPlaylist: 300;
     property int closedWidthPlaylist: 20;
 
+    property int widthVolumeSlider: 80;
+    property int widthTimeLabel: 40;
+    property int widthHandle: 16
+    property int widthSliderImplicit: 100;
+
     property int widthSortBox: 150;
 
     //colors
@@ -131,6 +148,12 @@ Item {
     property color hoverBannerColor: myPalette.highlight;
 
     property color vlc_orange: "#FFFF950D";
+
+    property color bgColorSlider: "#bdbebf";
+    property color colorSlider: "#c62f2f";
+    property color colorSliderHandle: "#f6f6f6";
+    property color colorSliderHandleBorder: "#bdbebf";
+    property color colorSliderHandlePressed: "#f0f0f0";
 
     //timings
     property int delayToolTipAppear: 500;
