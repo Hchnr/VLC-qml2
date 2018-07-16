@@ -13,14 +13,14 @@ Slider {
         implicitHeight: VLCStyle.heightSliderImplicit
         width: control.availableWidth
         height: implicitHeight
-        radius: VLCStyle.radius_xxsmall
-        color: "#bdbebf"
+        radius: VLCStyle.margin_xxsmall
+        color: VLCStyle.bgColorSlider
 
         Rectangle {
             width: control.visualPosition * parent.width
             height: parent.height
-            color: "#c62f2f"
-            radius: VLCStyle.radius_xxsmall
+            color: VLCStyle.colorSlider
+            radius: VLCStyle.margin_xxsmall
         }
     }
 
@@ -29,8 +29,8 @@ Slider {
         y: control.topPadding + control.availableHeight / 2 - height / 2
         implicitWidth: VLCStyle.widthHandle
         implicitHeight: VLCStyle.heightHandle
-        radius: VLCStyle.radius_xsmall
-        color: control.pressed ? "#f0f0f0" : "#f6f6f6"
-        border.color: "#bdbebf"
+        radius: VLCStyle.margin_xxsmall
+        color: control.pressed ? VLCStyle.colorSliderHandlePressed : VLCStyle.colorSliderHandle
+        border.color: VLCStyle.colorSliderHandleBorder
     }
 }

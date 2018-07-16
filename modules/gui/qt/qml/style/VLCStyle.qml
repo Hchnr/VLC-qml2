@@ -79,13 +79,6 @@ Item {
     property double margin_large: 24;
     property double margin_xlarge: 32;
 
-    property int radius_xxxsmall: 1
-    property int radius_xxsmall: 2
-    property int radius_xsmall: 4
-    property int radius_small: 8
-    property int radius_normal: 16
-    property int radius_large: 32
-
     property int fontSize_xsmall: 8;
     property int fontSize_small: 10;
     property int fontSize_normal: 12;
@@ -149,11 +142,11 @@ Item {
 
     property color vlc_orange: "#FFFF950D";
 
-    property color bgColorSlider: "#bdbebf";
-    property color colorSlider: "#c62f2f";
-    property color colorSliderHandle: "#f6f6f6";
-    property color colorSliderHandleBorder: "#bdbebf";
-    property color colorSliderHandlePressed: "#f0f0f0";
+    property color bgColorSlider: myPalette.dark;
+    property color colorSlider: myPalette.highlight;  // "#c62f2f";
+    property color colorSliderHandle: myPalette.button; // "#f6f6f6";
+    property color colorSliderHandleBorder: myPalette.shadow; // "#bdbebf";
+    property color colorSliderHandlePressed: myPalette.dark; // "#f0f0f0";
 
     //timings
     property int delayToolTipAppear: 500;
