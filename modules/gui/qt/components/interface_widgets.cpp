@@ -924,6 +924,7 @@ void CoverArtLabel::clear()
 ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     : QObject()
     ,p_intf(_p_intf)
+    ,m_playingStatus(THEMIM->getIM()->playingStatus() == PLAYING_S)
 {
     QSettings *settings = getSettings();
 
@@ -961,8 +962,18 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     m_labelRemaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
     m_volumeModel = new SoundWidgetModel(p_intf);
     m_seekSlider = new SeekSliderModel(p_intf);
+    m_controller = new AbstractController(p_intf);
+
     /* register the ENUM type, for the parameter of doAction(int) */
     ActionType_e::declareQML();
+
+    CONNECT( m_controller, inputPlaying( bool ), this, updateButtonPlay( bool ));
+}
+
+void ToolbarInformation::updateButtonPlay(bool isPlaying)
+{
+    m_playingStatus = isPlaying;
+    emit playingStatusChanged();
 }
 
 TimeLabelModel::TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType  )

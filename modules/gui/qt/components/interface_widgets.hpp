@@ -310,6 +310,11 @@ class ToolbarInformation : public QObject
     Q_PROPERTY(QList<QObject*> RightList READ getRightList WRITE setRightList NOTIFY RightListChanged)
     Q_PROPERTY(SoundWidgetModel* VolumeModel READ getVolumeModel WRITE setVolumeModel NOTIFY VolumeModelChanged)
     Q_PROPERTY(SeekSliderModel* SeekSlider READ getSeekSlider WRITE setSeekSlider NOTIFY SeekSliderChanged)
+    Q_PROPERTY(bool playingStatus READ getPlayingStatus WRITE setPlayingStatus NOTIFY playingStatusChanged)
+
+private:
+    AbstractController* m_controller;
+    bool                m_playingStatus;
 
 public:
     intf_thread_t*      p_intf;
@@ -329,6 +334,7 @@ public:
     QList<QObject*> getRightList() const { return m_rightToolbarList; }
     SoundWidgetModel* getVolumeModel() const { return m_volumeModel; }
     SeekSliderModel*  getSeekSlider() const { return m_seekSlider; }
+    bool getPlayingStatus() const { return m_playingStatus; }
 
     void setLabelElapsed( TimeLabelModel* t) {}
     void setLabelRemaining( TimeLabelModel* t) {}
@@ -337,18 +343,13 @@ public:
     void setRightList( QList<QObject*> l ) {}
     void setVolumeModel( SoundWidgetModel* m) {}
     void setSeekSlider( SeekSliderModel* m) {}
+    void setPlayingStatus( bool b ) {}
 
     ToolbarInformation(intf_thread_t* _p_intf);
-    /*
-    Q_INVOKABLE QVariant getLabelElapsed() { return QVariant::fromValue( labelElapsed ); }
-    Q_INVOKABLE QVariant getLabelRemaining() { return QVariant::fromValue( labelRemaining ); }
-    Q_INVOKABLE QVariant getLeftList() { return QVariant::fromValue( leftToolbarList ); }
-    Q_INVOKABLE QVariant getCenterList() { return QVariant::fromValue( centerToolbarList ); }
-    Q_INVOKABLE QVariant getRightList() { return QVariant::fromValue( rightToolbarList ); }
-    Q_INVOKABLE QVariant getVolumeModel() { return QVariant::fromValue( volumeModel ); }
-    Q_INVOKABLE QVariant getSeekSlider() { return QVariant::fromValue( seekSlider ); }
-    */
     Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
+
+private slots:
+    void updateButtonPlay(bool);
 
 signals:
     void LabelElapsedChanged();
@@ -358,6 +359,7 @@ signals:
     void RightListChanged();
     void VolumeModelChanged();
     void SeekSliderChanged();
+    void playingStatusChanged();
 };
 
 class SpeedLabel : public QLabel

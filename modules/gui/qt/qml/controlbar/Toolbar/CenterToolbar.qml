@@ -22,12 +22,17 @@ ToolBar{
             delegate: ToolButton {
                 // Text { text: model.modelData.widgetName }
                 property string imgsrc: ""
+                property string imgplay: toolbarInformation.playingStatus?
+                                                    controlbar.getIconFromName("Pause")
+                                                  : controlbar.getIconFromName("Play");
                 Image {
                     id: image
                     source: imgsrc
                 }
                 Component.onCompleted: {
-                    imgsrc = controlbar.getIconFromName(model.modelData.widgetName)
+                    imgsrc = controlbar.getIconFromName(model.modelData.widgetName);
+                    if (  model.modelData.widgetName === "Play" )
+                        image.source = Qt.binding(function() { return imgplay; } );
                 }
 
                 onClicked: {
@@ -35,20 +40,10 @@ ToolBar{
                     switch ( model.modelData.widgetName ) {
                         case "Slower": toolbarInformation.doAction(ActionType_e.SLOWER_ACTION); break;
                         case "Previous": toolbarInformation.doAction(ActionType_e.PREVIOUS_ACTION); break;
-                        case "Play": toolbarInformation.doAction(ActionType_e.PLAY_ACTION); togglePlay(); break;
+                        case "Play": toolbarInformation.doAction(ActionType_e.PLAY_ACTION); break;
                         case "Next": toolbarInformation.doAction(ActionType_e.NEXT_ACTION); break;
                         case "Faster": toolbarInformation.doAction(ActionType_e.FASTER_ACTION); break;
                     }
-                }
-                function togglePlay()
-                {
-                    if ( centerToolbar.isPlay ) {
-                        imgsrc = controlbar.getIconFromName("Pause");
-                    }
-                    else {
-                        imgsrc = controlbar.getIconFromName("Play");
-                    }
-                    centerToolbar.isPlay = ! centerToolbar.isPlay;
                 }
             }
         }
