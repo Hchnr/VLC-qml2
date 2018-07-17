@@ -56,17 +56,6 @@ Rectangle {
         console.log(toolbarInformation.getVolumeModel().volume );
     }
     */
-    Timer{
-        interval: 3000;
-        repeat: true;
-        running: true;
-        onTriggered: {
-            console.log(leftToolbar.width+","+centerToolbar.width+","+soundSlider.width+","+rightToolbar.width);
-            console.log(toolBar.width);
-            console.log(toolBar.minimumWidth);
-            console.log(bottomBar.width);
-        }
-    }
 
     Column{
         id: bottomBar

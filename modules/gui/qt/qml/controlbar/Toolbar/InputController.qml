@@ -31,6 +31,10 @@ Rectangle {
         width: VLCStyle.widthTimeLabel
         anchors.right: parent.right
         text: toolbarInformation.LabelRemaining.strRemaining
+        MouseArea {
+            anchors.fill: parent
+            onClicked: toolbarInformation.LabelRemaining.toggleTimeDisplay();
+        }
     }
 
 }

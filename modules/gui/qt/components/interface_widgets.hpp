@@ -268,6 +268,8 @@ public:
     QString strBoth() const { return _strBoth; }
     void setStrBoth(QString t) { _strBoth = t; emit strBothChanged(); }
 
+    Q_INVOKABLE void toggleTimeDisplay();
+
 signals:
     void strElapsedChanged();
     void strRemainingChanged();
@@ -288,8 +290,12 @@ private:
     QString _strBoth;
 
 private slots:
+    void setRemainingTime( bool );
     void setDisplayPosition( float pos, int64_t time, int length );
     void setDisplayPosition( float pos );
+
+signals:
+    void broadcastRemainingTime( bool );
 
 };
 
