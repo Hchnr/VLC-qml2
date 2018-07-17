@@ -56,12 +56,27 @@ Rectangle {
         console.log(toolbarInformation.getVolumeModel().volume );
     }
     */
+    Timer{
+        interval: 3000;
+        repeat: true;
+        running: true;
+        onTriggered: {
+            console.log(leftToolbar.width+","+centerToolbar.width+","+soundSlider.width+","+rightToolbar.width);
+            console.log(toolBar.width);
+            console.log(toolBar.minimumWidth);
+            console.log(bottomBar.width);
+        }
+    }
+
     Column{
+        id: bottomBar
         anchors.bottom: parent.bottom
         width: parent.width
 
         InputController {
             id: sliderBar
+            Layout.fillWidth: true
+            Layout.minimumWidth: 800
             height: VLCStyle.heightSeekBar
         }
 
@@ -71,6 +86,7 @@ Rectangle {
             height: VLCStyle.heightToolbar
             property alias centerToolbar: centerToolbar
             LeftToolbar{
+                id: leftToolbar
                 anchors.left: parent.left
             }
 
@@ -83,6 +99,7 @@ Rectangle {
                 anchors.right: parent.right
                 SliderBar{
                     id: soundSlider
+                    visible: (toolBar.width > 676)
                     width:VLCStyle.widthVolumeSlider
                     anchors.right: rightToolbar.left
                     value: toolbarInformation.VolumeModel.volume

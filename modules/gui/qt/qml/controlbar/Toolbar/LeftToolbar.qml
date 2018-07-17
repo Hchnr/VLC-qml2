@@ -15,6 +15,7 @@ ToolBar{
         Repeater {
             model: toolbarInformation.LeftList
             delegate: ToolButton {
+                visible: (model.modelData.widgetName!=="Loop" || toolBar.width>570)
                 Image {
                     source: controlbar.getIconFromName(model.modelData.widgetName)
                 }
