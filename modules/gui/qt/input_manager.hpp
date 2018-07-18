@@ -37,11 +37,29 @@
 
 #include <QObject>
 #include <QEvent>
+#include <QQmlEngine>
+
 class QSignalMapper;
 
 enum { NORMAL,    /* loop: 0, repeat: 0 */
        REPEAT_ONE,/* loop: 0, repeat: 1 */
        REPEAT_ALL,/* loop: 1, repeat: 0 */
+};
+
+class LoopStatus_e : public QObject
+{
+    Q_OBJECT
+
+public:
+    enum LoopStatus { NORMAL,    /* loop: 0, repeat: 0 */
+       REPEAT_ONE,/* loop: 0, repeat: 1 */
+       REPEAT_ALL,/* loop: 1, repeat: 0 */
+    };
+
+    Q_ENUMS(LoopStatus)
+    static void declareQML() {
+        qmlRegisterType<LoopStatus_e>("LoopStatus_e",1,0,"LoopStatus_e");
+    }
 };
 
 class IMEvent : public QEvent

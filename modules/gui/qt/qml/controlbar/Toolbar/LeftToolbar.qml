@@ -4,6 +4,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Controls.Styles 1.4
 
 import ActionType_e 1.0
+import LoopStatus_e 1.0
 
 import "qrc:///style/"
 import "qrc:///controlbar/Menu/"
@@ -23,6 +24,7 @@ ToolBar{
                 id: leftButton
                 visible: (model.modelData.widgetName!=="Loop" || toolBar.width>570)
                 Image {
+                    id: img
                     source: controlbar.getIconFromName(model.modelData.widgetName)
                 }
                 ToolTip.visible: hovered
@@ -35,6 +37,18 @@ ToolBar{
                         leftButton.checkable = true;
                         leftButton.checked = Qt.binding(function() { return toolbar.randomStatus; } );
                     }
+                    else if( model.modelData.widgetName === "Loop" ) {
+                        leftButton.checkable = true;
+                        leftButton.checked = Qt.binding(function() {
+                            return (toolbarInformation.loopStatus !== LoopStatus_e.NORMAL);
+                        });
+                        img.source = Qt.binding(function() {
+                            if(toolbarInformation.loopStatus === LoopStatus_e.REPEAT_ONE)
+                                return "qrc:///buttons/playlist/repeat_one.svg";
+                            else
+                                return "qrc:///buttons/playlist/repeat_all.svg";
+                        });
+                    }
                 }
 
                 onClicked: {
@@ -43,7 +57,8 @@ ToolBar{
                         case "Bookmark": toolbarInformation.doAction(ActionType_e.SNAPSHOT_ACTION); break;
                         case "Subtitle": toolbarInformation.doAction(ActionType_e.OPEN_SUB_ACTION); break;
                         case "Random": toolbarInformation.doAction(ActionType_e.RANDOM_ACTION); break;
-                        case "Loop": toolbarInformation.doAction(ActionType_e.LOOP_ACTION); break;
+                        case "Loop": toolbarInformation.onLoopClicked(); console.log(toolbarInformation.loopStatus);
+                                     toolbarInformation.doAction(ActionType_e.LOOP_ACTION); break;
                     }
                 }
             }

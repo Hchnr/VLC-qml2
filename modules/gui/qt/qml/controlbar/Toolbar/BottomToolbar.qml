@@ -83,7 +83,7 @@ Rectangle {
         var m = {"Bookmark": "Bookmark",
               "Subtitle": "Subtitle",
               "Random": "Random",
-              "Loop": "Loop",
+              "Loop": "Click to toggle between loop all, loop one and no loop",
               "Slower": "Slower",
               "Previous": "Previous / Backward",
               "Play": "Play / Pause",
