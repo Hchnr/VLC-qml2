@@ -29,6 +29,11 @@ ToolBar{
                     id: image
                     source: imgsrc
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.timeout: 5000
+                ToolTip.text: controlbar.getTipFromName(model.modelData.widgetName)
+
                 Component.onCompleted: {
                     imgsrc = controlbar.getIconFromName(model.modelData.widgetName);
                     if (  model.modelData.widgetName === "Play" )

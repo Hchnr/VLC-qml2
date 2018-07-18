@@ -11,51 +11,6 @@ Rectangle {
     height: sliderBar.height + toolBar.height
     property alias sliderBar: sliderBar
     property alias toolBar: toolBar
-    // signal testStop()
-
-    function getActionFromName(name) {
-        var t = {
-            "PLAY_ACTION":0, "STOP_ACTION":1,
-            "OPEN_ACTION":2,"PREVIOUS_ACTION":3,
-            "NEXT_ACTION":4,"SLOWER_ACTION":5,
-            "FASTER_ACTION":6,"FULLSCREEN_ACTION":7,
-            "FULLWIDTH_ACTION":8,"EXTENDED_ACTION":9,
-            "PLAYLIST_ACTION":10,"SNAPSHOT_ACTION":11,
-            "RECORD_ACTION":12,"FRAME_ACTION":13,
-            "ATOB_ACTION":14,"REVERSE_ACTION":15,
-            "SKIP_BACK_ACTION":16,"SKIP_FW_ACTION":17,
-            "QUIT_ACTION":18,"RANDOM_ACTION":19,
-            "LOOP_ACTION":20,"INFO_ACTION":21,
-            "OPEN_SUB_ACTION":22,
-        }
-        return t[name]
-    }
-
-
-    // get the icon path of widgets
-    function getIconFromName(name) {
-        var m = {"Bookmark": "qrc:///toolbar/tv.svg",
-              "Subtitle": "qrc:///menu/messages.svg",
-              "Random": "qrc:///buttons/playlist/shuffle_on.svg",
-              "Loop": "qrc:///buttons/playlist/repeat_all.svg",
-              "Slower": "qrc:///toolbar/slower.svg",
-              "Previous": "qrc:///toolbar/dvd_prev.svg",
-              "Play": "qrc:///toolbar/play_b.svg",
-              "Next": "qrc:///toolbar/dvd_next.svg",
-              "Faster": "qrc:///toolbar/faster.svg",
-              "Fullscreen": "qrc:///toolbar/fullscreen.svg",
-              "Playlist": "qrc:///toolbar/playlist.svg",
-              "TBD": "qrc:///toolbar/extended.svg",
-              "Pause": "qrc:///toolbar/pause_b.svg"
-        }
-        return m[name]
-    }
-    /*
-    Component.onCompleted: {
-        console.log(toolbarInformation.getVolumeModel());
-        console.log(toolbarInformation.getVolumeModel().volume );
-    }
-    */
 
     Column{
         id: bottomBar
@@ -103,4 +58,49 @@ Rectangle {
             }
         }
     }
+
+    /* get the icon path of widgets */
+    function getIconFromName(name) {
+        var m = {"Bookmark": "qrc:///toolbar/tv.svg",
+              "Subtitle": "qrc:///menu/messages.svg",
+              "Random": "qrc:///buttons/playlist/shuffle_on.svg",
+              "Loop": "qrc:///buttons/playlist/repeat_all.svg",
+              "Slower": "qrc:///toolbar/slower.svg",
+              "Previous": "qrc:///toolbar/dvd_prev.svg",
+              "Play": "qrc:///toolbar/play_b.svg",
+              "Next": "qrc:///toolbar/dvd_next.svg",
+              "Faster": "qrc:///toolbar/faster.svg",
+              "Fullscreen": "qrc:///toolbar/fullscreen.svg",
+              "Playlist": "qrc:///toolbar/playlist.svg",
+              "TBD": "qrc:///toolbar/extended.svg",
+              "Pause": "qrc:///toolbar/pause_b.svg"
+        }
+        return m[name]
+    }
+
+    /* get tool tip */
+    function getTipFromName(name) {
+        var m = {"Bookmark": "Bookmark",
+              "Subtitle": "Subtitle",
+              "Random": "Random",
+              "Loop": "Loop",
+              "Slower": "Slower",
+              "Previous": "Previous / Backward",
+              "Play": "Play / Pause",
+              "Next": "Next / Forward",
+              "Faster": "Faster",
+              "Fullscreen": "Fullscreen",
+              "Playlist": "Playlist",
+              "TBD": "Extended",
+              "Pause": "Play / Pause"
+        }
+        return m[name]
+    }
+
+    /*
+    Component.onCompleted: {
+        console.log(toolbarInformation.getVolumeModel());
+        console.log(toolbarInformation.getVolumeModel().volume );
+    }
+    */
 }

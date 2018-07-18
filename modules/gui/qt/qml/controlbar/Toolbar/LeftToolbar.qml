@@ -19,6 +19,11 @@ ToolBar{
                 Image {
                     source: controlbar.getIconFromName(model.modelData.widgetName)
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.timeout: 5000
+                ToolTip.text: controlbar.getTipFromName(model.modelData.widgetName)
+
                 onClicked: {
                     console.log(model.modelData.widgetName + " clicked.")
                     switch ( model.modelData.widgetName ) {
