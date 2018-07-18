@@ -9,12 +9,18 @@ import "qrc:///style/"
 import "qrc:///controlbar/Menu/"
 
 ToolBar{
+    id: toolbar
     height: VLCStyle.icon_normal
+
+    property bool randomStatus: toolbarInformation.randomStatus
+
     RowLayout{
         height: VLCStyle.icon_normal
         Repeater {
             model: toolbarInformation.LeftList
+
             delegate: ToolButton {
+                id: leftButton
                 visible: (model.modelData.widgetName!=="Loop" || toolBar.width>570)
                 Image {
                     source: controlbar.getIconFromName(model.modelData.widgetName)
@@ -23,6 +29,13 @@ ToolBar{
                 ToolTip.delay: 1000
                 ToolTip.timeout: 5000
                 ToolTip.text: controlbar.getTipFromName(model.modelData.widgetName)
+
+                Component.onCompleted: {
+                    if(model.modelData.widgetName === "Random") {
+                        leftButton.checkable = true;
+                        leftButton.checked = Qt.binding(function() { return toolbar.randomStatus; } );
+                    }
+                }
 
                 onClicked: {
                     console.log(model.modelData.widgetName + " clicked.")

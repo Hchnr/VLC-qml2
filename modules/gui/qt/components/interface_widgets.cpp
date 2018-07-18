@@ -963,11 +963,19 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     m_volumeModel = new SoundWidgetModel(p_intf);
     m_seekSlider = new SeekSliderModel(p_intf);
     m_controller = new AbstractController(p_intf);
+    m_randomStatus = var_GetBool(THEPL, "random");
 
     /* register the ENUM type, for the parameter of doAction(int) */
     ActionType_e::declareQML();
 
     CONNECT( m_controller, inputPlaying( bool ), this, updateButtonPlay( bool ));
+    CONNECT( THEMIM, randomChanged( bool ), this, updateButtonRandom( bool ));
+}
+
+void ToolbarInformation::updateButtonRandom(bool isRandom)
+{
+    m_randomStatus = isRandom;
+    emit randomStatusChanged();
 }
 
 void ToolbarInformation::updateButtonPlay(bool isPlaying)

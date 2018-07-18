@@ -311,10 +311,12 @@ class ToolbarInformation : public QObject
     Q_PROPERTY(SoundWidgetModel* VolumeModel READ getVolumeModel WRITE setVolumeModel NOTIFY VolumeModelChanged)
     Q_PROPERTY(SeekSliderModel* SeekSlider READ getSeekSlider WRITE setSeekSlider NOTIFY SeekSliderChanged)
     Q_PROPERTY(bool playingStatus READ getPlayingStatus WRITE setPlayingStatus NOTIFY playingStatusChanged)
+    Q_PROPERTY(bool randomStatus READ getRandomStatus WRITE setRandomStatus NOTIFY randomStatusChanged)
 
 private:
     AbstractController* m_controller;
     bool                m_playingStatus;
+    bool                m_randomStatus;
 
 public:
     intf_thread_t*      p_intf;
@@ -335,6 +337,7 @@ public:
     SoundWidgetModel* getVolumeModel() const { return m_volumeModel; }
     SeekSliderModel*  getSeekSlider() const { return m_seekSlider; }
     bool getPlayingStatus() const { return m_playingStatus; }
+    bool getRandomStatus() const { return m_randomStatus; }
 
     void setLabelElapsed( TimeLabelModel* t) {}
     void setLabelRemaining( TimeLabelModel* t) {}
@@ -344,12 +347,14 @@ public:
     void setVolumeModel( SoundWidgetModel* m) {}
     void setSeekSlider( SeekSliderModel* m) {}
     void setPlayingStatus( bool b ) {}
+    void setRandomStatus( bool b ) {}
 
     ToolbarInformation(intf_thread_t* _p_intf);
     Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
 
-private slots:
+public slots:
     void updateButtonPlay(bool);
+    void updateButtonRandom( bool);
 
 signals:
     void LabelElapsedChanged();
@@ -360,6 +365,7 @@ signals:
     void VolumeModelChanged();
     void SeekSliderChanged();
     void playingStatusChanged();
+    void randomStatusChanged();
 };
 
 class SpeedLabel : public QLabel
