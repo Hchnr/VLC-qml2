@@ -214,8 +214,6 @@ public:
 
     void setGripVisible( bool b_visible )
     { grip->setVisible( b_visible ); }
-    Q_INVOKABLE void doAction2(int action)
-    { ActionsManager::getInstance( p_intf  )->doAction(action); }
 
 protected:
     friend class MainInterface;

@@ -198,7 +198,6 @@ MainInterface::MainInterface( intf_thread_t *_p_intf ) : QVLCMW( _p_intf )
         CONNECT( THEMIM->getIM(), nameChanged( const QString& ),
                  this, setVLCWindowsTitle( const QString& ) );
     }
-    CONNECT( THEMIM, inputChanged( bool ), this, onInputChanged( bool ) );
 
     /* END CONNECTS ON IM */
 
@@ -315,10 +314,7 @@ MainInterface::~MainInterface()
 
 void MainInterface::computeMinimumSize()
 {
-    int minWidth = 80;
-    if( menuBar()->isVisible() )
-        minWidth += controls->sizeHint().width();
-
+    int minWidth = 480;
     setMinimumWidth( minWidth );
 }
 
@@ -496,13 +492,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     /* Resize even if no-auto-resize, because we are at creation */
     resizeStack( stackWidgetsSizes[bgWidget].width(), stackWidgetsSizes[bgWidget].height() );
 
-    /* Create the CONTROLS Widget */
-    controls = new ControlsWidget( p_intf,
-        creationSettings->value( "MainWindow/adv-controls", false ).toBool(), this );
-    inputC = new InputControlsWidget( p_intf, this );
-    controls->setVisible(false);
-    inputC->setVisible(false);
-
     /* add qml toolbar here */
     controlsBar = new QQuickWidget();
     QQmlContext *rootCtx = controlsBar->rootContext();
@@ -510,20 +499,8 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     rootCtx->setContextProperty("toolbarInformation", toolbarInformation);
     controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/Toolbar/BottomToolbar.qml") ) );
     controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
-
-    /*
-    QObject *item = (QObject*) controlsBar->rootObject();
-    CONNECT(item, testStop(), (QObject*) controls->toolbarActionsMapper, map());
-    controls->toolbarActionsMapper->setMapping(item, STOP_ACTION);
-    */
-
-    /*
-    mainLayout->insertWidget( 2, inputC );
-    mainLayout->insertWidget(
-        creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3,
-        controls );
-    */
-    mainLayout->insertWidget(creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3, controlsBar );
+    mainLayout->insertWidget(creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3,
+                             controlsBar );
 
     /* Visualisation, disabled for now, they SUCK */
     #if 0
@@ -849,12 +826,8 @@ void MainInterface::setVideoSize( unsigned int w, unsigned int h )
                 {
                     if( menuBar()->isVisible() )
                         h -= menuBar()->height();
-                    if( controls->isVisible() )
-                        h -= controls->height();
                     if( statusBar()->isVisible() )
                         h -= statusBar()->height();
-                    if( inputC->isVisible() )
-                        h -= inputC->height();
                 }
                 h -= style()->pixelMetric(QStyle::PM_TitleBarHeight);
                 h -= style()->pixelMetric(QStyle::PM_LayoutBottomMargin);
@@ -1134,9 +1107,7 @@ void MainInterface::dockPlaylist( bool p_docked )
 void MainInterface::displayNormalView()
 {
     menuBar()->setVisible( false );
-    controls->setVisible( false );
     statusBar()->setVisible( false );
-    inputC->setVisible( false );
 }
 
 /*
@@ -1146,9 +1117,8 @@ void MainInterface::displayNormalView()
 void MainInterface::setMinimalView( bool b_minimal )
 {
     bool b_menuBarVisible = menuBar()->isVisible();
-    bool b_controlsVisible = controls->isVisible();
+    // bool b_controlsVisible = controls->isVisible();
     bool b_statusBarVisible = statusBar()->isVisible();
-    bool b_inputCVisible = inputC->isVisible();
 
     if( !isFullScreen() && !isMaximized() && b_minimal && !b_isWindowTiled )
     {
@@ -1156,21 +1126,19 @@ void MainInterface::setMinimalView( bool b_minimal )
 
         if( b_menuBarVisible )
             i_heightChange += menuBar()->height();
-        if( b_controlsVisible )
+        /*
+         * if( b_controlsVisible )
             i_heightChange += controls->height();
+            */
         if( b_statusBarVisible )
             i_heightChange += statusBar()->height();
-        if( b_inputCVisible )
-            i_heightChange += inputC->height();
 
         if( i_heightChange != 0 )
             resizeWindow( width(), height() - i_heightChange );
     }
 
     menuBar()->setVisible( !b_minimal );
-    controls->setVisible( !b_minimal );
     statusBar()->setVisible( !b_minimal && b_statusbarVisible );
-    inputC->setVisible( !b_minimal );
 
     if( !isFullScreen() && !isMaximized() && !b_minimal && !b_isWindowTiled )
     {
@@ -1178,12 +1146,8 @@ void MainInterface::setMinimalView( bool b_minimal )
 
         if( !b_menuBarVisible && menuBar()->isVisible() )
             i_heightChange += menuBar()->height();
-        if( !b_controlsVisible && controls->isVisible() )
-            i_heightChange += controls->height();
         if( !b_statusBarVisible && statusBar()->isVisible() )
             i_heightChange += statusBar()->height();
-        if( !b_inputCVisible && inputC->isVisible() )
-            i_heightChange += inputC->height();
 
         if( i_heightChange != 0 )
             resizeWindow( width(), height() + i_heightChange );
@@ -1220,16 +1184,13 @@ void MainInterface::toggleMinimalView( bool b_minimal )
 /* toggling advanced controls buttons */
 void MainInterface::toggleAdvancedButtons()
 {
-    controls->toggleAdvanced();
-//    if( fullscreenControls ) fullscreenControls->toggleAdvanced();
+
 }
 
 /* Get the visibility status of the controls (hidden or not, advanced or not) */
 int MainInterface::getControlsVisibilityStatus()
 {
-    if( !controls ) return 0;
-    return( (controls->isVisible() ? CONTROLS_VISIBLE : CONTROLS_HIDDEN )
-            + CONTROLS_ADVANCED * controls->b_advancedVisible );
+    return 0;
 }
 
 StandardPLPanel *MainInterface::getPlaylistView()
@@ -1242,7 +1203,6 @@ void MainInterface::setStatusBarVisibility( bool b_visible )
 {
     statusBar()->setVisible( b_visible );
     b_statusbarVisible = b_visible;
-    if( controls ) controls->setGripVisible( !b_statusbarVisible );
 }
 
 
