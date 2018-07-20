@@ -12,6 +12,8 @@ import "qrc:///controlbar/Menu/"
 ToolBar{
     id: toolbar
     height: VLCStyle.icon_normal
+    visible: (parent.width > leftToolbar.width
+              + centerToolbar.width + soundSlider.width + rightToolbar.width)
 
     property bool randomStatus: toolbarInformation.randomStatus
 
@@ -22,7 +24,6 @@ ToolBar{
 
             delegate: ToolButton {
                 id: leftButton
-                visible: (model.modelData.widgetName!=="Loop" || toolBar.width>570)
                 Image {
                     id: img
                     source: controlbar.getIconFromName(model.modelData.widgetName)
@@ -35,7 +36,8 @@ ToolBar{
                 Component.onCompleted: {
                     if(model.modelData.widgetName === "Random") {
                         leftButton.checkable = true;
-                        leftButton.checked = Qt.binding(function() { return toolbar.randomStatus; } );
+                        leftButton.checked = Qt.binding(function() {
+                            return toolbar.randomStatus; } );
                     }
                     else if( model.modelData.widgetName === "Loop" ) {
                         leftButton.checkable = true;

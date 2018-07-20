@@ -9,6 +9,9 @@ import ActionType_e 1.0
 
 ToolBar{
     height: VLCStyle.icon_normal
+    visible: (parent.width > leftToolbar.width
+              + centerToolbar.width + soundSlider.width + rightToolbar.width)
+
     RowLayout{
         height: VLCStyle.icon_normal
         Repeater {

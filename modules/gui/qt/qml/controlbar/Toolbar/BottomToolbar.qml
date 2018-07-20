@@ -39,23 +39,23 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            RowLayout {
-                anchors.right: parent.right
-                SliderBar{
-                    id: soundSlider
-                    visible: (toolBar.width > 676)
-                    width:VLCStyle.widthVolumeSlider
-                    anchors.right: rightToolbar.left
-                    value: toolbarInformation.VolumeModel.volume
-                    onMoved: {
-                        toolbarInformation.VolumeModel.onVolumeChanged(value)
-                    }
-                }
-                RightToolbar{
-                    id: rightToolbar
-                    anchors.right: parent.right
+
+            SliderBar{
+                id: soundSlider
+                visible: (parent.width > centerToolbar.width + width)
+                width:VLCStyle.widthVolumeSlider
+                anchors.right: rightToolbar.visible ? rightToolbar.left
+                                                    : parent.right
+                value: toolbarInformation.VolumeModel.volume
+                onMoved: {
+                    toolbarInformation.VolumeModel.onVolumeChanged(value)
                 }
             }
+            RightToolbar{
+                id: rightToolbar
+                anchors.right: parent.right
+            }
+
         }
     }
 
@@ -97,10 +97,4 @@ Rectangle {
         return m[name]
     }
 
-    /*
-    Component.onCompleted: {
-        console.log(toolbarInformation.getVolumeModel());
-        console.log(toolbarInformation.getVolumeModel().volume );
-    }
-    */
 }
