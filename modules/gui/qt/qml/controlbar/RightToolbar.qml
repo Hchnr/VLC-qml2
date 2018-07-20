@@ -27,12 +27,8 @@ ToolBar{
 
                 onClicked: {
                     console.log(model.modelData.widgetName + " clicked.")
-                    switch ( model.modelData.widgetName )
-                    {
-                    case "TBD": toolbarInformation.doAction(ActionType_e.STOP_ACTION); break;
-                    case "Playlist": toolbarInformation.doAction(ActionType_e.PLAYLIST_ACTION); break;
-                    case "Fullsreen": toolbarInformation.doAction(ActionType_e.FULLSCREEN_ACTION); break;
-                    }
+                    console.log(model.modelData.buttonAction)
+                    toolbarInformation.doAction(model.modelData.buttonAction)
                 }
 
             }

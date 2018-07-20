@@ -54,13 +54,8 @@ ToolBar{
 
                 onClicked: {
                     console.log(model.modelData.widgetName + " clicked.")
-                    switch ( model.modelData.widgetName ) {
-                        case "Bookmark": toolbarInformation.doAction(ActionType_e.SNAPSHOT_ACTION); break;
-                        case "Subtitle": toolbarInformation.doAction(ActionType_e.OPEN_SUB_ACTION); break;
-                        case "Random": toolbarInformation.doAction(ActionType_e.RANDOM_ACTION); break;
-                        case "Loop": toolbarInformation.onLoopClicked(); console.log(toolbarInformation.loopStatus);
-                                     toolbarInformation.doAction(ActionType_e.LOOP_ACTION); break;
-                    }
+                    console.log(model.modelData.buttonAction)
+                    toolbarInformation.doAction(model.modelData.buttonAction)
                 }
             }
         }

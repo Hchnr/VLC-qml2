@@ -231,14 +231,26 @@ signals:
 class ToolButtonModel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString widgetName READ widgetName NOTIFY widgetNameChanged)
+    Q_PROPERTY( QString widgetName READ getWidgetName NOTIFY widgetNameChanged)
+    Q_PROPERTY( int buttonAction READ getButtonAction NOTIFY buttonActionChanged)
+
 public:
-    ToolButtonModel(QString name) { m_widgetName = name; }
-    QString widgetName() {return m_widgetName;}
-signals:
-    void  widgetNameChanged();
+    ToolButtonModel(QString);
+
+    QString getWidgetName() { return m_widgetName; }
+    int getButtonAction() { return m_buttonAction; }
+
 private:
+    static QMap<QString, int> actionsMap;
+    static QMap<QString, int> initActionsMap();
+
     QString m_widgetName;
+    int     m_buttonAction;
+
+signals:
+    void widgetNameChanged();
+    void buttonActionChanged();
+
 };
 
 /* model for time label of qml-controlbar */
@@ -355,7 +367,6 @@ public:
 
     ToolbarInformation(intf_thread_t* _p_intf);
     Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
-    Q_INVOKABLE void onLoopClicked() { THEMIM->loopRepeatLoopStatus(); }
 
 public slots:
     void updateButtonPlay( bool );

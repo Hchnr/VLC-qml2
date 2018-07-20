@@ -928,7 +928,7 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
 {
     QSettings *settings = getSettings();
 
-    /* Add models for buttons of qml-ControlBar, hechenrui 20180620*/
+    /* Add models for buttons of qml-ControlBar */
     QStringList leftbar, centerbar, rightbar;
     if ( settings->value("MainWindow/qmlcontrolbar", false).toBool() ){
        settings->beginGroup("MainWindow");
@@ -940,6 +940,7 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
        settings->setValue( "centertoolbar", centerbar);
        settings->setValue( "righttoolbar", rightbar);
        settings->endGroup();
+       settings->setValue( "qmltoolbar", true);
        settings->endGroup();
     }
 
@@ -947,6 +948,7 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     leftbar = settings->value("MainWindow/Controlbar/lefttoolbar").toStringList();
     centerbar = settings->value("MainWindow/Controlbar/centertoolbar").toStringList();
     rightbar = settings->value("MainWindow/Controlbar/righttoolbar").toStringList();
+
     for (int i = 0; i < leftbar.size(); i ++) {
         m_leftToolbarList.append(new ToolButtonModel(leftbar[i]));
     }
@@ -993,6 +995,35 @@ void ToolbarInformation::updateButtonPlay(bool isPlaying)
 {
     m_playingStatus = isPlaying;
     emit playingStatusChanged();
+}
+
+QMap<QString, int> ToolButtonModel::actionsMap = ToolButtonModel::initActionsMap();
+
+QMap<QString, int> ToolButtonModel::initActionsMap()
+{
+    QMap<QString, int> map;
+    map.insert("Bookmark", SNAPSHOT_ACTION);
+    map.insert("Subtitle", OPEN_SUB_ACTION);
+    map.insert("Random", RANDOM_ACTION);
+    map.insert("Loop", LOOP_ACTION);
+    map.insert("Slower", SLOWER_ACTION);
+    map.insert("Previous", PREVIOUS_ACTION);
+    map.insert("Play", PLAY_ACTION);
+    map.insert("Next", NEXT_ACTION);
+    map.insert("Faster", FASTER_ACTION);
+    map.insert("Fullscreen", FULLSCREEN_ACTION);
+    map.insert("Playlist", PLAYLIST_ACTION);
+    map.insert("TBD", STOP_ACTION);
+    return map;
+}
+
+ToolButtonModel::ToolButtonModel(QString name)
+{
+    m_widgetName = name;
+    if( actionsMap.contains(name) )
+        m_buttonAction = actionsMap[name];
+    else
+        m_buttonAction = -1;
 }
 
 TimeLabelModel::TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType  )

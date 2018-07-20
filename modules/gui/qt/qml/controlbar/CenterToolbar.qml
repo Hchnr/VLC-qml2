@@ -42,13 +42,8 @@ ToolBar{
 
                 onClicked: {
                     console.log(model.modelData.widgetName + " clicked.")
-                    switch ( model.modelData.widgetName ) {
-                        case "Slower": toolbarInformation.doAction(ActionType_e.SLOWER_ACTION); break;
-                        case "Previous": toolbarInformation.doAction(ActionType_e.PREVIOUS_ACTION); break;
-                        case "Play": toolbarInformation.doAction(ActionType_e.PLAY_ACTION); break;
-                        case "Next": toolbarInformation.doAction(ActionType_e.NEXT_ACTION); break;
-                        case "Faster": toolbarInformation.doAction(ActionType_e.FASTER_ACTION); break;
-                    }
+                    console.log(model.modelData.buttonAction)
+                    toolbarInformation.doAction(model.modelData.buttonAction)
                 }
             }
         }

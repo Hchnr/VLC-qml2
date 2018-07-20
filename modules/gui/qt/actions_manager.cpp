@@ -90,6 +90,8 @@ void ActionsManager::doAction( int id_action )
             THEDP->quit();  break;
         case RANDOM_ACTION:
             THEMIM->toggleRandom(); break;
+        case LOOP_ACTION:
+            THEMIM->loopRepeatLoopStatus(); break;
         case INFO_ACTION:
             THEDP->mediaInfoDialog(); break;
         case OPEN_SUB_ACTION:
