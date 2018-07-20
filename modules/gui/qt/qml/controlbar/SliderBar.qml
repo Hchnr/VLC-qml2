@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.2
 
 import "qrc:///style/"
+
 Slider {
     id: control
     value: 0.0

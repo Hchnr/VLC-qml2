@@ -497,7 +497,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     QQmlContext *rootCtx = controlsBar->rootContext();
     ToolbarInformation *toolbarInformation = new ToolbarInformation(p_intf);
     rootCtx->setContextProperty("toolbarInformation", toolbarInformation);
-    controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/Toolbar/BottomToolbar.qml") ) );
+    controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/BottomToolbar.qml") ) );
     controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
     mainLayout->insertWidget(creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3,
                              controlsBar );

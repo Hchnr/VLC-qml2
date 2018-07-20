@@ -7,13 +7,12 @@ import ActionType_e 1.0
 import LoopStatus_e 1.0
 
 import "qrc:///style/"
-import "qrc:///controlbar/Menu/"
 
 ToolBar{
     id: toolbar
     height: VLCStyle.icon_normal
-    visible: (parent.width > leftToolbar.width
-              + centerToolbar.width + soundSlider.width + rightToolbar.width)
+    visible: (parent.width > leftToolbar.width + centerToolbar.width
+              + soundSlider.width * 2 + rightToolbar.width)
 
     property bool randomStatus: toolbarInformation.randomStatus
 
