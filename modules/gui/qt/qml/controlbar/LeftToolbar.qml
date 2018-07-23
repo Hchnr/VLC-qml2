@@ -35,8 +35,7 @@ ToolBar{
                 Component.onCompleted: {
                     if(model.modelData.widgetName === "Random") {
                         leftButton.checkable = true;
-                        leftButton.checked = Qt.binding(function() {
-                            return toolbar.randomStatus; } );
+                        leftButton.checked = model.modelData.checked;
                     }
                     else if( model.modelData.widgetName === "Loop" ) {
                         leftButton.checkable = true;

@@ -965,7 +965,6 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     m_volumeModel = new SoundWidgetModel(p_intf);
     m_seekSlider = new SeekSliderModel(p_intf);
     m_controller = new AbstractController(p_intf);
-    m_randomStatus = var_GetBool(THEPL, "random");
     m_loopStatus = NORMAL;
     if( var_GetBool( THEPL, "loop" ) )   m_loopStatus = REPEAT_ALL;
     if( var_GetBool( THEPL, "repeat" ) ) m_loopStatus = REPEAT_ONE;
@@ -983,12 +982,6 @@ void ToolbarInformation::updateButtonLoop(int loopStatus)
 {
     m_loopStatus = loopStatus;
     emit loopStatusChanged();
-}
-
-void ToolbarInformation::updateButtonRandom(bool isRandom)
-{
-    m_randomStatus = isRandom;
-    emit randomStatusChanged();
 }
 
 void ToolbarInformation::updateButtonPlay(bool isPlaying)
@@ -1017,13 +1010,29 @@ QMap<QString, int> ToolButtonModel::initActionsMap()
     return map;
 }
 
+QMap<QString, bool> ToolButtonModel::checkedMap = ToolButtonModel::initCheckedMap();
+
+QMap<QString, bool> ToolButtonModel::initCheckedMap()
+{
+    QMap<QString, bool> map;
+    /* var_GetBool(THEPL, "random") */
+    map.insert("Random", true);
+    return map;
+}
+
 ToolButtonModel::ToolButtonModel(QString name)
 {
     m_widgetName = name;
+
     if( actionsMap.contains(name) )
         m_buttonAction = actionsMap[name];
     else
         m_buttonAction = -1;
+
+    if( checkedMap.contains(name) )
+        m_checked = checkedMap[name];
+    else
+        m_checked = false;
 }
 
 TimeLabelModel::TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType  )

@@ -233,24 +233,29 @@ class ToolButtonModel : public QObject
     Q_OBJECT
     Q_PROPERTY( QString widgetName READ getWidgetName NOTIFY widgetNameChanged)
     Q_PROPERTY( int buttonAction READ getButtonAction NOTIFY buttonActionChanged)
+    Q_PROPERTY(bool checked READ getChecked NOTIFY checkedChanged)
 
 public:
     ToolButtonModel(QString);
 
     QString getWidgetName() { return m_widgetName; }
     int getButtonAction() { return m_buttonAction; }
+    bool getChecked() { return m_checked; }
 
 private:
     static QMap<QString, int> actionsMap;
     static QMap<QString, int> initActionsMap();
+    static QMap<QString, bool> checkedMap;
+    static QMap<QString, bool> initCheckedMap();
 
     QString m_widgetName;
     int     m_buttonAction;
+    bool    m_checked;
 
 signals:
     void widgetNameChanged();
     void buttonActionChanged();
-
+    void checkedChanged();
 };
 
 /* model for time label of qml-controlbar */
@@ -323,13 +328,11 @@ class ToolbarInformation : public QObject
     Q_PROPERTY(SoundWidgetModel* VolumeModel READ getVolumeModel WRITE setVolumeModel NOTIFY VolumeModelChanged)
     Q_PROPERTY(SeekSliderModel* SeekSlider READ getSeekSlider WRITE setSeekSlider NOTIFY SeekSliderChanged)
     Q_PROPERTY(bool playingStatus READ getPlayingStatus WRITE setPlayingStatus NOTIFY playingStatusChanged)
-    Q_PROPERTY(bool randomStatus READ getRandomStatus WRITE setRandomStatus NOTIFY randomStatusChanged)
     Q_PROPERTY(int loopStatus READ getLoopStatus WRITE setLoopStatus NOTIFY loopStatusChanged)
 
 private:
     AbstractController* m_controller;
     bool                m_playingStatus;
-    bool                m_randomStatus;
     int                 m_loopStatus;
 
 public:
@@ -351,7 +354,6 @@ public:
     SoundWidgetModel* getVolumeModel() const { return m_volumeModel; }
     SeekSliderModel*  getSeekSlider() const { return m_seekSlider; }
     bool getPlayingStatus() const { return m_playingStatus; }
-    bool getRandomStatus() const { return m_randomStatus; }
     int getLoopStatus() const { return m_loopStatus; }
 
     void setLabelElapsed( TimeLabelModel* t) {}
@@ -362,7 +364,6 @@ public:
     void setVolumeModel( SoundWidgetModel* m) {}
     void setSeekSlider( SeekSliderModel* m) {}
     void setPlayingStatus( bool b ) {}
-    void setRandomStatus( bool b ) {}
     void setLoopStatus(int i) {}
 
     ToolbarInformation(intf_thread_t* _p_intf);
@@ -370,7 +371,6 @@ public:
 
 public slots:
     void updateButtonPlay( bool );
-    void updateButtonRandom( bool );
     void updateButtonLoop( int );
 
 signals:
