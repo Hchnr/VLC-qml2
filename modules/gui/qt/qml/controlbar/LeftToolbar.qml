@@ -14,8 +14,6 @@ ToolBar{
     visible: (parent.width > leftToolbar.width + centerToolbar.width
               + soundSlider.width * 2 + rightToolbar.width)
 
-    property bool randomStatus: toolbarInformation.randomStatus
-
     RowLayout{
         height: VLCStyle.icon_normal
         Repeater {
@@ -39,22 +37,39 @@ ToolBar{
                     }
                     else if( model.modelData.widgetName === "Loop" ) {
                         leftButton.checkable = true;
-                        leftButton.checked = Qt.binding(function() {
-                            return (toolbarInformation.loopStatus !== LoopStatus_e.NORMAL);
-                        });
-                        img.source = Qt.binding(function() {
-                            if(toolbarInformation.loopStatus === LoopStatus_e.REPEAT_ONE)
-                                return "qrc:///buttons/playlist/repeat_one.svg";
-                            else
-                                return "qrc:///buttons/playlist/repeat_all.svg";
-                        });
+                        leftButton.checked = model.modelData.checked;
                     }
                 }
 
                 onClicked: {
-                    console.log(model.modelData.widgetName + " clicked.")
-                    console.log(model.modelData.buttonAction)
                     toolbarInformation.doAction(model.modelData.buttonAction)
+
+                    if( model.modelData.widgetName === "Loop" ) {
+                        /* Toggle Normal -> Loop -> Repeat -> Normal ... */
+
+                        var loop = leftButton.checked ;
+                        var repeat = (img.source == "qrc:///buttons/playlist/repeat_one.svg");
+                        console.log( loop + " " + repeat + " " + img.source);
+
+                        if( repeat )
+                        {
+                            leftButton.checked = false;
+                            img.source = "qrc:///buttons/playlist/repeat_all.svg";
+                            console.log( "Loop clicked1.")
+                        }
+                        else if( loop )
+                        {
+                            leftButton.checked = true;
+                            img.source = "qrc:///buttons/playlist/repeat_one.svg";
+                            console.log( "Loop clicked.2")
+                        }
+                        else
+                        {
+                            leftButton.checked = true;
+                            img.source = "qrc:///buttons/playlist/repeat_all.svg";
+                            console.log( "Loop clicked.3")
+                        }
+                    }
                 }
             }
         }

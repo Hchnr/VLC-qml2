@@ -965,23 +965,13 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     m_volumeModel = new SoundWidgetModel(p_intf);
     m_seekSlider = new SeekSliderModel(p_intf);
     m_controller = new AbstractController(p_intf);
-    m_loopStatus = NORMAL;
-    if( var_GetBool( THEPL, "loop" ) )   m_loopStatus = REPEAT_ALL;
-    if( var_GetBool( THEPL, "repeat" ) ) m_loopStatus = REPEAT_ONE;
 
     /* register the ENUM type, for the parameter of doAction(int) */
     ActionType_e::declareQML();
     LoopStatus_e::declareQML();
 
     CONNECT( m_controller, inputPlaying( bool ), this, updateButtonPlay( bool ));
-    CONNECT( THEMIM, randomChanged( bool ), this, updateButtonRandom( bool ));
-    CONNECT( THEMIM, repeatLoopChanged( int ), this, updateButtonLoop( int ) );
-}
-
-void ToolbarInformation::updateButtonLoop(int loopStatus)
-{
-    m_loopStatus = loopStatus;
-    emit loopStatusChanged();
+    /* CONNECT( THEMIM, repeatLoopChanged( int ), this, updateButtonLoop( int ) ); */
 }
 
 void ToolbarInformation::updateButtonPlay(bool isPlaying)

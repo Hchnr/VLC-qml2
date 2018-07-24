@@ -328,12 +328,10 @@ class ToolbarInformation : public QObject
     Q_PROPERTY(SoundWidgetModel* VolumeModel READ getVolumeModel WRITE setVolumeModel NOTIFY VolumeModelChanged)
     Q_PROPERTY(SeekSliderModel* SeekSlider READ getSeekSlider WRITE setSeekSlider NOTIFY SeekSliderChanged)
     Q_PROPERTY(bool playingStatus READ getPlayingStatus WRITE setPlayingStatus NOTIFY playingStatusChanged)
-    Q_PROPERTY(int loopStatus READ getLoopStatus WRITE setLoopStatus NOTIFY loopStatusChanged)
 
 private:
     AbstractController* m_controller;
     bool                m_playingStatus;
-    int                 m_loopStatus;
 
 public:
     intf_thread_t*      p_intf;
@@ -354,7 +352,6 @@ public:
     SoundWidgetModel* getVolumeModel() const { return m_volumeModel; }
     SeekSliderModel*  getSeekSlider() const { return m_seekSlider; }
     bool getPlayingStatus() const { return m_playingStatus; }
-    int getLoopStatus() const { return m_loopStatus; }
 
     void setLabelElapsed( TimeLabelModel* t) {}
     void setLabelRemaining( TimeLabelModel* t) {}
@@ -364,14 +361,12 @@ public:
     void setVolumeModel( SoundWidgetModel* m) {}
     void setSeekSlider( SeekSliderModel* m) {}
     void setPlayingStatus( bool b ) {}
-    void setLoopStatus(int i) {}
 
     ToolbarInformation(intf_thread_t* _p_intf);
     Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
 
 public slots:
     void updateButtonPlay( bool );
-    void updateButtonLoop( int );
 
 signals:
     void LabelElapsedChanged();
@@ -382,8 +377,6 @@ signals:
     void VolumeModelChanged();
     void SeekSliderChanged();
     void playingStatusChanged();
-    void randomStatusChanged();
-    void loopStatusChanged();
 };
 
 class SpeedLabel : public QLabel
