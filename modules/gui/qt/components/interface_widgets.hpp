@@ -233,6 +233,7 @@ class ToolButtonModel : public QObject
     Q_OBJECT
     Q_PROPERTY( QString widgetName READ getWidgetName NOTIFY widgetNameChanged)
     Q_PROPERTY( int buttonAction READ getButtonAction NOTIFY buttonActionChanged)
+    Q_PROPERTY(bool checkable READ getCheckable NOTIFY checkableChanged)
     Q_PROPERTY(bool checked READ getChecked NOTIFY checkedChanged)
 
 public:
@@ -240,6 +241,7 @@ public:
 
     QString getWidgetName() { return m_widgetName; }
     int getButtonAction() { return m_buttonAction; }
+    bool getCheckable() { return m_checkable; }
     bool getChecked() { return m_checked; }
 
 private:
@@ -247,15 +249,19 @@ private:
     static QMap<QString, int> initActionsMap();
     static QMap<QString, bool> checkedMap;
     static QMap<QString, bool> initCheckedMap();
+    static QMap<QString, bool> checkableMap;
+    static QMap<QString, bool> initCheckableMap();
 
     QString m_widgetName;
     int     m_buttonAction;
     bool    m_checked;
+    bool    m_checkable;
 
 signals:
     void widgetNameChanged();
     void buttonActionChanged();
     void checkedChanged();
+    void checkableChanged();
 };
 
 /* model for time label of qml-controlbar */

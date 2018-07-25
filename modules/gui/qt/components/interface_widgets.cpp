@@ -1010,6 +1010,16 @@ QMap<QString, bool> ToolButtonModel::initCheckedMap()
     return map;
 }
 
+QMap<QString, bool> ToolButtonModel::checkableMap = ToolButtonModel::initCheckableMap();
+
+QMap<QString, bool> ToolButtonModel::initCheckableMap()
+{
+    QMap<QString, bool> map;
+    map.insert("Random", true);
+    map.insert("Loop", true);
+    return map;
+}
+
 ToolButtonModel::ToolButtonModel(QString name)
 {
     m_widgetName = name;
@@ -1023,6 +1033,11 @@ ToolButtonModel::ToolButtonModel(QString name)
         m_checked = checkedMap[name];
     else
         m_checked = false;
+
+    if( checkableMap.contains(name) )
+        m_checkable = checkableMap[name];
+    else
+        m_checkable = false;
 }
 
 TimeLabelModel::TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType  )

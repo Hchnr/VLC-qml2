@@ -25,50 +25,40 @@ ToolBar{
                     id: img
                     source: controlbar.getIconFromName(model.modelData.widgetName)
                 }
+                checkable: model.modelData.checkable
+                checked: model.modelData.checked
                 ToolTip.visible: hovered
                 ToolTip.delay: 1000
                 ToolTip.timeout: 5000
                 ToolTip.text: controlbar.getTipFromName(model.modelData.widgetName)
-
-                Component.onCompleted: {
-                    if(model.modelData.widgetName === "Random") {
-                        leftButton.checkable = true;
-                        leftButton.checked = model.modelData.checked;
-                    }
-                    else if( model.modelData.widgetName === "Loop" ) {
-                        leftButton.checkable = true;
-                        leftButton.checked = model.modelData.checked;
-                    }
-                }
 
                 onClicked: {
                     toolbarInformation.doAction(model.modelData.buttonAction)
 
                     if( model.modelData.widgetName === "Loop" ) {
                         /* Toggle Normal -> Loop -> Repeat -> Normal ... */
+                        toggleLoopButton();
+                    }
+                }
 
-                        var loop = leftButton.checked ;
-                        var repeat = (img.source == "qrc:///buttons/playlist/repeat_one.svg");
-                        console.log( loop + " " + repeat + " " + img.source);
+                function toggleLoopButton() {
+                    var loop = !leftButton.checked ;
+                    var repeat = (img.source == "qrc:///buttons/playlist/repeat_one.svg");
 
-                        if( repeat )
-                        {
-                            leftButton.checked = false;
-                            img.source = "qrc:///buttons/playlist/repeat_all.svg";
-                            console.log( "Loop clicked1.")
-                        }
-                        else if( loop )
-                        {
-                            leftButton.checked = true;
-                            img.source = "qrc:///buttons/playlist/repeat_one.svg";
-                            console.log( "Loop clicked.2")
-                        }
-                        else
-                        {
-                            leftButton.checked = true;
-                            img.source = "qrc:///buttons/playlist/repeat_all.svg";
-                            console.log( "Loop clicked.3")
-                        }
+                    if( repeat )
+                    {
+                        leftButton.checked = false;
+                        img.source = "qrc:///buttons/playlist/repeat_all.svg";
+                    }
+                    else if( loop )
+                    {
+                        leftButton.checked = true;
+                        img.source = "qrc:///buttons/playlist/repeat_one.svg";
+                    }
+                    else
+                    {
+                        leftButton.checked = true;
+                        img.source = "qrc:///buttons/playlist/repeat_all.svg";
                     }
                 }
             }

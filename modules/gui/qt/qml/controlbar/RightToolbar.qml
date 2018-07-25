@@ -20,14 +20,14 @@ ToolBar{
                 Image {
                     source: controlbar.getIconFromName(model.modelData.widgetName)
                 }
+                checkable: model.modelData.checkable
+                checked: model.modelData.checked
                 ToolTip.visible: hovered
                 ToolTip.delay: 1000
                 ToolTip.timeout: 5000
                 ToolTip.text: controlbar.getTipFromName(model.modelData.widgetName)
 
                 onClicked: {
-                    console.log(model.modelData.widgetName + " clicked.")
-                    console.log(model.modelData.buttonAction)
                     toolbarInformation.doAction(model.modelData.buttonAction)
                 }
 
