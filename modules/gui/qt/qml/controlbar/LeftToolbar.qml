@@ -24,6 +24,7 @@ ToolBar{
                 Image {
                     id: img
                     source: controlbar.getIconFromName(model.modelData.widgetName)
+                    anchors.fill: parent
                 }
                 checkable: model.modelData.checkable
                 checked: model.modelData.checked

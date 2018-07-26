@@ -28,6 +28,7 @@ ToolBar{
                 Image {
                     id: image
                     source: imgsrc
+                    anchors.fill: parent
                 }
                 checkable: model.modelData.checkable
                 checked: model.modelData.checked

@@ -94,7 +94,7 @@ Item {
     property int heightSeekBar: 10;
     property int heightSliderImplicit: 4;
     property int heightToolbar: 50;
-    property int heightHandle: 16
+    property int heightHandle: 10
 
     property int icon_xsmall: 8;
     property int icon_small: 16;
@@ -122,7 +122,7 @@ Item {
 
     property int widthVolumeSlider: 80;
     property int widthTimeLabel: 40;
-    property int widthHandle: 16
+    property int widthHandle: 10
     property int widthSliderImplicit: 100;
 
     property int widthSortBox: 150;
