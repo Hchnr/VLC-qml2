@@ -21,11 +21,18 @@ ToolBar{
 
             delegate: ToolButton {
                 id: leftButton
-                Image {
-                    id: img
-                    source: controlbar.getIconFromName(model.modelData.widgetName)
+                Rectangle {
                     anchors.fill: parent
+                    border.color: "grey"
+                    border.width: 1
+                    color: "transparent"
+                    Image {
+                        id: img
+                        source: controlbar.getIconFromName(model.modelData.widgetName)
+                        anchors.fill: parent
+                    }
                 }
+
                 checkable: model.modelData.checkable
                 checked: model.modelData.checked
                 ToolTip.visible: hovered

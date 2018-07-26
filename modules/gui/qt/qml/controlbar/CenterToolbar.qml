@@ -25,10 +25,16 @@ ToolBar{
                 property string imgplay: toolbarInformation.playingStatus?
                                                     controlbar.getIconFromName("Pause")
                                                   : controlbar.getIconFromName("Play");
-                Image {
-                    id: image
-                    source: imgsrc
+                Rectangle {
                     anchors.fill: parent
+                    border.color: "grey"
+                    border.width: 1
+                    color: "transparent"
+                    Image {
+                        id: image
+                        source: imgsrc
+                        anchors.fill: parent
+                    }
                 }
                 checkable: model.modelData.checkable
                 checked: model.modelData.checked
