@@ -142,6 +142,8 @@ Item {
 
     property color vlc_orange: "#FFFF950D";
 
+    property color colorButtonBorder: myPalette.dark;
+    property color colorButtonBorderHighlight: myPalette.highlight;
     property color bgColorSlider: myPalette.dark;
     property color colorSlider: myPalette.highlight;  // "#c62f2f";
     property color colorSliderHandle: myPalette.button; // "#f6f6f6";

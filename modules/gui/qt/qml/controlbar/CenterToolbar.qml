@@ -27,7 +27,8 @@ ToolBar{
                                                   : controlbar.getIconFromName("Play");
                 Rectangle {
                     anchors.fill: parent
-                    border.color: "grey"
+                    border.color: parent.hovered? VLCStyle.colorButtonBorderHighlight
+                                                : VLCStyle.colorButtonBorder
                     border.width: 1
                     color: "transparent"
                     Image {
