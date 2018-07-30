@@ -16,31 +16,7 @@ ToolBar{
         height: VLCStyle.icon_normal
         Repeater {
             model: toolbarInformation.RightList
-            delegate: ToolButton {
-                Rectangle {
-                    anchors.fill: parent
-                    border.color: parent.hovered? VLCStyle.colorButtonBorderHighlight
-                                                : VLCStyle.colorButtonBorder
-                    border.width: 1
-                    color: "transparent"
-                    Image {
-                        id: img
-                        source: controlbar.getIconFromName(model.modelData.widgetName)
-                        anchors.fill: parent
-                    }
-                }
-                checkable: model.modelData.checkable
-                checked: model.modelData.checked
-                ToolTip.visible: hovered
-                ToolTip.delay: 1000
-                ToolTip.timeout: 5000
-                ToolTip.text: controlbar.getTipFromName(model.modelData.widgetName)
-
-                onClicked: {
-                    toolbarInformation.doAction(model.modelData.buttonAction)
-                }
-
-            }
+            delegate: VLCButton {}
         }
     }
 }

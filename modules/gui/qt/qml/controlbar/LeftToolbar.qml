@@ -19,58 +19,8 @@ ToolBar{
         Repeater {
             model: toolbarInformation.LeftList
 
-            delegate: ToolButton {
+            delegate: VLCButton {
                 id: leftButton
-                hoverEnabled: true
-                Rectangle {
-                    anchors.fill: parent
-                    border.color: parent.hovered? VLCStyle.colorButtonBorderHighlight
-                                                : VLCStyle.colorButtonBorder
-                    border.width: 1
-                    color: "transparent"
-                    Image {
-                        id: img
-                        source: controlbar.getIconFromName(model.modelData.widgetName)
-                        anchors.fill: parent
-                    }
-                }
-
-                checkable: model.modelData.checkable
-                checked: model.modelData.checked
-                ToolTip.visible: hovered
-                ToolTip.delay: 1000
-                ToolTip.timeout: 5000
-                ToolTip.text: controlbar.getTipFromName(model.modelData.widgetName)
-
-                onClicked: {
-                    toolbarInformation.doAction(model.modelData.buttonAction)
-
-                    if( model.modelData.widgetName === "Loop" ) {
-                        /* Toggle Normal -> Loop -> Repeat -> Normal ... */
-                        toggleLoopButton();
-                    }
-                }
-
-                function toggleLoopButton() {
-                    var loop = !leftButton.checked ;
-                    var repeat = (img.source == "qrc:///buttons/playlist/repeat_one.svg");
-
-                    if( repeat )
-                    {
-                        leftButton.checked = false;
-                        img.source = "qrc:///buttons/playlist/repeat_all.svg";
-                    }
-                    else if( loop )
-                    {
-                        leftButton.checked = true;
-                        img.source = "qrc:///buttons/playlist/repeat_one.svg";
-                    }
-                    else
-                    {
-                        leftButton.checked = true;
-                        img.source = "qrc:///buttons/playlist/repeat_all.svg";
-                    }
-                }
             }
         }
     }

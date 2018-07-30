@@ -202,5 +202,6 @@
         <file alias="RightToolbar.qml">qml/controlbar/RightToolbar.qml</file>
         <file alias="SliderBar.qml">qml/controlbar/SliderBar.qml</file>
         <file alias="InputController.qml">qml/controlbar/InputController.qml</file>
+        <file alias="VLCButton.qml">qml/controlbar/VLCButton.qml</file>
     </qresource>
 </RCC>
