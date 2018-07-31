@@ -237,7 +237,7 @@ class ToolButtonModel : public QObject
     Q_PROPERTY(bool checked READ getChecked NOTIFY checkedChanged)
 
 public:
-    ToolButtonModel(QString);
+    ToolButtonModel(QString, intf_thread_t*);
 
     QString getWidgetName() { return m_widgetName; }
     int getButtonAction() { return m_buttonAction; }
@@ -249,9 +249,12 @@ private:
     static QMap<QString, int> initActionsMap();
     static QMap<QString, bool> checkedMap;
     static QMap<QString, bool> initCheckedMap();
+    void initCheckedMapFromSettings();
     static QMap<QString, bool> checkableMap;
     static QMap<QString, bool> initCheckableMap();
 
+    static bool isCheckedMapInit;
+    intf_thread_t *p_intf;
     QString m_widgetName;
     int     m_buttonAction;
     bool    m_checked;

@@ -950,13 +950,13 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     rightbar = settings->value("MainWindow/Controlbar/righttoolbar").toStringList();
 
     for (int i = 0; i < leftbar.size(); i ++) {
-        m_leftToolbarList.append(new ToolButtonModel(leftbar[i]));
+        m_leftToolbarList.append(new ToolButtonModel(leftbar[i], p_intf));
     }
     for (int i = 0; i < centerbar.size(); i ++) {
-        m_centerToolbarList.append(new ToolButtonModel(centerbar[i]));
+        m_centerToolbarList.append(new ToolButtonModel(centerbar[i], p_intf));
     }
     for (int i = 0; i < rightbar.size(); i ++) {
-        m_rightToolbarList.append(new ToolButtonModel(rightbar[i]));
+        m_rightToolbarList.append(new ToolButtonModel(rightbar[i], p_intf));
     }
 
     m_actionsManager = ActionsManager::getInstance();
@@ -1005,9 +1005,18 @@ QMap<QString, bool> ToolButtonModel::checkedMap = ToolButtonModel::initCheckedMa
 QMap<QString, bool> ToolButtonModel::initCheckedMap()
 {
     QMap<QString, bool> map;
-    /* var_GetBool(THEPL, "random") */
-    map.insert("Random", true);
     return map;
+}
+
+bool ToolButtonModel::isCheckedMapInit = false;
+
+/* get checked status from the core */
+void ToolButtonModel::initCheckedMapFromSettings()
+{
+    if(isCheckedMapInit)
+        return;
+    isCheckedMapInit = true;
+    checkedMap.insert("Random", var_GetBool(THEPL, "random"));
 }
 
 QMap<QString, bool> ToolButtonModel::checkableMap = ToolButtonModel::initCheckableMap();
@@ -1020,8 +1029,9 @@ QMap<QString, bool> ToolButtonModel::initCheckableMap()
     return map;
 }
 
-ToolButtonModel::ToolButtonModel(QString name)
+ToolButtonModel::ToolButtonModel(QString name, intf_thread_t *_p_intf)
 {
+    p_intf = _p_intf;
     m_widgetName = name;
 
     if( actionsMap.contains(name) )
