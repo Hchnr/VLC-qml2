@@ -468,14 +468,6 @@ WidgetListing::WidgetListing( intf_thread_t *p_intf, QWidget *_parent )
             }
             widgetItem->setText( qtr("Time Slider") );
             break;
-        case VOLUME:
-            {
-                SoundWidget *snd = new SoundWidget( this, p_intf,
-                        parent->getOptions() & WIDGET_SHINY );
-                widget = snd;
-            }
-            widgetItem->setText( qtr("Volume") );
-            break;
         case VOLUME_SPECIAL:
             {
                 QListWidgetItem *widgetItem = new QListWidgetItem( this );

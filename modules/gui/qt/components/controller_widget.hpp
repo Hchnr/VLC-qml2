@@ -90,40 +90,6 @@ private:
     intf_thread_t* p_intf;
 };
 
-class SoundWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    SoundWidget( QWidget *parent, intf_thread_t  *_p_i, bool,
-                 bool b_special = false );
-    void setMuted( bool );
-
-protected:
-    bool eventFilter( QObject *obj, QEvent *e ) Q_DECL_OVERRIDE;
-
-private:
-    intf_thread_t       *p_intf;
-    QLabel              *volMuteLabel;
-    QAbstractSlider     *volumeSlider;
-    QFrame              *volumeControlWidget;
-    QMenu               *volumeMenu;
-
-    bool                b_is_muted;
-    bool                b_ignore_valuechanged;
-
-protected slots:
-    void userUpdateVolume( int );
-    void libUpdateVolume( float );
-    void updateMuteStatus( bool );
-    void refreshLabels( void );
-    void showVolumeMenu( QPoint pos );
-    void valueChangedFilter( int );
-
-signals:
-    void valueReallyChanged( int );
-};
-
 class SoundWidgetModel : public QObject
 {
     Q_OBJECT

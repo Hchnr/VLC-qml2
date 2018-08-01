@@ -380,10 +380,6 @@ QWidget *AbstractController::createWidget( buttonType_e button, int options )
         b_special = true;
         /* fallthrough */
     case VOLUME:
-        {
-            SoundWidget *snd = new SoundWidget( this, p_intf, b_shiny, b_special );
-            widget = snd;
-        }
         break;
     case TIME_LABEL:
         {
@@ -515,6 +511,7 @@ QWidget *AbstractController::createWidget( buttonType_e button, int options )
     }
     return widget;
 }
+
 #undef NORMAL_BUTTON
 
 void AbstractController::applyAttributes( QToolButton *tmpButton, bool b_flat, bool b_big )
