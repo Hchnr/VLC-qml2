@@ -254,7 +254,8 @@ SoundWidgetModel::SoundWidgetModel( intf_thread_t * _p_intf ) : p_intf(_p_intf)
 /* libvlc changed value event slot */
 void SoundWidgetModel::libUpdateVolume( float v )
 {
-    _i_volume = lroundf(v * 100.f);
+    setI_volume(lroundf(v * 100.f));
+    setVolume(v);
 }
 
 /* libvlc mute/unmute event slot */
