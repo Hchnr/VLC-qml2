@@ -930,17 +930,17 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
 
     /* Add models for buttons of qml-ControlBar */
     QStringList leftbar, centerbar, rightbar;
-    if ( settings->value("MainWindow/qmlcontrolbar", false).toBool() ){
+    if ( !settings->value("MainWindow/qmlcontrolbar", false).toBool() ){
        settings->beginGroup("MainWindow");
        settings->beginGroup("Controlbar");
        leftbar << "Bookmark" << "Subtitle" << "Random" << "Loop";
        centerbar << "Slower" << "Previous" << "Play" << "Next" << "Faster";
-       rightbar << "Fullscreen" << "Playlist" << "TBD";
+       rightbar << "Fullscreen" << "Playlist" << "Extend";
        settings->setValue( "lefttoolbar", leftbar);
        settings->setValue( "centertoolbar", centerbar);
        settings->setValue( "righttoolbar", rightbar);
        settings->endGroup();
-       settings->setValue( "qmltoolbar", true);
+       settings->setValue( "qmlcontrolbar", true);
        settings->endGroup();
     }
 
@@ -996,7 +996,7 @@ QMap<QString, int> ToolButtonModel::initActionsMap()
     map.insert("Faster", FASTER_ACTION);
     map.insert("Fullscreen", FULLSCREEN_ACTION);
     map.insert("Playlist", PLAYLIST_ACTION);
-    map.insert("TBD", STOP_ACTION);
+    map.insert("Extend", EXTENDED_ACTION);
     return map;
 }
 
