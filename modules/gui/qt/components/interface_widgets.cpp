@@ -923,8 +923,13 @@ void CoverArtLabel::clear()
 
 ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     : QObject()
-    ,p_intf(_p_intf)
-    ,m_playingStatus(THEMIM->getIM()->playingStatus() == PLAYING_S)
+    , p_intf( _p_intf )
+    , m_actionsManager( ActionsManager::getInstance() )
+    , m_controller( new AbstractController(p_intf) )
+    , m_labelElapsed( new TimeLabelModel(p_intf, TimeLabelModel::Elapsed) )
+    , m_labelRemaining ( new TimeLabelModel(p_intf, TimeLabelModel::Remaining) )
+    , m_volumeModel( new SoundWidgetModel(p_intf) )
+    , m_seekSlider( new SeekSliderModel(p_intf) )
 {
     QSettings *settings = getSettings();
 
@@ -950,34 +955,21 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     rightbar = settings->value("MainWindow/Controlbar/righttoolbar").toStringList();
 
     for (int i = 0; i < leftbar.size(); i ++) {
-        m_leftToolbarList.append(new ToolButtonModel(leftbar[i], p_intf));
+        m_leftToolbarList.append(new ToolButtonModel(leftbar[i], p_intf, m_controller, m_actionsManager));
     }
     for (int i = 0; i < centerbar.size(); i ++) {
-        m_centerToolbarList.append(new ToolButtonModel(centerbar[i], p_intf));
+        m_centerToolbarList.append(new ToolButtonModel(centerbar[i], p_intf, m_controller, m_actionsManager));
     }
     for (int i = 0; i < rightbar.size(); i ++) {
-        m_rightToolbarList.append(new ToolButtonModel(rightbar[i], p_intf));
+        m_rightToolbarList.append(new ToolButtonModel(rightbar[i], p_intf, m_controller, m_actionsManager));
     }
-
-    m_actionsManager = ActionsManager::getInstance();
-    m_labelElapsed = new TimeLabelModel(p_intf, TimeLabelModel::Elapsed);
-    m_labelRemaining = new TimeLabelModel(p_intf, TimeLabelModel::Remaining);
-    m_volumeModel = new SoundWidgetModel(p_intf);
-    m_seekSlider = new SeekSliderModel(p_intf);
-    m_controller = new AbstractController(p_intf);
 
     /* register the ENUM type, for the parameter of doAction(int) */
     ActionType_e::declareQML();
     LoopStatus_e::declareQML();
 
-    CONNECT( m_controller, inputPlaying( bool ), this, updateButtonPlay( bool ));
+    /* CONNECT( m_controller, inputPlaying( bool ), this, updateButtonPlay( bool )); */
     /* CONNECT( THEMIM, repeatLoopChanged( int ), this, updateButtonLoop( int ) ); */
-}
-
-void ToolbarInformation::updateButtonPlay(bool isPlaying)
-{
-    m_playingStatus = isPlaying;
-    emit playingStatusChanged();
 }
 
 QMap<QString, int> ToolButtonModel::actionsMap = ToolButtonModel::initActionsMap();
@@ -1008,6 +1000,48 @@ QMap<QString, bool> ToolButtonModel::initCheckedMap()
     return map;
 }
 
+QMap<QString, QString> ToolButtonModel::tipMap = ToolButtonModel::initTipMap();
+
+QMap<QString, QString> ToolButtonModel::initTipMap()
+{
+    QMap<QString, QString> map;
+    map.insert("Bookmark", "Bookmark");
+    map.insert("Subtitle", "Subtitle");
+    map.insert("Random", "Random");
+    map.insert("Loop", "Click to toggle between loop all, loop one and no loop");
+    map.insert("Slower", "Slower");
+    map.insert("Previous", "Previous / Backward");
+    map.insert("Play", "Play / Pause");
+    map.insert("Next", "Next / Forward");
+    map.insert("Faster", "Faster");
+    map.insert("Fullscreen", "Fullscreen");
+    map.insert("Playlist", "Playlist");
+    map.insert("Extend", "Extended");
+    return map;
+}
+
+QMap<QString, QString> ToolButtonModel::imgSrcMap = ToolButtonModel::initImgSrcMap();
+
+QMap<QString, QString> ToolButtonModel::initImgSrcMap()
+{
+    QMap<QString, QString> map;
+    map.insert("Bookmark", "qrc:///toolbar/tv.svg");
+    map.insert("Subtitle", "qrc:///menu/messages.svg");
+    map.insert("Random", "qrc:///buttons/playlist/shuffle_on.svg");
+    map.insert("Loop", "qrc:///buttons/playlist/repeat_all.svg");
+    map.insert("Slower", "qrc:///toolbar/slower.svg");
+    map.insert("Previous", "qrc:///toolbar/dvd_prev.svg");
+    map.insert("Play", "qrc:///toolbar/play_b.svg");
+    map.insert("Next", "qrc:///toolbar/dvd_next.svg");
+    map.insert("Faster", "qrc:///toolbar/faster.svg");
+    map.insert("Fullscreen", "qrc:///toolbar/fullscreen.svg");
+    map.insert("Playlist", "qrc:///toolbar/playlist.svg");
+    map.insert("Extend", "qrc:///toolbar/extended.svg");
+    map.insert("Pause", "qrc:///toolbar/pause_b.svg");
+    map.insert("Loop1", "qrc:///buttons/playlist/repeat_one.svg");
+    return map;
+}
+
 bool ToolButtonModel::isCheckedMapInit = false;
 
 /* get checked status from the core */
@@ -1029,25 +1063,87 @@ QMap<QString, bool> ToolButtonModel::initCheckableMap()
     return map;
 }
 
-ToolButtonModel::ToolButtonModel(QString name, intf_thread_t *_p_intf)
+ToolButtonModel::ToolButtonModel(QString name,
+                                 intf_thread_t *_p_intf,
+                                 AbstractController *controller,
+                                 ActionsManager *manager)
+    : p_intf( _p_intf )
+    , m_widgetName( name )
+    , m_abstractController( controller )
+    , m_actionsManager( manager )
+    , m_buttonAction( -1 )
+    , m_checked( false )
+    , m_checkable( false )
+    , m_tip( "No tip.")
+    , m_imgSrc( "qrc:///addons/broken.svg" )
 {
-    p_intf = _p_intf;
-    m_widgetName = name;
 
     if( actionsMap.contains(name) )
         m_buttonAction = actionsMap[name];
-    else
-        m_buttonAction = -1;
 
     if( checkedMap.contains(name) )
         m_checked = checkedMap[name];
-    else
-        m_checked = false;
 
     if( checkableMap.contains(name) )
         m_checkable = checkableMap[name];
+
+    if( tipMap.contains(name) )
+        m_tip = tipMap[name];
+
+    if( imgSrcMap.contains(name) )
+        m_imgSrc = imgSrcMap[name];
+
+    if( name == "Play" )
+        CONNECT( m_abstractController, inputPlaying( bool ), this, updateButtonPlay( bool ) );
+    else if ( name == "Loop")
+        CONNECT( m_actionsManager, toggleButtonLoop(), this, updateButtonLoop() );
+}
+
+void ToolButtonModel::updateButtonLoop()
+{
+    /* Toggle Normal -> Loop -> Repeat -> Normal ... */
+    bool loop = var_GetBool( THEPL, "loop" );
+    bool repeat = var_GetBool( THEPL, "repeat" );
+
+    if( repeat )
+    {
+        loop = false;
+        repeat = false;
+        m_imgSrc = imgSrcMap["Loop"];
+        m_checked = false;
+    }
+    else if( loop )
+    {
+        loop = false;
+        repeat = true;
+        m_imgSrc = imgSrcMap["Loop1"];
+        m_checked = true;
+    }
     else
-        m_checkable = false;
+    {
+        loop = true;
+        //repeat = false;
+        m_imgSrc = imgSrcMap["Loop"];
+        m_checked = true;
+    }
+
+    var_SetBool( THEPL, "loop", loop );
+    var_SetBool( THEPL, "repeat", repeat );
+    config_PutInt( "loop", loop );
+    config_PutInt( "repeat", repeat );
+
+    emit imgSrcChanged();
+    emit checkedChanged();
+}
+
+void ToolButtonModel::updateButtonPlay( bool isPlaying )
+{
+    if ( isPlaying )
+        m_imgSrc = imgSrcMap["Pause"];
+    else
+        m_imgSrc = imgSrcMap["Play"];
+
+    emit imgSrcChanged();
 }
 
 TimeLabelModel::TimeLabelModel( intf_thread_t *_p_intf, TimeLabelModel::Display _displayType  )

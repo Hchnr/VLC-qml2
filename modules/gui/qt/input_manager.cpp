@@ -1160,30 +1160,7 @@ void MainInputManager::notifyRepeatLoop(bool)
 
 void MainInputManager::loopRepeatLoopStatus()
 {
-    /* Toggle Normal -> Loop -> Repeat -> Normal ... */
-    bool loop = var_GetBool( THEPL, "loop" );
-    bool repeat = var_GetBool( THEPL, "repeat" );
 
-    if( repeat )
-    {
-        loop = false;
-        repeat = false;
-    }
-    else if( loop )
-    {
-        loop = false;
-        repeat = true;
-    }
-    else
-    {
-        loop = true;
-        //repeat = false;
-    }
-
-    var_SetBool( THEPL, "loop", loop );
-    var_SetBool( THEPL, "repeat", repeat );
-    config_PutInt( "loop", loop );
-    config_PutInt( "repeat", repeat );
 }
 
 void MainInputManager::activatePlayQuit( bool b_exit )

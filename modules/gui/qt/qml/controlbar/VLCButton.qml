@@ -12,7 +12,7 @@ ToolButton {
     ToolTip.visible: hovered
     ToolTip.delay: 1000
     ToolTip.timeout: 5000
-    ToolTip.text: controlbar.getTipFromName(name)
+    ToolTip.text: model.modelData.tip
 
     Rectangle {
         anchors.fill: parent
@@ -22,54 +22,15 @@ ToolButton {
         color: "transparent"
         Image {
             id: image
-            source: controlbar.getIconFromName(name);
+            source: model.modelData.imgSrc
             anchors.fill: parent
         }
     }
 
-    onClicked: onClickedForAll()
-    Component.onCompleted: onCompletedForAll()
-
-    function onCompletedForAll() {
-        switch(name) {
-        case "Play":
-                image.source = Qt.binding(function() {
-                    return toolbarInformation.playingStatus?
-                            controlbar.getIconFromName("Pause")
-                          : controlbar.getIconFromName("Play");
-                } );;  break;
-        }
-    }
-
-    function onClickedForAll() {
-        switch(name) {
-        case "Loop": toggleLoopButton(); break;
-        }
-
+    onClicked: {
         toolbarInformation.doAction(model.modelData.buttonAction);
         console.log(name + " clicked. " + model.modelData.buttonAction);
+        console.log(model.modelData.imgSrc+" : "+model.modelData.checked);
     }
-
-    function toggleLoopButton() {
-        var loop = !leftButton.checked ;
-        var repeat = (image.source == "qrc:///buttons/playlist/repeat_one.svg");
-
-        if( repeat )
-        {
-            button.checked = false;
-            image.source = "qrc:///buttons/playlist/repeat_all.svg";
-        }
-        else if( loop )
-        {
-            button.checked = true;
-            image.source = "qrc:///buttons/playlist/repeat_one.svg";
-        }
-        else
-        {
-            button.checked = true;
-            image.source = "qrc:///buttons/playlist/repeat_all.svg";
-        }
-    }
-
 }
 

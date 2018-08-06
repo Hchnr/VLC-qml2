@@ -80,6 +80,9 @@ private:
 
     intf_thread_t* const p_intf;
 
+signals:
+    void toggleButtonLoop();
+
 public slots:
     void toggleMuteAudio();
     void AudioUp();

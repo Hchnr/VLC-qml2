@@ -91,7 +91,7 @@ void ActionsManager::doAction( int id_action )
         case RANDOM_ACTION:
             THEMIM->toggleRandom(); break;
         case LOOP_ACTION:
-            THEMIM->loopRepeatLoopStatus(); break;
+            THEMIM->loopRepeatLoopStatus(); emit toggleButtonLoop(); break;
         case INFO_ACTION:
             THEDP->mediaInfoDialog(); break;
         case OPEN_SUB_ACTION:

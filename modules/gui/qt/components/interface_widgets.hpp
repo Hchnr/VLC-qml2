@@ -235,14 +235,18 @@ class ToolButtonModel : public QObject
     Q_PROPERTY( int buttonAction READ getButtonAction NOTIFY buttonActionChanged)
     Q_PROPERTY(bool checkable READ getCheckable NOTIFY checkableChanged)
     Q_PROPERTY(bool checked READ getChecked NOTIFY checkedChanged)
+    Q_PROPERTY(QString imgSrc READ getImgSrc NOTIFY imgSrcChanged)
+    Q_PROPERTY(QString tip READ getTip NOTIFY tipChanged)
 
 public:
-    ToolButtonModel(QString, intf_thread_t*);
+    ToolButtonModel(QString, intf_thread_t*, AbstractController*, ActionsManager*);
 
     QString getWidgetName() { return m_widgetName; }
     int getButtonAction() { return m_buttonAction; }
     bool getCheckable() { return m_checkable; }
     bool getChecked() { return m_checked; }
+    QString getImgSrc() { return m_imgSrc; }
+    QString getTip() { return m_tip; }
 
 private:
     static QMap<QString, int> actionsMap;
@@ -252,19 +256,33 @@ private:
     void initCheckedMapFromSettings();
     static QMap<QString, bool> checkableMap;
     static QMap<QString, bool> initCheckableMap();
+    static QMap<QString, QString> tipMap;
+    static QMap<QString, QString> initTipMap();
+    static QMap<QString, QString> imgSrcMap;
+    static QMap<QString, QString> initImgSrcMap();
 
-    static bool isCheckedMapInit;
-    intf_thread_t *p_intf;
-    QString m_widgetName;
-    int     m_buttonAction;
-    bool    m_checked;
-    bool    m_checkable;
+    static bool         isCheckedMapInit;
+    intf_thread_t      *p_intf;
+    QString             m_widgetName;
+    int                 m_buttonAction;
+    bool                m_checked;
+    bool                m_checkable;
+    QString             m_imgSrc;
+    QString             m_tip;
+    AbstractController *m_abstractController;
+    ActionsManager     *m_actionsManager;
 
 signals:
     void widgetNameChanged();
     void buttonActionChanged();
     void checkedChanged();
     void checkableChanged();
+    void imgSrcChanged();
+    void tipChanged();
+
+public slots:
+    void updateButtonPlay( bool );
+    void updateButtonLoop();
 };
 
 /* model for time label of qml-controlbar */
@@ -336,11 +354,9 @@ class ToolbarInformation : public QObject
     Q_PROPERTY(QList<QObject*> RightList READ getRightList WRITE setRightList NOTIFY RightListChanged)
     Q_PROPERTY(SoundWidgetModel* VolumeModel READ getVolumeModel WRITE setVolumeModel NOTIFY VolumeModelChanged)
     Q_PROPERTY(SeekSliderModel* SeekSlider READ getSeekSlider WRITE setSeekSlider NOTIFY SeekSliderChanged)
-    Q_PROPERTY(bool playingStatus READ getPlayingStatus WRITE setPlayingStatus NOTIFY playingStatusChanged)
 
 private:
     AbstractController* m_controller;
-    bool                m_playingStatus;
 
 public:
     intf_thread_t*      p_intf;
@@ -360,7 +376,6 @@ public:
     QList<QObject*> getRightList() const { return m_rightToolbarList; }
     SoundWidgetModel* getVolumeModel() const { return m_volumeModel; }
     SeekSliderModel*  getSeekSlider() const { return m_seekSlider; }
-    bool getPlayingStatus() const { return m_playingStatus; }
 
     void setLabelElapsed( TimeLabelModel* t) {}
     void setLabelRemaining( TimeLabelModel* t) {}
@@ -369,13 +384,9 @@ public:
     void setRightList( QList<QObject*> l ) {}
     void setVolumeModel( SoundWidgetModel* m) {}
     void setSeekSlider( SeekSliderModel* m) {}
-    void setPlayingStatus( bool b ) {}
 
     ToolbarInformation(intf_thread_t* _p_intf);
     Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
-
-public slots:
-    void updateButtonPlay( bool );
 
 signals:
     void LabelElapsedChanged();
