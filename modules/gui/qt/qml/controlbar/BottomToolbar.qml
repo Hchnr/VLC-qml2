@@ -6,8 +6,7 @@ import "qrc:///style/"
 
 Rectangle {
     id: controlbar
-    color: "white"
-    // width: parent.width
+    color: VLCStyle.bgColor
     height: sliderBar.height + toolBar.height
     property alias sliderBar: sliderBar
     property alias toolBar: toolBar
@@ -72,7 +71,7 @@ Rectangle {
               "Faster": "qrc:///toolbar/faster.svg",
               "Fullscreen": "qrc:///toolbar/fullscreen.svg",
               "Playlist": "qrc:///toolbar/playlist.svg",
-              "TBD": "qrc:///toolbar/extended.svg",
+              "Extend": "qrc:///toolbar/extended.svg",
               "Pause": "qrc:///toolbar/pause_b.svg"
         }
         return m[name]
@@ -91,7 +90,7 @@ Rectangle {
               "Faster": "Faster",
               "Fullscreen": "Fullscreen",
               "Playlist": "Playlist",
-              "TBD": "Extended",
+              "Extend": "Extended",
               "Pause": "Play / Pause"
         }
         return m[name]

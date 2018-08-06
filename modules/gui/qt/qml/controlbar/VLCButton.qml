@@ -46,7 +46,8 @@ ToolButton {
         case "Loop": toggleLoopButton(); break;
         }
 
-        toolbarInformation.doAction(model.modelData.buttonAction)
+        toolbarInformation.doAction(model.modelData.buttonAction);
+        console.log(name + " clicked. " + model.modelData.buttonAction);
     }
 
     function toggleLoopButton() {
