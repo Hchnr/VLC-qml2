@@ -97,8 +97,6 @@ void ActionsManager::doAction( int id_action )
         case OPEN_SUB_ACTION:
             THEDP->loadSubtitlesFile(); break;
         case FULLWIDTH_ACTION:
-            if( p_intf->p_sys->p_mi )
-                p_intf->p_sys->p_mi->getFullscreenControllerWidget()->toggleFullwidth();
             break;
         default:
             msg_Warn( p_intf, "Action not supported: %i", id_action );

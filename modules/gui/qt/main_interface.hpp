@@ -48,7 +48,7 @@ class PlaylistWidget;
 class VisualSelector;
 class ControlsWidget;
 class InputControlsWidget;
-class FullscreenControllerWidget;
+class FullscreenModel;
 class QVBoxLayout;
 class QMenu;
 class QSize;
@@ -79,7 +79,7 @@ public:
     /* Getters */
     QSystemTrayIcon *getSysTray() { return sysTray; }
     QMenu *getSysTrayMenu() { return systrayMenu; }
-    FullscreenControllerWidget* getFullscreenControllerWidget() { return fullscreenControls; }
+    FullscreenModel* getFullscreenModel() { return fullscreenControls; }
     enum
     {
         CONTROLS_VISIBLE  = 0x1,
@@ -146,7 +146,7 @@ protected:
     ControlsWidget      *controls;
     QQuickWidget        *controlsBar;
     InputControlsWidget *inputC;
-    FullscreenControllerWidget *fullscreenControls;
+    FullscreenModel *fullscreenControls;
 
     /* Widgets */
     QStackedWidget      *stackCentralW;

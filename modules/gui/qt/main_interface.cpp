@@ -337,7 +337,7 @@ void MainInterface::recreateToolbars()
     if( fullscreenControls )
     {
         delete fullscreenControls;
-        fullscreenControls = new FullscreenControllerWidget( p_intf, this );
+        fullscreenControls = new FullscreenModel( p_intf, this );
         CONNECT( fullscreenControls, keyPressed( QKeyEvent * ),
                  this, handleKeyPress( QKeyEvent * ) );
         THEMIM->requestVoutUpdate();
@@ -492,23 +492,12 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     /* Resize even if no-auto-resize, because we are at creation */
     resizeStack( stackWidgetsSizes[bgWidget].width(), stackWidgetsSizes[bgWidget].height() );
 
-    /* add qml toolbar here */
-    controlsBar = new QQuickWidget();
-    QQmlContext *rootCtx = controlsBar->rootContext();
-    ToolbarInformation *toolbarInformation = new ToolbarInformation(p_intf);
-    rootCtx->setContextProperty("toolbarInformation", toolbarInformation);
-    controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/BottomToolbar.qml") ) );
-    controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    mainLayout->insertWidget(creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3,
-                             controlsBar );
-
     /* Visualisation, disabled for now, they SUCK */
     #if 0
     visualSelector = new VisualSelector( p_intf );
     mainLayout->insertWidget( 0, visualSelector );
     visualSelector->hide();
     #endif
-
 
     /* Enable the popup menu in the MI */
     main->setContextMenuPolicy( Qt::CustomContextMenu );
@@ -519,13 +508,23 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
         /* Create the FULLSCREEN CONTROLS Widget */
         if( var_InheritBool( p_intf, "qt-fs-controller" ) )
         {
-            fullscreenControls = new FullscreenControllerWidget( p_intf, this );
+            fullscreenControls = new FullscreenModel( p_intf, this );
             CONNECT( fullscreenControls, keyPressed( QKeyEvent * ),
                      this, handleKeyPress( QKeyEvent * ) );
         }
 
     if ( b_interfaceOnTop )
         setWindowFlags( windowFlags() | Qt::WindowStaysOnTopHint );
+
+    /* add qml toolbar here */
+    controlsBar = new QQuickWidget();
+    QQmlContext *rootCtx = controlsBar->rootContext();
+    ToolbarInformation *toolbarInformation = new ToolbarInformation(p_intf, fullscreenControls);
+    rootCtx->setContextProperty("toolbarInformation", toolbarInformation);
+    controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/BottomToolbar.qml") ) );
+    controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    mainLayout->insertWidget(creationSettings->value( "MainWindow/ToolbarPos", false ).toBool() ? 0: 3,
+                             controlsBar );
 }
 
 inline void MainInterface::initSystray()
@@ -862,9 +861,6 @@ void MainInterface::setVideoFullScreen( bool fs )
 
         if ( numscreen >= 0 && numscreen < QApplication::desktop()->screenCount() )
         {
-            if( fullscreenControls )
-                fullscreenControls->setTargetScreen( numscreen );
-
             QRect screenres = QApplication::desktop()->screenGeometry( numscreen );
             lastWinScreen = windowHandle()->screen();
 #ifdef QT5_HAS_WAYLAND

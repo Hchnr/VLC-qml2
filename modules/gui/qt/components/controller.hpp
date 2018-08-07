@@ -239,65 +239,52 @@ signals:
 /***********************************
  * Fullscreen controller
  ***********************************/
-class FullscreenControllerWidget : public AbstractController
+class FullscreenModel : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool isVisiable READ getIsVisiable WRITE setIsVisiable NOTIFY isVisiableChanged)
+    Q_PROPERTY(bool isFullscreen READ getIsFullscreen WRITE setIsFullscreen NOTIFY isFullscreenChanged)
 public:
-    FullscreenControllerWidget( intf_thread_t *, QWidget *_parent = 0  );
-    virtual ~FullscreenControllerWidget();
+    bool getIsVisiable() const { return b_visiable; }
+    void setIsVisiable(bool b) { b_visiable = b; emit isVisiableChanged(); }
+    bool getIsFullscreen() const { return b_fullscreen; }
+    void setIsFullscreen(bool b) { b_fullscreen; emit isFullscreenChanged(); }
+
+    FullscreenModel( intf_thread_t *, QWidget *_parent = 0  );
+    virtual ~FullscreenModel();
 
     /* Vout */
     void fullscreenChanged( vout_thread_t *, bool b_fs, int i_timeout );
-    void mouseChanged( vout_thread_t *, int i_mousex, int i_mousey );
-    void toggleFullwidth();
-    void updateFullwidthGeometry( int number );
-    int targetScreen();
-    void setTargetScreen( int );
+
+    void planHideFSC();
+    Q_INVOKABLE void enterEvent();
+    Q_INVOKABLE void leaveEvent();
+    Q_INVOKABLE void moveEvent();
 
 private:
     static int FullscreenChanged( vlc_object_t *obj,
                     const char *, vlc_value_t, vlc_value_t new_val, void *data );
 
 signals:
-    void keyPressed( QKeyEvent * );
     void fullscreenChanged( bool );
+    void keyPressed( QKeyEvent * );
+    void isVisiableChanged();
+    void isFullscreenChanged();
 
 public slots:
     void setVoutList( vout_thread_t **, int );
+    void hideFSC();
 
 protected:
     friend class MainInterface;
 
-    void mouseMoveEvent( QMouseEvent *event ) Q_DECL_OVERRIDE;
-    void mousePressEvent( QMouseEvent *event ) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent( QMouseEvent *event ) Q_DECL_OVERRIDE;
-    void enterEvent( QEvent *event ) Q_DECL_OVERRIDE;
-    void leaveEvent( QEvent *event ) Q_DECL_OVERRIDE;
-    void keyPressEvent( QKeyEvent *event ) Q_DECL_OVERRIDE;
-
-    void customEvent( QEvent *event ) Q_DECL_OVERRIDE;
-
-private slots:
-    void showFSC();
-    void planHideFSC();
-    void hideFSC() { hide(); }
-    void slowHideFSC();
-    void restoreFSC();
-    void centerFSC( int );
-
 private:
     QTimer *p_hideTimer;
-    QTimer *p_slowHideTimer;
-    bool b_slow_hide_begin;
-    int  i_slow_hide_timeout;
-    float f_opacity;
 
-    int i_mouse_last_x, i_mouse_last_y;
+    intf_thread_t *p_intf;
+    bool b_visiable;
     bool b_mouse_over;
     int i_screennumber;
-    QRect screenRes;
-    QRect previousScreenRes;
-    QPoint previousPosition;
 
     /* List of vouts currently tracked */
     QList<vout_thread_t *> vout;
@@ -306,11 +293,6 @@ private:
     vlc_mutex_t lock;
     bool        b_fullscreen;
     int         i_hide_timeout;  /* FSC hiding timeout, same as mouse hiding timeout */
-    int i_mouse_last_move_x;
-    int i_mouse_last_move_y;
-
-    bool isWideFSC;
-    int i_sensitivity;
 
 #ifdef QT5_HAS_WAYLAND
     bool b_hasWayland;

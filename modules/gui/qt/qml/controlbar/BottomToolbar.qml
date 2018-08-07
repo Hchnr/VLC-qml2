@@ -11,6 +11,24 @@ Rectangle {
     property alias sliderBar: sliderBar
     property alias toolBar: toolBar
 
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        onEntered:  {
+            console.log("entered.");
+            toolbarInformation.fullscreenModel.enterEvent();
+        }
+        onExited: {
+            console.log("exit.");
+            toolbarInformation.fullscreenModel.leaveEvent();
+        }
+        onMouseXChanged: {
+            console.log("changed.");
+            toolbarInformation.fullscreenModel.moveEvent();
+        }
+    }
+    Component.onCompleted: console.log(toolbarInformation.fullscreenModel.isVisiable)
+
     Column{
         id: bottomBar
         anchors.bottom: parent.bottom
@@ -26,7 +44,20 @@ Rectangle {
         RowLayout {
             id: toolBar
             width: parent.width
-            height: VLCStyle.heightToolbar
+            height: toolbarInformation.fullscreenModel.isVisiable?
+                        VLCStyle.heightToolbar : 0
+            visible: toolbarInformation.fullscreenModel.isVisiable
+
+            Timer{
+                interval: 2000;
+                repeat: true;
+                running: true;
+                onTriggered: {
+                    console.log("visible: "+toolbarInformation.fullscreenModel.isVisiable)
+                    console.log("FS: "+toolbarInformation.fullscreenModel.isFullscreen)
+                    console.log(controlbar.height +":"+ toolBar.height +":"+sliderBar.height)
+                }
+            }
             property alias centerToolbar: centerToolbar
             LeftToolbar{
                 id: leftToolbar
@@ -54,46 +85,6 @@ Rectangle {
                 id: rightToolbar
                 anchors.right: parent.right
             }
-
         }
     }
-
-    /* get the icon path of widgets */
-    function getIconFromName(name) {
-        var m = {"Bookmark": "qrc:///toolbar/tv.svg",
-              "Subtitle": "qrc:///menu/messages.svg",
-              "Random": "qrc:///buttons/playlist/shuffle_on.svg",
-              "Loop": "qrc:///buttons/playlist/repeat_all.svg",
-              "Slower": "qrc:///toolbar/slower.svg",
-              "Previous": "qrc:///toolbar/dvd_prev.svg",
-              "Play": "qrc:///toolbar/play_b.svg",
-              "Next": "qrc:///toolbar/dvd_next.svg",
-              "Faster": "qrc:///toolbar/faster.svg",
-              "Fullscreen": "qrc:///toolbar/fullscreen.svg",
-              "Playlist": "qrc:///toolbar/playlist.svg",
-              "Extend": "qrc:///toolbar/extended.svg",
-              "Pause": "qrc:///toolbar/pause_b.svg"
-        }
-        return m[name]
-    }
-
-    /* get tool tip */
-    function getTipFromName(name) {
-        var m = {"Bookmark": "Bookmark",
-              "Subtitle": "Subtitle",
-              "Random": "Random",
-              "Loop": "Click to toggle between loop all, loop one and no loop",
-              "Slower": "Slower",
-              "Previous": "Previous / Backward",
-              "Play": "Play / Pause",
-              "Next": "Next / Forward",
-              "Faster": "Faster",
-              "Fullscreen": "Fullscreen",
-              "Playlist": "Playlist",
-              "Extend": "Extended",
-              "Pause": "Play / Pause"
-        }
-        return m[name]
-    }
-
 }

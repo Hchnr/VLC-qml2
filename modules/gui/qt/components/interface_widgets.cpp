@@ -921,7 +921,7 @@ void CoverArtLabel::clear()
     showArtUpdate( "" );
 }
 
-ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
+ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf, FullscreenModel *fs)
     : QObject()
     , p_intf( _p_intf )
     , m_actionsManager( ActionsManager::getInstance() )
@@ -930,6 +930,7 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
     , m_labelRemaining ( new TimeLabelModel(p_intf, TimeLabelModel::Remaining) )
     , m_volumeModel( new SoundWidgetModel(p_intf) )
     , m_seekSlider( new SeekSliderModel(p_intf) )
+    , m_fullscreenModel( fs )
 {
     QSettings *settings = getSettings();
 

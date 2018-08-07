@@ -354,7 +354,7 @@ class ToolbarInformation : public QObject
     Q_PROPERTY(QList<QObject*> RightList READ getRightList WRITE setRightList NOTIFY RightListChanged)
     Q_PROPERTY(SoundWidgetModel* VolumeModel READ getVolumeModel WRITE setVolumeModel NOTIFY VolumeModelChanged)
     Q_PROPERTY(SeekSliderModel* SeekSlider READ getSeekSlider WRITE setSeekSlider NOTIFY SeekSliderChanged)
-
+    Q_PROPERTY(FullscreenModel* fullscreenModel READ getFullscreenModel WRITE setFullscreenModel NOTIFY fullscreenModelChanged)
 private:
     AbstractController* m_controller;
 
@@ -368,6 +368,7 @@ public:
     QList<QObject*>     m_leftToolbarList;
     QList<QObject*>     m_centerToolbarList;
     QList<QObject*>     m_rightToolbarList;
+    FullscreenModel*    m_fullscreenModel;
 
     TimeLabelModel* getLabelElapsed() const { return m_labelElapsed; }
     TimeLabelModel* getLabelRemaining() const { return m_labelRemaining; }
@@ -376,6 +377,7 @@ public:
     QList<QObject*> getRightList() const { return m_rightToolbarList; }
     SoundWidgetModel* getVolumeModel() const { return m_volumeModel; }
     SeekSliderModel*  getSeekSlider() const { return m_seekSlider; }
+    FullscreenModel* getFullscreenModel() const { return m_fullscreenModel; }
 
     void setLabelElapsed( TimeLabelModel* t) {}
     void setLabelRemaining( TimeLabelModel* t) {}
@@ -384,8 +386,9 @@ public:
     void setRightList( QList<QObject*> l ) {}
     void setVolumeModel( SoundWidgetModel* m) {}
     void setSeekSlider( SeekSliderModel* m) {}
+    void setFullscreenModel( FullscreenModel* m ) {}
 
-    ToolbarInformation(intf_thread_t* _p_intf);
+    ToolbarInformation(intf_thread_t* _p_intf, FullscreenModel*);
     Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
 
 signals:
@@ -397,6 +400,7 @@ signals:
     void VolumeModelChanged();
     void SeekSliderChanged();
     void playingStatusChanged();
+    void fullscreenModelChanged();
 };
 
 class SpeedLabel : public QLabel
