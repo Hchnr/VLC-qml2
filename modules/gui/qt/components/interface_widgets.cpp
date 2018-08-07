@@ -939,7 +939,7 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf)
        settings->beginGroup("MainWindow");
        settings->beginGroup("Controlbar");
        leftbar << "Bookmark" << "Subtitle" << "Random" << "Loop";
-       centerbar << "Slower" << "Previous" << "Play" << "Next" << "Faster";
+       centerbar << "Backward" << "Previous" << "Play" << "Next" << "Forward";
        rightbar << "Fullscreen" << "Playlist" << "Extend";
        settings->setValue( "lefttoolbar", leftbar);
        settings->setValue( "centertoolbar", centerbar);
@@ -989,6 +989,8 @@ QMap<QString, int> ToolButtonModel::initActionsMap()
     map.insert("Fullscreen", FULLSCREEN_ACTION);
     map.insert("Playlist", PLAYLIST_ACTION);
     map.insert("Extend", EXTENDED_ACTION);
+    map.insert("Forward", SKIP_FW_ACTION);
+    map.insert("Backward", SKIP_BACK_ACTION);
     return map;
 }
 
@@ -1010,13 +1012,15 @@ QMap<QString, QString> ToolButtonModel::initTipMap()
     map.insert("Random", "Random");
     map.insert("Loop", "Click to toggle between loop all, loop one and no loop");
     map.insert("Slower", "Slower");
-    map.insert("Previous", "Previous / Backward");
+    map.insert("Previous", "Previous");
     map.insert("Play", "Play / Pause");
-    map.insert("Next", "Next / Forward");
+    map.insert("Next", "Next");
     map.insert("Faster", "Faster");
     map.insert("Fullscreen", "Fullscreen");
     map.insert("Playlist", "Playlist");
     map.insert("Extend", "Extended");
+    map.insert("Forward", "Skip Forward");
+    map.insert("Backward", "Skip Backward");
     return map;
 }
 
@@ -1039,6 +1043,8 @@ QMap<QString, QString> ToolButtonModel::initImgSrcMap()
     map.insert("Extend", "qrc:///toolbar/extended.svg");
     map.insert("Pause", "qrc:///toolbar/pause_b.svg");
     map.insert("Loop1", "qrc:///buttons/playlist/repeat_one.svg");
+    map.insert("Backward", "qrc:///toolbar/slower.svg");
+    map.insert("Forward", "qrc:///toolbar/faster.svg");
     return map;
 }
 
