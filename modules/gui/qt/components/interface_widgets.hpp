@@ -371,6 +371,7 @@ public:
     QList<QObject*>     m_centerToolbarList;
     QList<QObject*>     m_rightToolbarList;
     FullscreenModel*    m_fullscreenModel;
+    QQuickWidget*       m_quickWidget;
 
     TimeLabelModel* getLabelElapsed() const { return m_labelElapsed; }
     TimeLabelModel* getLabelRemaining() const { return m_labelRemaining; }
@@ -390,8 +391,9 @@ public:
     void setSeekSlider( SeekSliderModel* m) {}
     void setFullscreenModel( FullscreenModel* m ) {}
 
-    ToolbarInformation(intf_thread_t* _p_intf, FullscreenModel*);
+    ToolbarInformation(intf_thread_t* _p_intf, FullscreenModel*, QQuickWidget*);
     Q_INVOKABLE void doAction(int a) { m_actionsManager->doAction(a); }
+    Q_INVOKABLE void adjust(bool);
 
 signals:
     void LabelElapsedChanged();

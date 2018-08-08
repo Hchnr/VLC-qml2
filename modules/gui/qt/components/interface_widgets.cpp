@@ -923,7 +923,12 @@ void CoverArtLabel::clear()
     showArtUpdate( "" );
 }
 
-ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf, FullscreenModel *fs)
+void ToolbarInformation::adjust(bool b)
+{
+    m_quickWidget->setVisible(b);
+}
+
+ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf, FullscreenModel *fs, QQuickWidget* qw)
     : QObject()
     , p_intf( _p_intf )
     , m_actionsManager( ActionsManager::getInstance() )
@@ -933,6 +938,7 @@ ToolbarInformation::ToolbarInformation(intf_thread_t *_p_intf, FullscreenModel *
     , m_volumeModel( new SoundWidgetModel(p_intf) )
     , m_seekSlider( new SeekSliderModel(p_intf) )
     , m_fullscreenModel( fs )
+    , m_quickWidget(qw)
 {
     QSettings *settings = getSettings();
 

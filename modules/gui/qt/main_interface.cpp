@@ -519,7 +519,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     /* add qml toolbar here */
     controlsBar = new QQuickWidget();
     QQmlContext *rootCtx = controlsBar->rootContext();
-    ToolbarInformation *toolbarInformation = new ToolbarInformation(p_intf, fullscreenControls);
+    ToolbarInformation *toolbarInformation = new ToolbarInformation(p_intf, fullscreenControls, controlsBar);
     rootCtx->setContextProperty("toolbarInformation", toolbarInformation);
     controlsBar->setSource( QUrl ( QStringLiteral("qrc:/controlbar/BottomToolbar.qml") ) );
     controlsBar->setResizeMode(QQuickWidget::SizeRootObjectToView);

@@ -51,7 +51,6 @@ class QToolButton;
 
 class WidgetListing;
 class VideoWidget;
-
 class QSignalMapper;
 class QTimer;
 

@@ -14,20 +14,11 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
-        onEntered:  {
-            console.log("entered.");
-            toolbarInformation.fullscreenModel.enterEvent();
-        }
-        onExited: {
-            console.log("exit.");
-            toolbarInformation.fullscreenModel.leaveEvent();
-        }
-        onMouseXChanged: {
-            console.log("changed.");
-            toolbarInformation.fullscreenModel.moveEvent();
-        }
+
+        onEntered: toolbarInformation.fullscreenModel.enterEvent();
+        onExited: toolbarInformation.fullscreenModel.leaveEvent();
+        onMouseXChanged: toolbarInformation.fullscreenModel.moveEvent();
     }
-    Component.onCompleted: console.log(toolbarInformation.fullscreenModel.isVisiable)
 
     Column{
         id: bottomBar
@@ -44,21 +35,10 @@ Rectangle {
         RowLayout {
             id: toolBar
             width: parent.width
-            height: toolbarInformation.fullscreenModel.isVisiable?
-                        VLCStyle.heightToolbar : 0
+            height: VLCStyle.heightToolbar
             visible: toolbarInformation.fullscreenModel.isVisiable
+            onVisibleChanged: toolbarInformation.adjust(toolbarInformation.fullscreenModel.isVisiable);
 
-            Timer{
-                interval: 2000;
-                repeat: true;
-                running: true;
-                onTriggered: {
-                    console.log("visible: "+toolbarInformation.fullscreenModel.isVisiable)
-                    console.log("FS: "+toolbarInformation.fullscreenModel.isFullscreen)
-                    console.log("heigth: "+ controlbar.height +":"+ toolBar.height +":"+sliderBar.height)
-                    console.log("pos: "+ controlbar.y +":"+ toolBar.y +":"+sliderBar.y)
-                }
-            }
             property alias centerToolbar: centerToolbar
             LeftToolbar{
                 id: leftToolbar
