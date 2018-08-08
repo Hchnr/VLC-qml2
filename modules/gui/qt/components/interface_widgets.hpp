@@ -95,6 +95,8 @@ private:
 
 signals:
     void sizeChanged( int, int );
+    void hideToolbar();
+    void showToolbar();
 
 public slots:
     void setSize( unsigned int, unsigned int );

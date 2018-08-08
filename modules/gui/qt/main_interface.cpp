@@ -508,7 +508,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
         /* Create the FULLSCREEN CONTROLS Widget */
         if( var_InheritBool( p_intf, "qt-fs-controller" ) )
         {
-            fullscreenControls = new FullscreenModel( p_intf, this );
+            fullscreenControls = new FullscreenModel( p_intf, this, videoWidget );
             CONNECT( fullscreenControls, keyPressed( QKeyEvent * ),
                      this, handleKeyPress( QKeyEvent * ) );
         }

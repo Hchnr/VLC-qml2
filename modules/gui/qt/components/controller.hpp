@@ -50,6 +50,7 @@ class QAbstractButton;
 class QToolButton;
 
 class WidgetListing;
+class VideoWidget;
 
 class QSignalMapper;
 class QTimer;
@@ -250,7 +251,7 @@ public:
     bool getIsFullscreen() const { return b_fullscreen; }
     void setIsFullscreen(bool b) { b_fullscreen; emit isFullscreenChanged(); }
 
-    FullscreenModel( intf_thread_t *, QWidget *_parent = 0  );
+    FullscreenModel( intf_thread_t *, QWidget *_parent = 0, VideoWidget* vw = NULL );
     virtual ~FullscreenModel();
 
     /* Vout */
@@ -282,6 +283,7 @@ private:
     QTimer *p_hideTimer;
 
     intf_thread_t *p_intf;
+    VideoWidget* m_videoWidget;
     bool b_visiable;
     bool b_mouse_over;
     int i_screennumber;

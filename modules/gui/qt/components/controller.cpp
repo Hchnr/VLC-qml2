@@ -782,13 +782,14 @@ InputControlsWidget::InputControlsWidget( intf_thread_t *_p_i, QWidget *_parent 
 /**********************************************************************
  * Fullscrenn control widget
  **********************************************************************/
-FullscreenModel::FullscreenModel( intf_thread_t *_p_i, QWidget *_parent )
+FullscreenModel::FullscreenModel( intf_thread_t *_p_i, QWidget *_parent, VideoWidget * vw )
                            : p_intf( _p_i )
 {
     b_mouse_over        = false;
     b_fullscreen        = false;
     i_hide_timeout      = 1;
     b_visiable          = true;
+    m_videoWidget       = vw;
 
 #ifdef QT5_HAS_WAYLAND
     b_hasWayland = QGuiApplication::platformName()
@@ -807,6 +808,11 @@ FullscreenModel::FullscreenModel( intf_thread_t *_p_i, QWidget *_parent )
     DCONNECT( THEMIM->getIM(), voutListChanged( vout_thread_t **, int ),
               this, setVoutList( vout_thread_t **, int ) );
     CONNECT( this, fullscreenChanged( bool ), THEMIM, changeFullscreen( bool ) );
+
+    if( m_videoWidget ) {
+        CONNECT( m_videoWidget, showToolbar(), this, moveEvent() );
+        CONNECT( m_videoWidget, hideToolbar(), this, hideFSC() );
+    }
 }
 
 FullscreenModel::~FullscreenModel()

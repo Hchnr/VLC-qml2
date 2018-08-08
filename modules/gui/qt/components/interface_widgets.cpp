@@ -306,12 +306,14 @@ void VideoWidget::resizeEvent( QResizeEvent *event )
 void VideoWidget::hideCursor()
 {
     setCursor( Qt::BlankCursor );
+    emit hideToolbar();
 }
 
 void VideoWidget::showCursor()
 {
     setCursor( Qt::ArrowCursor );
     cursorTimer->start( cursorTimeout );
+    emit showToolbar();
 }
 
 int VideoWidget::qtMouseButton2VLC( Qt::MouseButton qtButton )

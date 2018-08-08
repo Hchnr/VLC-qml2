@@ -55,7 +55,8 @@ Rectangle {
                 onTriggered: {
                     console.log("visible: "+toolbarInformation.fullscreenModel.isVisiable)
                     console.log("FS: "+toolbarInformation.fullscreenModel.isFullscreen)
-                    console.log(controlbar.height +":"+ toolBar.height +":"+sliderBar.height)
+                    console.log("heigth: "+ controlbar.height +":"+ toolBar.height +":"+sliderBar.height)
+                    console.log("pos: "+ controlbar.y +":"+ toolBar.y +":"+sliderBar.y)
                 }
             }
             property alias centerToolbar: centerToolbar
