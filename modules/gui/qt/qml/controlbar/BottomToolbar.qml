@@ -42,12 +42,15 @@ Rectangle {
             property alias centerToolbar: centerToolbar
             LeftToolbar{
                 id: leftToolbar
+                anchors.leftMargin: VLCStyle.margin_xxsmall
                 anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
             }
 
             CenterToolbar{
                 id: centerToolbar
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
             }
 
 
@@ -57,6 +60,7 @@ Rectangle {
                 width:VLCStyle.widthVolumeSlider
                 anchors.right: rightToolbar.visible ? rightToolbar.left
                                                     : parent.right
+                anchors.verticalCenter: parent.verticalCenter
                 value: toolbarInformation.VolumeModel.volume
                 onMoved: {
                     toolbarInformation.VolumeModel.onVolumeChanged(value)
@@ -64,8 +68,19 @@ Rectangle {
             }
             RightToolbar{
                 id: rightToolbar
+                anchors.rightMargin: VLCStyle.margin_xxsmall
                 anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
             }
+        }
+    }
+    Timer{
+        interval: 5000;
+        repeat: true;
+        running: true;
+        onTriggered: {
+            console.log(controlbar.height + "=" + leftToolbar.height+":"+centerToolbar.height+":"+rightToolbar.height)
+            console.log(controlbar.y + "=" + sliderBar.y + ":" + leftToolbar.y)
         }
     }
 }

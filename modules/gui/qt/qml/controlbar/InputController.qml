@@ -6,12 +6,18 @@ import "qrc:///style/"
 Rectangle {
     id: inputControl
     width: parent.width
-    Text{
-        id: timeElapsed
-        width: VLCStyle.widthTimeLabel
-        anchors.left: parent.left
-        text: toolbarInformation.LabelElapsed.strElapsed
+    color: VLCStyle.bgColor
+
+    Rectangle{
+        color: VLCStyle.bgColor
+        Text{
+            id: timeElapsed
+            width: VLCStyle.widthTimeLabel
+            anchors.left: parent.left
+            text: toolbarInformation.LabelElapsed.strElapsed
+        }
     }
+
     SliderBar{
         id: sliderBar
         height: VLCStyle.heightSeekBar
@@ -26,15 +32,17 @@ Rectangle {
             toolbarInformation.SeekSlider.isSlidingNow = false
         }
     }
-    Text{
-        id: timeRemaining
-        width: VLCStyle.widthTimeLabel
-        anchors.right: parent.right
-        text: toolbarInformation.LabelRemaining.strRemaining
-        MouseArea {
-            anchors.fill: parent
-            onClicked: toolbarInformation.LabelRemaining.toggleTimeDisplay();
+    Rectangle{
+        color: VLCStyle.bgColor
+        Text{
+            id: timeRemaining
+            width: VLCStyle.widthTimeLabel
+            anchors.right: parent.right
+            text: toolbarInformation.LabelRemaining.strRemaining
+            MouseArea {
+                anchors.fill: parent
+                onClicked: toolbarInformation.LabelRemaining.toggleTimeDisplay();
+            }
         }
     }
-
 }

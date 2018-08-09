@@ -6,6 +6,7 @@ import "qrc:///style/"
 Slider {
     id: control
     value: 0.0
+    anchors.margins: VLCStyle.margin_xxsmall
 
     background: Rectangle {
         x: control.leftPadding

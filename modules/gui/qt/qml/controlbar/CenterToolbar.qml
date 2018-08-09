@@ -6,20 +6,22 @@ import ActionType_e 1.0
 
 import "qrc:///style/"
 
-ToolBar{
-    id: centerToolbar
-    height: VLCStyle.icon_normal
-
-    property alias centerToolbarRp: centerToolbarRp
-    property bool isPlay: true
-    RowLayout{
-        id: centerLayout
+Rectangle {
+    color: VLCStyle.bgColor
+    width: toolBar.width
+    height: toolBar.height
+    ToolBar{
+        id: toolBar
+        anchors.fill: parent
         height: VLCStyle.icon_normal
-        property alias centerToolbarRp: centerToolbarRp
-        Repeater {
-            id: centerToolbarRp
-            model: toolbarInformation.CenterList
-            delegate: VLCButton{}
+        RowLayout{
+            height: VLCStyle.icon_normal
+            Repeater {
+                model: toolbarInformation.CenterList
+                delegate: VLCButton{}
+            }
         }
     }
 }
+
+

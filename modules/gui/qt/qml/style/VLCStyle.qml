@@ -91,9 +91,9 @@ Item {
     property int heightAlbumCover_large: 255;
     property int heightAlbumCover_xlarge: 512;
 
-    property int heightSeekBar: 10;
+    property int heightSeekBar: 16;
     property int heightSliderImplicit: 4;
-    property int heightToolbar: 50;
+    property int heightToolbar: 56;
     property int heightHandle: 10
 
     property int icon_xsmall: 8;

@@ -8,19 +8,21 @@ import LoopStatus_e 1.0
 
 import "qrc:///style/"
 
-ToolBar{
-    id: toolbar
-    height: VLCStyle.icon_normal
+Rectangle {
+    color: VLCStyle.bgColor
+    width: toolBar.width
+    height: toolBar.height
     visible: (parent.width > leftToolbar.width + centerToolbar.width
               + soundSlider.width * 2 + rightToolbar.width)
-
-    RowLayout{
+    ToolBar{
+        id:toolBar
+        anchors.fill: parent
         height: VLCStyle.icon_normal
-        Repeater {
-            model: toolbarInformation.LeftList
-
-            delegate: VLCButton {
-                id: leftButton
+        RowLayout{
+            height: VLCStyle.icon_normal
+            Repeater {
+                model: toolbarInformation.LeftList
+                delegate: VLCButton {}
             }
         }
     }
